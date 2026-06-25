@@ -95,12 +95,20 @@ export default function DetectPage() {
   const handleStop = useCallback(() => {
     // Capture current metrics BEFORE stopping detection (which clears landmarks)
     const finalMetrics = { ...metrics };
+    const currentElapsed = elapsedTime;
+
+    // 从 refs 获取最新统计数据（不依赖 React state）
+    const stats = analyzer.finalize();
 
     stopDetection();
     stopCamera();
     analyzer.pause();
 
-    const summary = endSession(analyzer.sessionStats);
+    // 如果 analyzer 的 totalDuration 为 0 但 elapsedTime > 0，使用 elapsedTime
+    const actualDuration = stats.totalDuration > 0 ? stats.totalDuration : currentElapsed;
+    const finalStats = { ...stats, totalDuration: actualDuration };
+
+    const summary = endSession(finalStats);
     setSummaryDataLocal(summary);
 
     // Save session to localStorage
@@ -115,7 +123,7 @@ export default function DetectPage() {
       warningPercent: summary.warningPercent,
       badPercent: summary.badPercent,
       alertCount: summary.alertCount,
-      scoreHistory: analyzer.sessionStats.scoreHistory,
+      scoreHistory: stats.scoreHistory,
       metrics: {
         avgHeadAngle: finalMetrics.headForwardAngle,
         avgShoulderSymmetry: finalMetrics.shoulderSymmetry,
@@ -125,7 +133,7 @@ export default function DetectPage() {
 
     setDetectState("idle");
     setShowSummary(true);
-  }, [stopDetection, stopCamera, analyzer, endSession, metrics]);
+  }, [stopDetection, stopCamera, analyzer, endSession, metrics, elapsedTime]);
 
   // Start detection when camera becomes active
   useEffect(() => {

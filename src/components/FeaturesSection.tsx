@@ -204,8 +204,11 @@ export default function FeaturesSection() {
             <div className="h-full flex items-end p-4">
               <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 w-full text-white relative animate-bounce-down">
                 {/* Close button */}
-                <button className="absolute top-3 right-3 text-white/60 hover:text-white transition-colors text-sm leading-none">
-                  &#x2715;
+                <button className="absolute top-3 right-3 text-white/60 hover:text-white transition-colors">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
                 </button>
                 {/* Body */}
                 <p className="text-base pr-4">

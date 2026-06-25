@@ -87,7 +87,7 @@ export function useDetectSession(): UseDetectSessionReturn {
     }
     setSessionState("ended");
 
-    const total = stats.totalDuration || 1;
+    const total = stats.totalDuration > 0 ? stats.totalDuration : 1;
     const avgScore = stats.avgScore || 0;
     const summary: SessionSummaryData = {
       duration: stats.totalDuration,

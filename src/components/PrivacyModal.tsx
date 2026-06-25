@@ -54,9 +54,8 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
-      <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed top-16 right-0 z-[100] p-4 md:p-6 animate-slide-in-right">
+      <div className="relative bg-surface rounded-2xl shadow-2xl border border-border w-full max-w-lg max-h-[calc(100vh-5rem)] overflow-y-auto">
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <button

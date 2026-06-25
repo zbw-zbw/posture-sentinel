@@ -238,6 +238,24 @@ export function usePostureAnalyzer(settings: Settings) {
     start();
   }, [start]);
 
+  const finalize = useCallback(() => {
+    const total = totalDurationRef.current;
+    const avgScore = scoreCountRef.current > 0
+      ? Math.round(scoreAccumRef.current / scoreCountRef.current)
+      : 0;
+    return {
+      totalDuration: total,
+      goodDuration: goodDurationRef.current,
+      warningDuration: warningDurationRef.current,
+      badDuration: badDurationRef.current,
+      alertCount: alertCountRef.current,
+      avgScore,
+      scoreHistory: scoreHistoryRef.current.length > 0 ? scoreHistoryRef.current : [
+        { time: Date.now(), score: avgScore },
+      ],
+    };
+  }, []);
+
   return {
     ...state,
     updateMetrics,
@@ -245,5 +263,6 @@ export function usePostureAnalyzer(settings: Settings) {
     pause,
     resume,
     reset,
+    finalize,
   };
 }

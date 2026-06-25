@@ -38,6 +38,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="scroll-smooth">
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: 'body{background-color:#f7f8fa;margin:0}' }} />
+      </head>
       <body
         className={`${inter.variable} ${notoSansSC.variable} font-sans min-h-full antialiased`}
       >
