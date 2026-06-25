@@ -79,6 +79,15 @@ export function calculateSpineAngle(landmarks: NormalizedLandmark[]): number {
   return angleFromVertical(shoulderMid, hipMid);
 }
 
+// Linear interpolation scoring: 100 at goodThreshold, 0 at badThreshold
+function metricScore(value: number, goodThreshold: number, badThreshold: number): number {
+  if (value <= goodThreshold) return 100;
+  if (value >= badThreshold) return 0;
+  // Linear interpolation between good and bad
+  const ratio = (value - goodThreshold) / (badThreshold - goodThreshold);
+  return Math.round(100 - ratio * 100);
+}
+
 // 5. calculateOverallScore + status
 export function calculateOverallScore(landmarks: NormalizedLandmark[]): PostureMetrics {
   const headAngle = calculateHeadForwardAngle(landmarks);
@@ -86,30 +95,11 @@ export function calculateOverallScore(landmarks: NormalizedLandmark[]): PostureM
   const forwardLean = calculateForwardLean(landmarks);
   const spineAngle = calculateSpineAngle(landmarks);
 
-  // Map each metric to 0-100 score
-  const headScore = headAngle <= POSTURE_THRESHOLDS.headForward.good
-    ? 100
-    : headAngle <= POSTURE_THRESHOLDS.headForward.warning
-    ? 70
-    : 30;
-
-  const shoulderScore = shoulderSym >= POSTURE_THRESHOLDS.shoulderSymmetry.good
-    ? 100
-    : shoulderSym >= POSTURE_THRESHOLDS.shoulderSymmetry.warning
-    ? 60
-    : 20;
-
-  const leanScore = forwardLean <= POSTURE_THRESHOLDS.forwardLean.good
-    ? 100
-    : forwardLean <= POSTURE_THRESHOLDS.forwardLean.warning
-    ? 65
-    : 25;
-
-  const spineScore = spineAngle <= POSTURE_THRESHOLDS.spineAngle.good
-    ? 100
-    : spineAngle <= POSTURE_THRESHOLDS.spineAngle.warning
-    ? 60
-    : 20;
+  // Use linear scoring with "bad" thresholds doubled from warning for smooth degradation
+  const headScore = metricScore(headAngle, POSTURE_THRESHOLDS.headForward.good, 30);
+  const shoulderScore = metricScore(100 - shoulderSym, 100 - POSTURE_THRESHOLDS.shoulderSymmetry.good, 35);
+  const leanScore = metricScore(forwardLean, POSTURE_THRESHOLDS.forwardLean.good, 15);
+  const spineScore = metricScore(spineAngle, POSTURE_THRESHOLDS.spineAngle.good, 45);
 
   const overall = Math.round(
     headScore * SCORE_WEIGHTS.headForward +
@@ -118,9 +108,11 @@ export function calculateOverallScore(landmarks: NormalizedLandmark[]): PostureM
     spineScore * SCORE_WEIGHTS.spineAngle
   );
 
+  // Status is based on the worst individual metric, not the weighted average
+  const worstMetric = Math.min(headScore, shoulderScore, leanScore, spineScore);
   let status: PostureStatus = "good";
-  if (overall < 60) status = "bad";
-  else if (overall < 80) status = "warning";
+  if (worstMetric < 40) status = "bad";
+  else if (worstMetric < 70) status = "warning";
 
   return {
     headForwardAngle: Math.round(headAngle * 10) / 10,

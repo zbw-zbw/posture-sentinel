@@ -115,7 +115,7 @@ export default function MetricsPanel({
   return (
     <div className="flex flex-col gap-4">
       {/* Status */}
-      <div className={`${config.bg} ${config.color} font-semibold text-xl inline-block px-4 py-2.5 rounded-full flex items-center gap-3 w-fit`}>
+      <div className={`${config.bg} ${config.color} font-semibold text-xl inline-block px-4 py-2.5 rounded-full flex items-center gap-4 w-fit`}>
         <span className={currentStatus === "good" ? "animate-pulse-green inline-block w-3 h-3 rounded-full bg-primary" : "inline-block w-3 h-3 rounded-full"} style={{ backgroundColor: currentStatus === "good" ? "#10b981" : currentStatus === "warning" ? "#f59e0b" : "#ef4444" }} />
         {config.label}
       </div>

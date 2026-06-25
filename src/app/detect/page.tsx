@@ -54,9 +54,10 @@ export default function DetectPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [summaryDataLocal, setSummaryDataLocal] = useState<SessionSummaryData | null>(null);
 
-  // Feed metrics to analyzer
+  // Feed metrics to analyzer - ALWAYS feed when detecting, even if score is 0
+  // This ensures the analyzer's timer tracks duration correctly
   useEffect(() => {
-    if (detectState === "detecting" && metrics.overallScore > 0) {
+    if (detectState === "detecting") {
       analyzer.updateMetrics(metrics);
     }
   }, [metrics, detectState, analyzer]);
@@ -104,9 +105,8 @@ export default function DetectPage() {
     stopCamera();
     analyzer.pause();
 
-    // 如果 analyzer 的 totalDuration 为 0 但 elapsedTime > 0，使用 elapsedTime
-    const actualDuration = stats.totalDuration > 0 ? stats.totalDuration : currentElapsed;
-    const finalStats = { ...stats, totalDuration: actualDuration };
+    // 使用 elapsedTime 作为最终 duration（更可靠）
+    const finalStats = { ...stats, totalDuration: currentElapsed };
 
     const summary = endSession(finalStats);
     setSummaryDataLocal(summary);
