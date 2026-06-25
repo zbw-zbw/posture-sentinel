@@ -9,6 +9,7 @@ interface SettingsPanelProps {
   onSetSensitivity: (level: "low" | "medium" | "high") => void;
   onReset: () => void;
   onPreviewAlert: () => void;
+  onSave: () => void;
 }
 
 export default function SettingsPanel({
@@ -17,6 +18,7 @@ export default function SettingsPanel({
   onSetSensitivity,
   onReset,
   onPreviewAlert,
+  onSave,
 }: SettingsPanelProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
@@ -30,8 +32,15 @@ export default function SettingsPanel({
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Card 1: Detection Settings */}
-      <div className="bg-surface rounded-2xl border border-border p-6 mb-6">
-        <h3 className="text-lg font-bold text-text-primary mb-4">🎯 检测设置</h3>
+      <div className="bg-surface rounded-2xl border border-border p-6 mb-6 card-hover">
+        <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+          检测设置
+        </h3>
 
         {/* Sensitivity */}
         <div className="mb-5">
@@ -81,8 +90,14 @@ export default function SettingsPanel({
       </div>
 
       {/* Card 2: Alert Settings */}
-      <div className="bg-surface rounded-2xl border border-border p-6 mb-6">
-        <h3 className="text-lg font-bold text-text-primary mb-4">🔔 提醒设置</h3>
+      <div className="bg-surface rounded-2xl border border-border p-6 mb-6 card-hover">
+        <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          提醒设置
+        </h3>
 
         {/* Alert Method */}
         <div className="mb-5">
@@ -167,24 +182,34 @@ export default function SettingsPanel({
             onClick={onPreviewAlert}
             className="flex items-center gap-2 bg-surface-alt hover:bg-border text-text-secondary font-medium px-4 py-2.5 rounded-xl border border-border transition-all text-sm"
           >
-            <span>🔊</span> 预览提醒效果
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 5L6 9H2v6h4l5 4V5z" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+            预览提醒效果
           </button>
         </div>
       </div>
 
       {/* Card 3: Advanced Settings (Collapsible) */}
-      <div className="bg-surface rounded-2xl border border-border p-6 mb-6">
+      <div className="bg-surface rounded-2xl border border-border p-6 mb-6 card-hover">
         <button
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
           className="flex items-center justify-between w-full text-left"
         >
-          <h3 className="text-lg font-bold text-text-primary">⚙️ 高级设置</h3>
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            高级设置
           <span
             className={`text-text-muted transition-transform duration-200 ${
               isAdvancedOpen ? "rotate-180" : ""
             }`}
           >
-            ▼
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </span>
         </button>
 
@@ -314,7 +339,7 @@ export default function SettingsPanel({
 
       {/* Bottom Actions */}
       <div className="flex gap-3">
-        <button className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors">
+        <button onClick={onSave} className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors">
           保存设置
         </button>
         <button

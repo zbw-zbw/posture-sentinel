@@ -34,10 +34,7 @@ export default function AlertNotification({
   const isWarning = type === "warning";
 
   return (
-    <div
-      className="fixed bottom-5 left-1/2 z-[100] animate-slide-up"
-      style={{ transform: "translateX(-50%)" }}
-    >
+    <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center animate-slide-up">
       <div
         className={`w-[90vw] max-w-[500px] rounded-2xl border-l-4 p-5 shadow-xl ${
           isWarning
@@ -47,8 +44,20 @@ export default function AlertNotification({
       >
         <div className="flex items-start gap-3">
           {/* Icon */}
-          <span className="text-2xl flex-shrink-0 mt-0.5">
-            {isWarning ? "🟡" : "🔴"}
+          <span className="flex-shrink-0 mt-0.5">
+            {isWarning ? (
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-warning" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-danger" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            )}
           </span>
 
           {/* Content */}
@@ -67,7 +76,10 @@ export default function AlertNotification({
             className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-text-muted hover:text-text-primary transition-colors"
             aria-label="关闭提醒"
           >
-            ✕
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
       </div>

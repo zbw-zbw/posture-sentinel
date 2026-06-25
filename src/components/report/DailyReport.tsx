@@ -27,11 +27,12 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
   const [weeklyScores, setWeeklyScores] = useState(getWeeklyScores());
   const [yesterdayReport, setYesterdayReport] = useState<DailyReportData | null>(null);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    const t = setTimeout(() => {
+    const t1 = setTimeout(() => setLoading(true), 0);
+    const t2 = setTimeout(() => {
       if (cancelled) return;
       setReport(generateDailyReport(date));
       setWeeklyScores(getWeeklyScores());
@@ -41,7 +42,8 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
     }, 150);
     return () => {
       cancelled = true;
-      clearTimeout(t);
+      clearTimeout(t1);
+      clearTimeout(t2);
     };
   }, [date]);
 
@@ -90,16 +92,23 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           {/* Row 1: Score Ring + Distribution */}
           <section className="fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-surface rounded-2xl border border-border p-6 flex flex-col items-center justify-center">
-                <h3 className="text-lg font-bold text-text-primary mb-4 self-start">📊 今日评分</h3>
+              <div className="bg-surface rounded-2xl border border-border p-6 flex flex-col items-center justify-center card-hover">
+                <h3 className="text-lg font-bold text-text-primary mb-4 self-start flex items-center gap-2">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                  今日评分
+                </h3>
                 <ScoreRing
                   score={report.avgScore}
                   yesterdayScore={yesterdayReport?.avgScore}
                 />
               </div>
 
-              <div className="bg-surface rounded-2xl border border-border p-6">
-                <h3 className="text-lg font-bold text-text-primary mb-4">📈 姿态分布</h3>
+              <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
+                <h3 className="text-lg font-bold text-text-primary mb-4">姿态分布</h3>
                 <DistributionBar
                   goodPercent={report.goodPercent}
                   warningPercent={report.warningPercent}
@@ -110,23 +119,19 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           </section>
 
-          <hr className="border-border" />
-
           {/* Row 2: Score Trend Line Chart */}
           <section className="fade-in">
-            <div className="bg-surface rounded-2xl border border-border p-6">
-              <h3 className="text-lg font-bold text-text-primary mb-4">📉 今日评分变化趋势</h3>
+            <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
+              <h3 className="text-lg font-bold text-text-primary mb-4">今日评分变化趋势</h3>
               <PostureChart scoreTimeline={report.scoreTimeline} />
             </div>
           </section>
 
-          <hr className="border-border" />
-
           {/* Row 3: Metrics Summary + Weekly Trend */}
           <section className="fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-surface rounded-2xl border border-border p-6">
-                <h3 className="text-lg font-bold text-text-primary mb-4">🔢 关键指标</h3>
+              <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
+                <h3 className="text-lg font-bold text-text-primary mb-4">关键指标</h3>
                 <MetricsSummary
                   headAngle={report.avgMetrics.headAngle}
                   shoulderSymmetry={report.avgMetrics.shoulderSymmetry}
@@ -136,14 +141,12 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
                 />
               </div>
 
-              <div className="bg-surface rounded-2xl border border-border p-6">
-                <h3 className="text-lg font-bold text-text-primary mb-4">📊 本周趋势</h3>
+              <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
+                <h3 className="text-lg font-bold text-text-primary mb-4">本周趋势</h3>
                 <WeeklyTrend scores={weeklyScores} />
               </div>
             </div>
           </section>
-
-          <hr className="border-border" />
 
           {/* Row 4: AI Advice */}
           <section className="fade-in">
@@ -152,12 +155,10 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             )}
           </section>
 
-          <hr className="border-border" />
-
           {/* Row 5: Session Records */}
           <section className="fade-in">
-            <div className="bg-surface rounded-2xl border border-border p-6">
-              <h3 className="text-lg font-bold text-text-primary mb-4">📋 今日检测记录</h3>
+            <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
+              <h3 className="text-lg font-bold text-text-primary mb-4">今日检测记录</h3>
               <div className="space-y-3">
                 {report.sessions.map((session, index) => (
                   <div
@@ -197,13 +198,13 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           </section>
 
           {/* Encouragement */}
-          <div className="bg-surface rounded-2xl border border-border p-6 text-center">
+          <div className="bg-surface rounded-2xl border border-border p-6 text-center card-hover">
             <p className="text-text-primary text-lg">
               {report.avgScore >= 85
-                ? "今天的坐姿表现非常好，继续保持！🎉"
+                ? "今天的坐姿表现非常好，继续保持！"
                 : report.avgScore >= 70
-                ? "不错的一天，再注意一下驼背的时段就更好了 💪"
-                : "今天的坐姿需要改善，明天加油！试试每小时站起来活动一下 🙆"}
+                ? "不错的一天，再注意一下驼背的时段就更好了"
+                : "今天的坐姿需要改善，明天加油！试试每小时站起来活动一下"}
             </p>
           </div>
         </div>

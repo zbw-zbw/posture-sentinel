@@ -39,12 +39,22 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
   return (
     <div className="relative w-full md:w-auto">
       <div className="flex items-center gap-3">
-        <button onClick={goPrev} className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-alt hover:bg-border text-text-secondary transition-colors text-lg">←</button>
+        <button onClick={goPrev} className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-alt hover:bg-border text-text-secondary transition-colors">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
         <button onClick={() => setShowPicker(!showPicker)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-alt hover:bg-border text-text-primary font-medium transition-colors">
           {formatDateCN(date)}
           {isToday(date) && <span className="bg-primary-light text-primary-dark text-xs px-2 py-0.5 rounded-full">今天</span>}
         </button>
-        <button onClick={goNext} className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-alt hover:bg-border text-text-secondary transition-colors text-lg">→</button>
+        <button onClick={goNext} className="w-9 h-9 flex items-center justify-center rounded-xl bg-surface-alt hover:bg-border text-text-secondary transition-colors">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </button>
       </div>
       
       {showPicker && (

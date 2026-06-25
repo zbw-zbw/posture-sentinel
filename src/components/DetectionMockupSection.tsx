@@ -188,8 +188,16 @@ export default function DetectionMockupSection() {
 
       {/* Demo hint banner */}
       <div className="bg-primary-light text-primary-dark text-sm font-medium px-4 py-2 rounded-full inline-flex items-center gap-2 mx-auto mb-4">
-        <span>👆</span> 这是演示效果，点击体验
-        <Link href="/detect" className="underline hover:no-underline">真实检测 →</Link>
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+          <circle cx="12" cy="13" r="4" />
+        </svg> 这是演示效果，点击体验
+        <Link href="/detect" className="underline hover:no-underline inline-flex items-center gap-1">真实检测
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </Link>
       </div>
 
       {/* Main Mockup Card */}
@@ -221,8 +229,9 @@ export default function DetectionMockupSection() {
           {/* ─── Right Column: Data Panel ─── */}
           <div className="p-6 md:p-8">
             {/* Status Badge */}
-            <div className="bg-primary-light text-primary font-semibold text-xl inline-block px-4 py-2 rounded-full">
-              🟢 坐姿良好
+            <div className="bg-primary-light text-primary font-semibold text-xl inline-block px-4 py-2 rounded-full flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-primary inline-block" />
+              坐姿良好
             </div>
 
             {/* Metric Cards */}
@@ -262,7 +271,7 @@ export default function DetectionMockupSection() {
             </div>
 
             {/* Bottom Info Strip */}
-            <div className="mt-6 pt-4 border-t border-border">
+            <div className="mt-6 pt-4">
               <div className="flex items-center flex-wrap gap-x-6 gap-y-2">
                 <span className="text-sm text-text-secondary">
                   持续良好坐姿：23分钟

@@ -24,11 +24,11 @@ interface PostureAnalyzerState {
 }
 
 const ALERT_MESSAGES = [
-  "🙆 你已经驼背 {duration} 了，试试挺直腰背深呼吸？",
-  "💪 注意坐姿！站起来伸展一下吧，你的脊椎会感谢你",
-  "🧘 检测到持续前倾，试试把屏幕调高一点？",
-  "⚡ 你的肩膀不太对称哦，放松双肩，自然下垂",
-  "🌟 已经驼背一会儿了，深吸一口气，把背挺直！",
+  "你已经驼背 {duration} 了，试试挺直腰背深呼吸？",
+  "注意坐姿！站起来伸展一下吧，你的脊椎会感谢你",
+  "检测到持续前倾，试试把屏幕调高一点？",
+  "你的肩膀不太对称哦，放松双肩，自然下垂",
+  "已经驼背一会儿了，深吸一口气，把背挺直！",
 ];
 
 const DEBOUNCE_GOOD = 2;
@@ -114,7 +114,9 @@ export function usePostureAnalyzer(settings: Settings) {
       const now = Date.now();
       if (now - lastScoreRecordRef.current >= 30000) {
         lastScoreRecordRef.current = now;
-        const avgScore = Math.round(scoreAccumRef.current / scoreCountRef.current);
+        const avgScore = scoreCountRef.current > 0
+          ? Math.round(scoreAccumRef.current / scoreCountRef.current)
+          : 0;
         const newHistory = [...scoreHistoryRef.current, { time: now, score: avgScore }];
         scoreHistoryRef.current = newHistory;
         setState((prev) => ({

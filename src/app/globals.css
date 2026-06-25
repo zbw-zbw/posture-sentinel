@@ -136,12 +136,17 @@ body {
   }
 }
 
+/* ── Interactive Elements Cursor ── */
+a, button, [role="button"], summary, label[for], select, input[type="checkbox"], input[type="radio"], input[type="range"] {
+  cursor: pointer;
+}
+
 /* ── Card Hover Effect ── */
 .card-hover {
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card-hover:hover {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
 }

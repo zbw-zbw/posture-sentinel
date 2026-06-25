@@ -3,21 +3,38 @@
 export default function PainPointsSection() {
   const cards = [
     {
-      emoji: "😣",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 3v18" />
+          <path d="M8 7c0-2.2 1.8-4 4-4s4 1.8 4 4" />
+          <path d="M9 21c0-2 1.3-3 3-3s3 1 3 3" />
+        </svg>
+      ),
       title: "无意识驼背",
       description:
         "大部分人根本意识不到自己坐歪了。等你发现脖子酸、肩膀疼的时候，已经保持错误姿势数小时。驼背不是故意的，而是不知不觉的。",
       barColor: "bg-danger",
     },
     {
-      emoji: "💰",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="8" />
+          <path d="M12 8v8" />
+          <path d="M9 11h4a2 2 0 0 1 0 4h-4" />
+        </svg>
+      ),
       title: "解决方案太贵",
       description:
         "人体工学椅动辄几千，矫正器穿着难受坚持不了3天，可穿戴设备还得额外花钱买。",
       barColor: "bg-warning",
     },
     {
-      emoji: "⏰",
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <polyline points="12 7 12 12 15 15" />
+        </svg>
+      ),
       title: "定时提醒没用",
       description:
         "手机App只能每30分钟弹通知，但你可能5分钟内就从坐直滑到驼背。没有任何检测能力。",
@@ -45,7 +62,7 @@ export default function PainPointsSection() {
             >
               {/* Card Content */}
               <div className="px-6 py-8 flex-1">
-                <span className="text-5xl">{card.emoji}</span>
+                <span className="text-5xl text-primary">{card.icon}</span>
                 <h3 className="text-xl font-semibold mt-4 text-text-primary">
                   {card.title}
                 </h3>

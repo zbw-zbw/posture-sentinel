@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { advice: ["⚠️ 未配置 DeepSeek API Key，请联系管理员。"] },
+      { advice: ["未配置 DeepSeek API Key，请联系管理员。"] },
       { status: 200 }
     );
   }

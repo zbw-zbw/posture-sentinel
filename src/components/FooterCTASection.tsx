@@ -20,15 +20,21 @@ export default function FooterCTASection() {
       </p>
 
       {/* CTA Button */}
-      <Link
-        href="/detect"
-        className="inline-block bg-primary hover:bg-primary-dark text-white font-semibold px-10 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03] active:scale-[0.98]"
-      >
-        开始检测 →
-      </Link>
+      <div className="mt-10">
+        <Link
+          href="/detect"
+          className="inline-block bg-primary hover:bg-primary-dark text-white font-semibold px-10 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03] active:scale-[0.98]"
+        >
+          开始检测
+          <svg viewBox="0 0 24 24" className="w-5 h-5 inline-block ml-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </Link>
+      </div>
 
       {/* Footer Bar */}
-      <div className="pt-20 border-t border-border mt-20">
+      <div className="pt-20 mt-20">
         <div className="flex justify-between items-center text-sm text-text-muted">
           <span>体态哨兵 · TRAE AI 创造力大赛</span>
           <span>硬件交互赛道 · 社会公益 · 2026</span>

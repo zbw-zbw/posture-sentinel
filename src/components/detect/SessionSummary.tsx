@@ -16,9 +16,9 @@ function formatDuration(seconds: number): string {
 }
 
 function getComment(score: number): string {
-  if (score >= 80) return "表现很棒！继续保持良好坐姿习惯 💪";
-  if (score >= 60) return "还不错，但有提升空间。注意保持脊椎挺直 🙆";
-  return "需要注意了！建议每30分钟起身活动一下 ⚠️";
+  if (score >= 80) return "表现很棒！继续保持良好坐姿习惯";
+  if (score >= 60) return "还不错，但有提升空间。注意保持脊椎挺直";
+  return "需要注意了！建议每30分钟起身活动一下";
 }
 
 export default function SessionSummary({ data, onClose }: SessionSummaryProps) {
@@ -34,7 +34,10 @@ export default function SessionSummary({ data, onClose }: SessionSummaryProps) {
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-alt text-text-muted"
         >
-          ✕
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
 
         <h2 className="text-xl font-bold text-text-primary mb-6">本次检测摘要</h2>
@@ -109,7 +112,11 @@ export default function SessionSummary({ data, onClose }: SessionSummaryProps) {
             href="/report"
             className="flex-1 text-center bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors"
           >
-            查看详细报告 →
+            查看详细报告
+            <svg viewBox="0 0 24 24" className="w-4 h-4 inline-block ml-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </Link>
           <button
             onClick={onClose}

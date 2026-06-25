@@ -209,7 +209,7 @@ export default function FeaturesSection() {
                 </button>
                 {/* Body */}
                 <p className="text-base pr-4">
-                  🙆 你已经驼背 2 分钟了，试试挺直腰背深呼吸？
+                  你已经驼背 2 分钟了，试试挺直腰背深呼吸？
                 </p>
                 <div className="text-xs opacity-70 mt-4">
                   持续不良坐姿 2分12秒 | 今日第4次提醒
@@ -320,7 +320,12 @@ export default function FeaturesSection() {
 
                 {/* AI Suggestion */}
                 <div className="bg-surface-alt rounded-xl p-3 mt-4 text-xs text-text-secondary">
-                  📝
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
                   你的左肩比右肩高
                   2cm，建议每小时做一次肩部放松操
                 </div>

@@ -17,24 +17,29 @@ function getMidpoint(a: NormalizedLandmark, b: NormalizedLandmark) {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 };
 }
 
-// Helper: angle between two points in degrees (from vertical)
+// Helper: angle of a line from vertical, in degrees (0 = perfectly vertical)
+// top is the upper point (smaller y in screen coords), bottom is the lower point
+// Returns 0-90 degrees representing deviation from vertical
 function angleFromVertical(top: {x:number,y:number}, bottom: {x:number,y:number}): number {
   const dx = top.x - bottom.x;
-  const dy = top.y - bottom.y; // y increases downward in screen coords
+  // In MediaPipe screen coords, y increases downward.
+  // top.y < bottom.y for normal upright posture, so dy > 0.
+  // Use Math.abs to handle edge cases.
+  const dy = Math.abs(bottom.y - top.y);
+  if (dy < 0.001) return 0; // Avoid division by near-zero
   return Math.abs(Math.atan2(dx, dy) * (180 / Math.PI));
 }
 
 // 1. calculateHeadForwardAngle
-// Ear midpoint to shoulder midpoint, angle from vertical
+// Nose position relative to shoulder midpoint, angle from vertical
+// This measures how far forward the head is relative to the shoulders
 export function calculateHeadForwardAngle(landmarks: NormalizedLandmark[]): number {
-  const leftEar = landmarks[7];
-  const rightEar = landmarks[8];
+  const nose = landmarks[0];
   const leftShoulder = landmarks[11];
   const rightShoulder = landmarks[12];
-  if (!leftEar || !rightEar || !leftShoulder || !rightShoulder) return 0;
-  const earMid = getMidpoint(leftEar, rightEar);
+  if (!nose || !leftShoulder || !rightShoulder) return 0;
   const shoulderMid = getMidpoint(leftShoulder, rightShoulder);
-  return angleFromVertical(earMid, shoulderMid);
+  return angleFromVertical(nose, shoulderMid);
 }
 
 // 2. calculateShoulderSymmetry
@@ -61,8 +66,8 @@ export function calculateForwardLean(landmarks: NormalizedLandmark[]): number {
 }
 
 // 4. calculateSpineAngle
-// Deviation from 180° of shoulder-hip line vs nose-shoulder line
-// Actually simpler: angle between (shoulder midpoint -> hip midpoint) vertical deviation
+// Angle between shoulder midpoint -> hip midpoint line and vertical
+// Measures lateral/forward lean of the upper body
 export function calculateSpineAngle(landmarks: NormalizedLandmark[]): number {
   const leftShoulder = landmarks[11];
   const rightShoulder = landmarks[12];

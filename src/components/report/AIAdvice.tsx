@@ -32,18 +32,29 @@ export default function AIAdvice({ data }: AIAdviceProps) {
   }, [load]);
   
   return (
-    <div className="bg-gradient-to-br from-white to-primary-light/30 rounded-2xl border border-border p-6 relative">
+    <div className="bg-gradient-to-br from-white to-primary-light/30 rounded-2xl border border-border p-6 relative card-hover">
       {/* Left border accent */}
       <div className="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-primary" />
       
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-bold text-text-primary">🤖 AI 健康顾问</h3>
+          <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 3.4 2.1 6.3 5 7.5V20h6v-2.5c2.9-1.2 5-4.1 5-7.5a8 8 0 0 0-8-8z" />
+              <path d="M9 20h6" />
+              <path d="M10 22h4" />
+            </svg>
+            AI 健康顾问
+          </h3>
           <p className="text-sm text-text-muted mt-0.5">基于今日检测数据生成的个性化建议</p>
         </div>
         {!loading && (
-          <button onClick={load} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors">
-            🔄 重新生成
+          <button onClick={load} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors flex items-center gap-1">
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            重新生成
           </button>
         )}
       </div>
@@ -82,7 +93,7 @@ export default function AIAdvice({ data }: AIAdviceProps) {
         </div>
       )}
       
-      <p className="text-xs text-text-muted mt-4 pt-3 border-t border-border">
+      <p className="text-xs text-text-muted mt-4 pt-3">
         由 DeepSeek AI 提供分析支持 · 建议仅供参考
       </p>
     </div>

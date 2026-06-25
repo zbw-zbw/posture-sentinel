@@ -50,7 +50,7 @@ export function useCamera(): UseCameraReturn {
     } catch (err) {
       const e = err as Error;
       if (e.name === "NotAllowedError" || e.name === "PermissionDeniedError") {
-        setError("摄像头权限被拒绝。请在浏览器地址栏点击 🔒 图标，允许摄像头访问。");
+        setError("摄像头权限被拒绝。请在浏览器地址栏点击锁图标，允许摄像头访问。");
       } else if (e.name === "NotFoundError" || e.name === "DevicesNotFoundError") {
         setError("未检测到摄像头设备。请连接摄像头后重试。");
       } else {

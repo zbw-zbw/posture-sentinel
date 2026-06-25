@@ -93,6 +93,9 @@ export default function DetectPage() {
   }, [startDetection, videoRef, analyzer, resumeSession]);
 
   const handleStop = useCallback(() => {
+    // Capture current metrics BEFORE stopping detection (which clears landmarks)
+    const finalMetrics = { ...metrics };
+
     stopDetection();
     stopCamera();
     analyzer.pause();
@@ -114,9 +117,9 @@ export default function DetectPage() {
       alertCount: summary.alertCount,
       scoreHistory: analyzer.sessionStats.scoreHistory,
       metrics: {
-        avgHeadAngle: metrics.headForwardAngle,
-        avgShoulderSymmetry: metrics.shoulderSymmetry,
-        avgSpineAngle: metrics.spineAngle,
+        avgHeadAngle: finalMetrics.headForwardAngle,
+        avgShoulderSymmetry: finalMetrics.shoulderSymmetry,
+        avgSpineAngle: finalMetrics.spineAngle,
       },
     });
 
@@ -175,7 +178,7 @@ export default function DetectPage() {
 
           {/* Metrics panel */}
           <div className="lg:col-span-2">
-            <div className="bg-surface rounded-2xl border border-border p-5 md:p-6 h-full">
+            <div className="bg-surface rounded-2xl border border-border p-5 md:p-6 h-full card-hover">
               <MetricsPanel
                 metrics={metrics}
                 fps={fps}

@@ -88,14 +88,17 @@ export function useDetectSession(): UseDetectSessionReturn {
     setSessionState("ended");
 
     const total = stats.totalDuration || 1;
+    const avgScore = stats.avgScore || 0;
     const summary: SessionSummaryData = {
       duration: stats.totalDuration,
-      avgScore: stats.avgScore,
+      avgScore,
       goodPercent: Math.round((stats.goodDuration / total) * 100),
       warningPercent: Math.round((stats.warningDuration / total) * 100),
       badPercent: Math.round((stats.badDuration / total) * 100),
       alertCount: stats.alertCount,
-      scoreHistory: stats.scoreHistory,
+      scoreHistory: stats.scoreHistory.length > 0 ? stats.scoreHistory : [
+        { time: Date.now(), score: avgScore },
+      ],
     };
 
     setSummaryData(summary);

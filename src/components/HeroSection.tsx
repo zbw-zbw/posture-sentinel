@@ -141,7 +141,11 @@ export default function HeroSection() {
 
         {/* Down Arrow */}
         <div className="flex flex-col items-center mt-12 text-text-muted animate-bounce-down">
-          <span className="text-sm">↓ 向下探索</span>
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <polyline points="19 12 12 19 5 12" />
+          </svg>
+          <span className="text-sm mt-1">向下探索</span>
         </div>
       </div>
     </section>

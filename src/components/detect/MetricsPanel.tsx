@@ -20,10 +20,10 @@ function formatDuration(seconds: number): string {
   return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-const statusConfig: Record<PostureStatus, { label: string; emoji: string; color: string; bg: string }> = {
-  good: { label: "坐姿良好", emoji: "🟢", color: "text-primary", bg: "bg-primary-light" },
-  warning: { label: "请注意坐姿", emoji: "🟡", color: "text-warning", bg: "bg-warning-light" },
-  bad: { label: "坐姿不良", emoji: "🔴", color: "text-danger", bg: "bg-danger-light" },
+const statusConfig: Record<PostureStatus, { label: string; color: string; bg: string }> = {
+  good: { label: "坐姿良好", color: "text-primary", bg: "bg-primary-light" },
+  warning: { label: "请注意坐姿", color: "text-warning", bg: "bg-warning-light" },
+  bad: { label: "坐姿不良", color: "text-danger", bg: "bg-danger-light" },
 };
 
 interface MetricCardProps {
@@ -110,14 +110,14 @@ export default function MetricsPanel({
 
   const statusDurationText = currentStatus === "good"
     ? `良好坐姿已持续 ${formatDuration(statusDuration)}`
-    : `⚠️ 不良坐姿已持续 ${statusDuration}秒`;
+    : `不良坐姿已持续 ${statusDuration}秒`;
 
   return (
     <div className="flex flex-col gap-4">
       {/* Status */}
       <div className={`${config.bg} ${config.color} font-semibold text-xl inline-block px-4 py-2.5 rounded-full flex items-center gap-2 w-fit`}>
         <span className={currentStatus === "good" ? "animate-pulse-green inline-block w-3 h-3 rounded-full bg-primary" : "inline-block w-3 h-3 rounded-full"} style={{ backgroundColor: currentStatus === "good" ? "#10b981" : currentStatus === "warning" ? "#f59e0b" : "#ef4444" }} />
-        {config.emoji} {config.label}
+        {config.label}
       </div>
 
       {/* Metric Cards */}
@@ -128,7 +128,7 @@ export default function MetricsPanel({
       </div>
 
       {/* Session Info */}
-      <div className="mt-2 pt-4 border-t border-border">
+      <div className="mt-2 pt-4">
         {/* Status duration */}
         {isDetecting && statusDuration > 0 && (
           <p className={`text-sm mb-3 ${currentStatus === "good" ? "text-primary" : "text-danger"}`}>

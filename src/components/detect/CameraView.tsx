@@ -124,7 +124,12 @@ export default function CameraView({
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-dark/90 p-6">
             <div className="text-center max-w-sm">
-              <div className="text-4xl mb-3">📷</div>
+              <div className="mb-3">
+                <svg viewBox="0 0 24 24" className="w-12 h-12 mx-auto text-text-muted" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
               <p className="text-white font-medium mb-2">摄像头无法启动</p>
               <p className="text-text-muted text-sm">{error}</p>
             </div>
@@ -135,7 +140,12 @@ export default function CameraView({
         {!isActive && !error && !isModelLoading && !isRequestingPermission && (
           <div className="absolute inset-0 flex items-center justify-center border-2 border-dashed border-white/20 rounded-xl m-4">
             <div className="text-center">
-              <div className="text-5xl mb-4 opacity-50">📷</div>
+              <div className="mb-4 opacity-50">
+                <svg viewBox="0 0 24 24" className="w-14 h-14 mx-auto" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
               <p className="text-white/60 text-sm">点击「开始检测」启动摄像头</p>
             </div>
           </div>

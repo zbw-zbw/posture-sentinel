@@ -13,22 +13,48 @@ interface MetricsSummaryProps {
   };
 }
 
-function MetricCard({ icon, name, value, unit, change }: { icon: string; name: string; value: number; unit: string; change?: number }) {
+function ChangeArrow({ direction }: { direction: "up" | "down" | "neutral" }) {
+  if (direction === "up") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-3 h-3 inline-block -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="19" x2="12" y2="5" />
+        <polyline points="5 12 12 5 19 12" />
+      </svg>
+    );
+  }
+  if (direction === "down") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-3 h-3 inline-block -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <polyline points="19 12 12 19 5 12" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="w-3 h-3 inline-block -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function MetricCard({ icon, name, value, unit, change }: { icon: React.ReactNode; name: string; value: number; unit: string; change?: number }) {
   const color = change === undefined ? "" : change > 0 ? "text-primary" : change < 0 ? "text-danger" : "text-text-muted";
-  const arrow = change === undefined ? "" : change > 0 ? "↑" : change < 0 ? "↓" : "→";
-  
+  const direction = change === undefined ? "neutral" : change > 0 ? "up" : change < 0 ? "down" : "neutral";
+
   return (
     <div className="bg-surface-alt rounded-xl p-3 md:p-4">
       <div className="flex items-center gap-2 text-text-muted text-xs">
-        <span>{icon}</span>
+        <span className="flex-shrink-0">{icon}</span>
         <span>{name}</span>
       </div>
       <p className="text-2xl font-bold text-text-primary mt-2">
         {value}<span className="text-sm font-normal text-text-muted ml-1">{unit}</span>
       </p>
       {change !== undefined && (
-        <p className={`text-xs mt-1 ${color}`}>
-          {arrow} 较昨日 {change > 0 ? "+" : ""}{change}{unit}
+        <p className={`text-xs mt-1 flex items-center gap-1 ${color}`}>
+          <ChangeArrow direction={direction} />
+          较昨日 {change > 0 ? "+" : ""}{change}{unit}
         </p>
       )}
     </div>
@@ -40,10 +66,34 @@ export default function MetricsSummary({ headAngle, shoulderSymmetry, spineAngle
   
   return (
     <div className="grid grid-cols-2 gap-2 md:gap-3">
-      <MetricCard icon="🙇" name="平均头前倾" value={headAngle} unit="°" change={ym.headAngle !== undefined ? headAngle - ym.headAngle : undefined} />
-      <MetricCard icon="🤷" name="肩膀对称度" value={shoulderSymmetry} unit="%" change={ym.shoulderSymmetry !== undefined ? shoulderSymmetry - ym.shoulderSymmetry : undefined} />
-      <MetricCard icon="🦴" name="平均脊椎弧度" value={spineAngle} unit="°" change={ym.spineAngle !== undefined ? spineAngle - ym.spineAngle : undefined} />
-      <MetricCard icon="🔔" name="提醒次数" value={alertCount} unit="次" change={ym.alertCount !== undefined ? alertCount - ym.alertCount : undefined} />
+      <MetricCard icon={
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+      } name="平均头前倾" value={headAngle} unit="°" change={ym.headAngle !== undefined ? headAngle - ym.headAngle : undefined} />
+      <MetricCard icon={
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      } name="肩膀对称度" value={shoulderSymmetry} unit="%" change={ym.shoulderSymmetry !== undefined ? shoulderSymmetry - ym.shoulderSymmetry : undefined} />
+      <MetricCard icon={
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2C12 2 8 6 8 12C8 18 12 22 12 22" />
+          <path d="M12 2C12 2 16 6 16 12C16 18 12 22 12 22" />
+          <line x1="12" y1="2" x2="12" y2="22" />
+          <line x1="9" y1="8" x2="15" y2="8" />
+          <line x1="9" y1="14" x2="15" y2="14" />
+        </svg>
+      } name="平均脊椎弧度" value={spineAngle} unit="°" change={ym.spineAngle !== undefined ? spineAngle - ym.spineAngle : undefined} />
+      <MetricCard icon={
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      } name="提醒次数" value={alertCount} unit="次" change={ym.alertCount !== undefined ? alertCount - ym.alertCount : undefined} />
     </div>
   );
 }
