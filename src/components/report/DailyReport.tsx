@@ -1,0 +1,213 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import {
+  generateDailyReport,
+  getWeeklyScores,
+  getYesterdayReport,
+  getAvailableDates,
+  type DailyReportData,
+} from "@/lib/report";
+import DatePicker from "./DatePicker";
+import ScoreRing from "./ScoreRing";
+import DistributionBar from "./DistributionBar";
+import PostureChart from "./PostureChart";
+import MetricsSummary from "./MetricsSummary";
+import WeeklyTrend from "./WeeklyTrend";
+import AIAdvice from "./AIAdvice";
+import EmptyState from "./EmptyState";
+
+interface DailyReportProps {
+  initialDate?: string;
+}
+
+export default function DailyReport({ initialDate }: DailyReportProps) {
+  const [date, setDate] = useState(initialDate || new Date().toISOString().split("T")[0]);
+  const [report, setReport] = useState<DailyReportData | null>(null);
+  const [weeklyScores, setWeeklyScores] = useState(getWeeklyScores());
+  const [yesterdayReport, setYesterdayReport] = useState<DailyReportData | null>(null);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(() => {
+      if (cancelled) return;
+      setReport(generateDailyReport(date));
+      setWeeklyScores(getWeeklyScores());
+      setYesterdayReport(getYesterdayReport());
+      setAvailableDates(getAvailableDates());
+      setLoading(false);
+    }, 150);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [date]);
+
+  const aiRequestData = useMemo(() => {
+    if (!report) return null;
+    return {
+      avgScore: report.avgScore,
+      goodPercent: report.goodPercent,
+      warningPercent: report.warningPercent,
+      badPercent: report.badPercent,
+      avgHeadAngle: report.avgMetrics.headAngle,
+      avgShoulderSymmetry: report.avgMetrics.shoulderSymmetry,
+      avgSpineAngle: report.avgMetrics.spineAngle,
+      alertCount: report.totalAlerts,
+      totalDuration: report.totalDuration,
+      sessionCount: report.sessionCount,
+    };
+  }, [report]);
+
+  const yesterdayMetrics = yesterdayReport
+    ? {
+        headAngle: yesterdayReport.avgMetrics.headAngle,
+        shoulderSymmetry: yesterdayReport.avgMetrics.shoulderSymmetry,
+        spineAngle: yesterdayReport.avgMetrics.spineAngle,
+        alertCount: yesterdayReport.totalAlerts,
+      }
+    : undefined;
+
+  return (
+    <div>
+      {/* Date Picker */}
+      <div className="mb-8">
+        <DatePicker date={date} onChange={setDate} availableDates={availableDates} />
+      </div>
+
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      {!loading && !report && <EmptyState date={date} />}
+
+      {!loading && report && (
+        <div className="space-y-6">
+          {/* Row 1: Score Ring + Distribution */}
+          <section className="fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-surface rounded-2xl border border-border p-6 flex flex-col items-center justify-center">
+                <h3 className="text-lg font-bold text-text-primary mb-4 self-start">📊 今日评分</h3>
+                <ScoreRing
+                  score={report.avgScore}
+                  yesterdayScore={yesterdayReport?.avgScore}
+                />
+              </div>
+
+              <div className="bg-surface rounded-2xl border border-border p-6">
+                <h3 className="text-lg font-bold text-text-primary mb-4">📈 姿态分布</h3>
+                <DistributionBar
+                  goodPercent={report.goodPercent}
+                  warningPercent={report.warningPercent}
+                  badPercent={report.badPercent}
+                  totalDuration={report.totalDuration}
+                />
+              </div>
+            </div>
+          </section>
+
+          <hr className="border-border" />
+
+          {/* Row 2: Score Trend Line Chart */}
+          <section className="fade-in">
+            <div className="bg-surface rounded-2xl border border-border p-6">
+              <h3 className="text-lg font-bold text-text-primary mb-4">📉 今日评分变化趋势</h3>
+              <PostureChart scoreTimeline={report.scoreTimeline} />
+            </div>
+          </section>
+
+          <hr className="border-border" />
+
+          {/* Row 3: Metrics Summary + Weekly Trend */}
+          <section className="fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-surface rounded-2xl border border-border p-6">
+                <h3 className="text-lg font-bold text-text-primary mb-4">🔢 关键指标</h3>
+                <MetricsSummary
+                  headAngle={report.avgMetrics.headAngle}
+                  shoulderSymmetry={report.avgMetrics.shoulderSymmetry}
+                  spineAngle={report.avgMetrics.spineAngle}
+                  alertCount={report.totalAlerts}
+                  yesterdayMetrics={yesterdayMetrics}
+                />
+              </div>
+
+              <div className="bg-surface rounded-2xl border border-border p-6">
+                <h3 className="text-lg font-bold text-text-primary mb-4">📊 本周趋势</h3>
+                <WeeklyTrend scores={weeklyScores} />
+              </div>
+            </div>
+          </section>
+
+          <hr className="border-border" />
+
+          {/* Row 4: AI Advice */}
+          <section className="fade-in">
+            {aiRequestData && (
+              <AIAdvice data={aiRequestData} />
+            )}
+          </section>
+
+          <hr className="border-border" />
+
+          {/* Row 5: Session Records */}
+          <section className="fade-in">
+            <div className="bg-surface rounded-2xl border border-border p-6">
+              <h3 className="text-lg font-bold text-text-primary mb-4">📋 今日检测记录</h3>
+              <div className="space-y-3">
+                {report.sessions.map((session, index) => (
+                  <div
+                    key={session.id}
+                    className="flex items-center gap-4 p-4 bg-surface-alt rounded-xl hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  >
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-light text-primary text-sm font-bold flex items-center justify-center">
+                      #{index + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-text-primary font-medium">
+                        {new Date(session.startTime).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
+                        {" - "}
+                        {new Date(session.endTime).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                      <p className="text-xs text-text-muted mt-0.5">
+                        时长 {Math.floor(session.duration / 60)}分{session.duration % 60}秒 · 提醒 {session.alertCount} 次
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span
+                        className={`inline-flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold ${
+                          session.avgScore >= 80
+                            ? "bg-primary-light text-primary"
+                            : session.avgScore >= 60
+                            ? "bg-warning-light text-warning"
+                            : "bg-danger-light text-danger"
+                        }`}
+                      >
+                        {session.avgScore}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Encouragement */}
+          <div className="bg-surface rounded-2xl border border-border p-6 text-center">
+            <p className="text-text-primary text-lg">
+              {report.avgScore >= 85
+                ? "今天的坐姿表现非常好，继续保持！🎉"
+                : report.avgScore >= 70
+                ? "不错的一天，再注意一下驼背的时段就更好了 💪"
+                : "今天的坐姿需要改善，明天加油！试试每小时站起来活动一下 🙆"}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
