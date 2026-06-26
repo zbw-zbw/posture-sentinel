@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   description:
     "基于Web摄像头的AI实时坐姿检测工具。零成本、零穿戴、零门槛，打开网页即用。检测驼背、头前倾等不良坐姿，实时提醒纠正，生成每日脊椎健康报告。",
   keywords: ["坐姿检测", "AI", "脊椎健康", "驼背矫正", "姿态检测", "体态哨兵"],
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
     title: "体态哨兵 - AI实时坐姿检测",
     description: "打开摄像头，AI守护你的每一寸脊椎",

@@ -119,7 +119,14 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           </section>
 
-          {/* Row 2: Score Trend Line Chart */}
+          {/* Row 2: AI Advice */}
+          <section className="fade-in">
+            {aiRequestData && (
+              <AIAdvice data={aiRequestData} />
+            )}
+          </section>
+
+          {/* Row 3: Score Trend Line Chart */}
           <section className="fade-in">
             <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
               <h3 className="text-lg font-bold text-text-primary mb-4">今日评分变化趋势</h3>
@@ -127,7 +134,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           </section>
 
-          {/* Row 3: Metrics Summary + Weekly Trend */}
+          {/* Row 4: Metrics Summary + Weekly Trend */}
           <section className="fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-surface rounded-2xl border border-border p-6 card-hover">
@@ -146,13 +153,6 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
                 <WeeklyTrend scores={weeklyScores} />
               </div>
             </div>
-          </section>
-
-          {/* Row 4: AI Advice */}
-          <section className="fade-in">
-            {aiRequestData && (
-              <AIAdvice data={aiRequestData} />
-            )}
           </section>
 
           {/* Row 5: Session Records */}
@@ -196,17 +196,6 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
               </div>
             </div>
           </section>
-
-          {/* Encouragement */}
-          <div className="bg-surface rounded-2xl border border-border p-6 text-center card-hover">
-            <p className="text-text-primary text-lg">
-              {report.avgScore >= 85
-                ? "今天的坐姿表现非常好，继续保持！"
-                : report.avgScore >= 70
-                ? "不错的一天，再注意一下驼背的时段就更好了"
-                : "今天的坐姿需要改善，明天加油！试试每小时站起来活动一下"}
-            </p>
-          </div>
         </div>
       )}
     </div>

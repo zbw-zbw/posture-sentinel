@@ -10,6 +10,7 @@ export interface PostureMetrics {
   spineAngle: number;
   overallScore: number;
   status: PostureStatus;
+  isDetected: boolean;
 }
 
 // Helper: get midpoint between two landmarks
@@ -108,11 +109,12 @@ export function calculateOverallScore(landmarks: NormalizedLandmark[]): PostureM
     spineScore * SCORE_WEIGHTS.spineAngle
   );
 
-  // Status is based on the worst individual metric, not the weighted average
+  // Status is based on the worst individual metric, not the weighted average.
+  // Tightened thresholds so that mild misalignments (e.g. head tilt) show warning.
   const worstMetric = Math.min(headScore, shoulderScore, leanScore, spineScore);
   let status: PostureStatus = "good";
-  if (worstMetric < 40) status = "bad";
-  else if (worstMetric < 70) status = "warning";
+  if (worstMetric < 50) status = "bad";
+  else if (worstMetric < 80) status = "warning";
 
   return {
     headForwardAngle: Math.round(headAngle * 10) / 10,
@@ -121,5 +123,6 @@ export function calculateOverallScore(landmarks: NormalizedLandmark[]): PostureM
     spineAngle: Math.round(spineAngle * 10) / 10,
     overallScore: overall,
     status,
+    isDetected: true,
   };
 }

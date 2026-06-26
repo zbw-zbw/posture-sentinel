@@ -54,10 +54,10 @@ export default function PrivacyModal({ isOpen, onClose }: PrivacyModalProps) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30">
       <div
         className="relative bg-surface rounded-2xl shadow-2xl border border-border w-full max-w-lg max-h-[80vh] overflow-y-auto opacity-0 animate-[fadeIn_0.2s_ease]"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="px-6 pt-6 pb-4">

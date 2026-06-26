@@ -7,7 +7,7 @@ import { calculateOverallScore, PostureMetrics } from "@/lib/posture";
 export function usePostureMetrics(
   landmarks: NormalizedLandmark[][] | null
 ): PostureMetrics {
-  return useMemo(() => {
+  return useMemo<PostureMetrics>(() => {
     if (!landmarks || landmarks.length === 0) {
       return {
         headForwardAngle: 0,
@@ -15,7 +15,8 @@ export function usePostureMetrics(
         forwardLean: 0,
         spineAngle: 0,
         overallScore: 0,
-        status: "good" as const,
+        status: "good",
+        isDetected: false,
       };
     }
     return calculateOverallScore(landmarks[0]);

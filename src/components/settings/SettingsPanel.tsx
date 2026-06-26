@@ -188,6 +188,10 @@ export default function SettingsPanel({
             </svg>
             预览提醒效果
           </button>
+          <p className="text-xs text-text-muted mt-2">
+            实际检测时，当坐姿持续不良超过 {settings.badPostureThreshold} 秒，屏幕底部会弹出提醒。
+            {settings.alertMethod !== "visual" && " 同时会播放一次提示音（需浏览器允许自动播放）。"}
+          </p>
         </div>
       </div>
 

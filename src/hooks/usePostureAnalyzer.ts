@@ -75,76 +75,85 @@ export function usePostureAnalyzer(settings: Settings) {
   useEffect(() => {
     if (!isRunningRef.current) return;
     const interval = setInterval(() => {
-      if (!isRunningRef.current || !metricsRef.current) return;
+      if (!isRunningRef.current) return;
 
       const metrics = metricsRef.current;
+      const isDetected = metrics?.isDetected ?? false;
 
-      // Update pending status duration
-      if (pendingStatusRef.current) {
-        pendingDurationRef.current += 1;
-        const pending = pendingStatusRef.current;
-        const dur = pendingDurationRef.current;
-
-        // Check debounce thresholds
-        const threshold = pending === "good" ? DEBOUNCE_GOOD
-          : pending === "warning" ? DEBOUNCE_WARNING
-          : DEBOUNCE_BAD;
-
-        if (dur >= threshold) {
-          currentStatusRef.current = pending;
-          statusDurationRef.current = 0;
-          pendingStatusRef.current = null;
-          pendingDurationRef.current = 0;
-        }
-      } else {
-        statusDurationRef.current += 1;
-      }
-
-      const status = currentStatusRef.current;
-      totalDurationRef.current += 1;
-
-      if (status === "good") goodDurationRef.current += 1;
-      else if (status === "warning") warningDurationRef.current += 1;
-      else badDurationRef.current += 1;
-
-      scoreAccumRef.current += metrics.overallScore;
-      scoreCountRef.current += 1;
-
-      // Record score every 30 seconds
-      const now = Date.now();
-      if (now - lastScoreRecordRef.current >= 30000) {
-        lastScoreRecordRef.current = now;
-        const avgScore = scoreCountRef.current > 0
-          ? Math.round(scoreAccumRef.current / scoreCountRef.current)
-          : 0;
-        const newHistory = [...scoreHistoryRef.current, { time: now, score: avgScore }];
-        scoreHistoryRef.current = newHistory;
-        setState((prev) => ({
-          ...prev,
-          sessionStats: { ...prev.sessionStats, scoreHistory: newHistory },
-        }));
-      }
-
-      // Check if should alert
       let shouldAlert = false;
       let alertMessage = "";
-      if (status === "bad" && badPostureStartRef.current !== null) {
-        const badDuration = Math.floor((now - badPostureStartRef.current) / 1000);
-        if (
-          badDuration >= settings.badPostureThreshold &&
-          now - lastAlertTimeRef.current >= settings.alertCooldown * 1000
-        ) {
-          shouldAlert = true;
-          lastAlertTimeRef.current = now;
-          alertCountRef.current += 1;
-          const msg = ALERT_MESSAGES[Math.floor(Math.random() * ALERT_MESSAGES.length)];
-          alertMessage = msg.replace("{duration}", `${badDuration}秒`);
-        }
-      }
+      const now = Date.now();
 
-      if (status === "bad" && badPostureStartRef.current === null) {
-        badPostureStartRef.current = now;
-      } else if (status !== "bad") {
+      if (isDetected && metrics) {
+        // Update pending status duration
+        if (pendingStatusRef.current) {
+          pendingDurationRef.current += 1;
+          const pending = pendingStatusRef.current;
+          const dur = pendingDurationRef.current;
+
+          // Check debounce thresholds
+          const threshold = pending === "good" ? DEBOUNCE_GOOD
+            : pending === "warning" ? DEBOUNCE_WARNING
+            : DEBOUNCE_BAD;
+
+          if (dur >= threshold) {
+            currentStatusRef.current = pending;
+            statusDurationRef.current = 0;
+            pendingStatusRef.current = null;
+            pendingDurationRef.current = 0;
+          }
+        } else {
+          statusDurationRef.current += 1;
+        }
+
+        const status = currentStatusRef.current;
+        totalDurationRef.current += 1;
+
+        if (status === "good") goodDurationRef.current += 1;
+        else if (status === "warning") warningDurationRef.current += 1;
+        else badDurationRef.current += 1;
+
+        scoreAccumRef.current += metrics.overallScore;
+        scoreCountRef.current += 1;
+
+        // Record score every 30 seconds
+        if (now - lastScoreRecordRef.current >= 30000) {
+          lastScoreRecordRef.current = now;
+          const intervalAvgScore = scoreCountRef.current > 0
+            ? Math.round(scoreAccumRef.current / scoreCountRef.current)
+            : 0;
+          const newHistory = [...scoreHistoryRef.current, { time: now, score: intervalAvgScore }];
+          scoreHistoryRef.current = newHistory;
+          setState((prev) => ({
+            ...prev,
+            sessionStats: { ...prev.sessionStats, scoreHistory: newHistory },
+          }));
+        }
+
+        // Check if should alert
+        if (status === "bad" && badPostureStartRef.current !== null) {
+          const badDuration = Math.floor((now - badPostureStartRef.current) / 1000);
+          if (
+            badDuration >= settings.badPostureThreshold &&
+            now - lastAlertTimeRef.current >= settings.alertCooldown * 1000
+          ) {
+            shouldAlert = true;
+            lastAlertTimeRef.current = now;
+            alertCountRef.current += 1;
+            const msg = ALERT_MESSAGES[Math.floor(Math.random() * ALERT_MESSAGES.length)];
+            alertMessage = msg.replace("{duration}", `${badDuration}秒`);
+          }
+        }
+
+        if (status === "bad" && badPostureStartRef.current === null) {
+          badPostureStartRef.current = now;
+        } else if (status !== "bad") {
+          badPostureStartRef.current = null;
+        }
+      } else {
+        // No person detected: cancel pending transitions and do not count duration
+        pendingStatusRef.current = null;
+        pendingDurationRef.current = 0;
         badPostureStartRef.current = null;
       }
 
@@ -153,20 +162,20 @@ export function usePostureAnalyzer(settings: Settings) {
         : 0;
 
       setState({
-        currentStatus: status,
+        currentStatus: currentStatusRef.current,
         statusDuration: statusDurationRef.current,
         badPostureStart: badPostureStartRef.current,
         shouldAlert,
         alertMessage,
         sessionStats: {
-            totalDuration: totalDurationRef.current,
-            goodDuration: goodDurationRef.current,
-            warningDuration: warningDurationRef.current,
-            badDuration: badDurationRef.current,
-            alertCount: alertCountRef.current,
-            avgScore,
-            scoreHistory: scoreHistoryRef.current,
-          },
+          totalDuration: totalDurationRef.current,
+          goodDuration: goodDurationRef.current,
+          warningDuration: warningDurationRef.current,
+          badDuration: badDurationRef.current,
+          alertCount: alertCountRef.current,
+          avgScore,
+          scoreHistory: scoreHistoryRef.current,
+        },
       });
     }, 1000);
 
@@ -250,9 +259,11 @@ export function usePostureAnalyzer(settings: Settings) {
       badDuration: badDurationRef.current,
       alertCount: alertCountRef.current,
       avgScore,
-      scoreHistory: scoreHistoryRef.current.length > 0 ? scoreHistoryRef.current : [
-        { time: Date.now(), score: avgScore },
-      ],
+      scoreHistory: scoreHistoryRef.current.length > 0
+        ? scoreHistoryRef.current
+        : avgScore > 0
+          ? [{ time: Date.now(), score: avgScore }]
+          : [],
     };
   }, []);
 

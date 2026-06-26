@@ -28,6 +28,7 @@ interface UseDetectSessionReturn {
     avgScore: number;
     scoreHistory: { time: number; score: number }[];
   }) => SessionSummaryData;
+  getElapsedTime: () => number;
   summaryData: SessionSummaryData | null;
 }
 
@@ -71,6 +72,16 @@ export function useDetectSession(): UseDetectSessionReturn {
     }
     setSessionState("running");
   }, []);
+
+  const getElapsedTime = useCallback(() => {
+    if (sessionState === "idle") return 0;
+    if (sessionState === "paused") {
+      return pausedAtRef.current > 0 && startRef.current > 0
+        ? Math.floor((pausedAtRef.current - startRef.current) / 1000)
+        : elapsedTime;
+    }
+    return Math.floor((Date.now() - startRef.current) / 1000);
+  }, [sessionState, elapsedTime]);
 
   const endSession = useCallback((stats: {
     totalDuration: number;
@@ -133,6 +144,7 @@ export function useDetectSession(): UseDetectSessionReturn {
     pauseSession,
     resumeSession,
     endSession,
+    getElapsedTime,
     summaryData,
   };
 }

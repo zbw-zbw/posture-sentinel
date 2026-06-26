@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { advice: ["请求格式错误，请检查提交的数据。"] },
+      { status: 200 }
+    );
+  }
+
   const {
     avgScore,
     goodPercent,
@@ -13,7 +22,18 @@ export async function POST(req: NextRequest) {
     alertCount,
     totalDuration,
     sessionCount,
-  } = body;
+  } = body as {
+    avgScore: number;
+    goodPercent: number;
+    warningPercent: number;
+    badPercent: number;
+    avgHeadAngle: number;
+    avgShoulderSymmetry: number;
+    avgSpineAngle: number;
+    alertCount: number;
+    totalDuration: number;
+    sessionCount: number;
+  };
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {

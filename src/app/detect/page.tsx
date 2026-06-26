@@ -48,6 +48,7 @@ export default function DetectPage() {
     pauseSession,
     resumeSession,
     endSession,
+    getElapsedTime,
   } = useDetectSession();
 
   const [detectState, setDetectState] = useState<DetectState>("idle");
@@ -96,7 +97,8 @@ export default function DetectPage() {
   const handleStop = useCallback(() => {
     // Capture current metrics BEFORE stopping detection (which clears landmarks)
     const finalMetrics = { ...metrics };
-    const currentElapsed = elapsedTime;
+    // 使用 getElapsedTime 读取当前真实经过时间，而不是可能过期的 elapsedTime state
+    const currentElapsed = getElapsedTime();
 
     // 从 refs 获取最新统计数据（不依赖 React state）
     const stats = analyzer.finalize();
@@ -123,7 +125,7 @@ export default function DetectPage() {
       warningPercent: summary.warningPercent,
       badPercent: summary.badPercent,
       alertCount: summary.alertCount,
-      scoreHistory: stats.scoreHistory,
+      scoreHistory: summary.scoreHistory,
       metrics: {
         avgHeadAngle: finalMetrics.headForwardAngle,
         avgShoulderSymmetry: finalMetrics.shoulderSymmetry,
@@ -133,7 +135,7 @@ export default function DetectPage() {
 
     setDetectState("idle");
     setShowSummary(true);
-  }, [stopDetection, stopCamera, analyzer, endSession, metrics, elapsedTime]);
+  }, [stopDetection, stopCamera, analyzer, endSession, metrics, getElapsedTime]);
 
   // Start detection when camera becomes active
   useEffect(() => {
