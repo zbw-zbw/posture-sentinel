@@ -66,12 +66,6 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/about"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-alt hover:text-text-primary"
-            >
-              关于
-            </Link>
           </div>
 
           {/* Mobile Hamburger */}
@@ -126,13 +120,6 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/about"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center min-h-12 px-4 rounded-xl text-base font-medium text-text-secondary transition-colors hover:bg-surface-alt hover:text-text-primary"
-              >
-                关于
-              </Link>
             </div>
           </div>
         </>

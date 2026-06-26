@@ -53,6 +53,8 @@ export function usePostureAnalyzer(settings: Settings) {
     },
   });
 
+  const [isRunning, setIsRunning] = useState(false);
+
   const currentStatusRef = useRef<PostureStatus>("good");
   const statusDurationRef = useRef<number>(0);
   const pendingStatusRef = useRef<PostureStatus | null>(null);
@@ -67,16 +69,14 @@ export function usePostureAnalyzer(settings: Settings) {
   const warningDurationRef = useRef<number>(0);
   const badDurationRef = useRef<number>(0);
   const alertCountRef = useRef<number>(0);
-  const isRunningRef = useRef<boolean>(false);
   const metricsRef = useRef<PostureMetrics | null>(null);
   const scoreHistoryRef = useRef<{ time: number; score: number }[]>([]);
 
   // 1-second tick for duration tracking
   useEffect(() => {
-    if (!isRunningRef.current) return;
-    const interval = setInterval(() => {
-      if (!isRunningRef.current) return;
+    if (!isRunning) return;
 
+    const interval = setInterval(() => {
       const metrics = metricsRef.current;
       const isDetected = metrics?.isDetected ?? false;
 
@@ -130,6 +130,13 @@ export function usePostureAnalyzer(settings: Settings) {
           }));
         }
 
+        // Track bad posture start
+        if (status === "bad" && badPostureStartRef.current === null) {
+          badPostureStartRef.current = now;
+        } else if (status !== "bad") {
+          badPostureStartRef.current = null;
+        }
+
         // Check if should alert
         if (status === "bad" && badPostureStartRef.current !== null) {
           const badDuration = Math.floor((now - badPostureStartRef.current) / 1000);
@@ -143,12 +150,6 @@ export function usePostureAnalyzer(settings: Settings) {
             const msg = ALERT_MESSAGES[Math.floor(Math.random() * ALERT_MESSAGES.length)];
             alertMessage = msg.replace("{duration}", `${badDuration}秒`);
           }
-        }
-
-        if (status === "bad" && badPostureStartRef.current === null) {
-          badPostureStartRef.current = now;
-        } else if (status !== "bad") {
-          badPostureStartRef.current = null;
         }
       } else {
         // No person detected: cancel pending transitions and do not count duration
@@ -180,7 +181,7 @@ export function usePostureAnalyzer(settings: Settings) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [settings]);
+  }, [isRunning, settings]);
 
   const updateMetrics = useCallback((metrics: PostureMetrics) => {
     metricsRef.current = metrics;
@@ -199,7 +200,7 @@ export function usePostureAnalyzer(settings: Settings) {
   }, []);
 
   const start = useCallback(() => {
-    isRunningRef.current = true;
+    setIsRunning(true);
     currentStatusRef.current = "good";
     statusDurationRef.current = 0;
     pendingStatusRef.current = null;
@@ -235,15 +236,15 @@ export function usePostureAnalyzer(settings: Settings) {
   }, []);
 
   const pause = useCallback(() => {
-    isRunningRef.current = false;
+    setIsRunning(false);
   }, []);
 
   const resume = useCallback(() => {
-    isRunningRef.current = true;
+    setIsRunning(true);
   }, []);
 
   const reset = useCallback(() => {
-    isRunningRef.current = false;
+    setIsRunning(false);
     start();
   }, [start]);
 

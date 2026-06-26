@@ -21,6 +21,19 @@ interface DailyReportProps {
   initialDate?: string;
 }
 
+function getEncouragement(score: number): { text: string; color: string } {
+  if (score >= 90) {
+    return { text: "太棒了！今日坐姿非常优秀，继续保持好习惯。", color: "bg-primary-light text-primary" };
+  }
+  if (score >= 75) {
+    return { text: "今日坐姿不错，注意偶尔起身活动，保护脊椎。", color: "bg-primary-light text-primary" };
+  }
+  if (score >= 60) {
+    return { text: "坐姿还有提升空间，试着挺直腰背、调整屏幕高度。", color: "bg-warning-light text-warning" };
+  }
+  return { text: "今日坐姿需要关注，建议设置提醒，逐步改善坐姿。", color: "bg-danger-light text-danger" };
+}
+
 export default function DailyReport({ initialDate }: DailyReportProps) {
   const [date, setDate] = useState(initialDate || new Date().toISOString().split("T")[0]);
   const [report, setReport] = useState<DailyReportData | null>(null);
@@ -89,6 +102,11 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
 
       {!loading && report && (
         <div className="space-y-6">
+          {/* Encouragement Card */}
+          <div className={`px-4 py-3 rounded-xl text-sm font-medium ${getEncouragement(report.avgScore).color}`}>
+            {getEncouragement(report.avgScore).text}
+          </div>
+
           {/* Row 1: Score Ring + Distribution */}
           <section className="fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

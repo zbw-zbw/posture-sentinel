@@ -61,7 +61,7 @@ export default function TestimonialsSection() {
           </p>
           <div className="mt-auto pt-4">
             <span className="inline-block rounded-full bg-primary-light px-3 py-1 text-xs text-primary">
-              社会公益 · 青少年身心健康
+              青少年健康
             </span>
           </div>
         </div>

@@ -66,8 +66,4 @@ npm run dev
 
 > 若无 DeepSeek API 密钥，AI 建议功能将不可用，但核心的实时检测与数据报表功能不受影响。
 
----
 
-<p align="center">
-  TRAE AI 创造力大赛 · 硬件交互赛道 · 2026
-</p>

@@ -7,7 +7,6 @@ import { initAudio } from "@/lib/sound";
 import { clearAllSessions } from "@/lib/storage";
 import SettingsPanel from "@/components/settings/SettingsPanel";
 import AlertNotification from "@/components/detect/AlertNotification";
-import PrivacyModal from "@/components/PrivacyModal";
 
 export default function SettingsPage() {
   const { settings, isLoaded, updateSettings, setSensitivity, resetSettings } = useSettings();
@@ -16,7 +15,6 @@ export default function SettingsPage() {
     settings.alertVolume
   );
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
 
   const handlePreviewAlert = () => {
@@ -114,15 +112,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Privacy link */}
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => setPrivacyOpen(true)}
-            className="text-sm text-text-muted hover:text-text-secondary underline transition-colors"
-          >
-            隐私与数据安全说明
-          </button>
-        </div>
       </div>
 
       {/* Alert Preview */}
@@ -147,7 +136,6 @@ export default function SettingsPage() {
         </div>
       )}
 
-      <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </div>
   );
 }

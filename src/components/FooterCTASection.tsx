@@ -1,12 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import PrivacyModal from "@/components/PrivacyModal";
 
 export default function FooterCTASection() {
-  const [privacyOpen, setPrivacyOpen] = useState(false);
-
   return (
     <section className="max-w-[1100px] mx-auto px-6 py-24 text-center fade-in">
       {/* Title */}
@@ -35,21 +31,14 @@ export default function FooterCTASection() {
 
       {/* Footer Bar */}
       <div className="pt-20 mt-20">
-        <div className="flex justify-between items-center text-sm text-text-muted">
-          <span>体态哨兵 · TRAE AI 创造力大赛</span>
-          <span>硬件交互赛道 · 社会公益 · 2026</span>
+        <div className="flex justify-center items-center text-sm text-text-muted">
+          <span>体态哨兵 · 本地 AI 坐姿守护</span>
         </div>
       </div>
 
-      <div className="mt-6 text-center text-xs text-text-muted flex items-center justify-center gap-3 flex-wrap">
-        <span>Powered by TRAE Work · MediaPipe · DeepSeek</span>
-        <span className="hidden sm:inline">·</span>
-        <button onClick={() => setPrivacyOpen(true)} className="underline hover:text-text-secondary transition-colors">
-          隐私说明
-        </button>
+      <div className="mt-6 text-center text-xs text-text-muted">
+        <span>Powered by MediaPipe · DeepSeek</span>
       </div>
-
-      <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
     </section>
   );
 }

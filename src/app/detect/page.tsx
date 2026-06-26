@@ -211,6 +211,9 @@ export default function DetectPage() {
             onResume={handleResume}
             onStop={handleStop}
           />
+          <p className="text-center text-xs text-text-muted mt-4">
+            提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒
+          </p>
         </div>
       </div>
 

@@ -84,11 +84,6 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 max-w-[1100px] mx-auto fade-in">
-        {/* Top Badge */}
-        <div className="inline-flex items-center bg-primary-light text-primary-dark rounded-full px-4 py-1.5 text-sm font-medium">
-          TRAE AI 创造力大赛 · 硬件交互赛道
-        </div>
-
         {/* Main Title */}
         <h1 className="text-[clamp(2rem,5vw,4rem)] font-bold text-text-primary mt-6">
           体态哨兵
@@ -139,14 +134,6 @@ export default function HeroSection() {
           </span>
         </div>
 
-        {/* Down Arrow */}
-        <div className="flex flex-col items-center mt-12 text-text-muted animate-bounce-down">
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <polyline points="19 12 12 19 5 12" />
-          </svg>
-          <span className="text-sm mt-1">向下探索</span>
-        </div>
       </div>
     </section>
   );

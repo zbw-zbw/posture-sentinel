@@ -116,7 +116,13 @@ export default function MetricsPanel({
   return (
     <div className="flex flex-col gap-4">
       {/* Status */}
-      <div className={`${isUnknown ? "bg-surface-alt text-text-muted" : `${config.bg} ${config.color}`} font-semibold text-xl inline-block px-4 py-2.5 rounded-full flex items-center gap-3 w-fit`}>
+      <div
+        className={`${
+          isUnknown
+            ? "bg-surface-alt text-text-muted"
+            : `${config.bg} ${config.color}`
+        } font-semibold text-lg px-5 py-3 rounded-2xl flex items-center gap-3 w-fit`}
+      >
         {isUnknown && (
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -125,8 +131,21 @@ export default function MetricsPanel({
             <line x1="22" y1="11" x2="17" y2="16" />
           </svg>
         )}
-        <span className={currentStatus === "good" && !isUnknown ? "animate-pulse-green inline-block w-3 h-3 rounded-full bg-primary" : "inline-block w-3 h-3 rounded-full"} style={{ backgroundColor: isUnknown ? "#9ca3af" : currentStatus === "good" ? "#10b981" : currentStatus === "warning" ? "#f59e0b" : "#ef4444" }} />
-        {isUnknown ? "未检测到人体" : config.label}
+        <span
+          className={`flex-shrink-0 w-3 h-3 rounded-full ${
+            !isUnknown && currentStatus === "good" ? "animate-pulse-green" : ""
+          }`}
+          style={{
+            backgroundColor: isUnknown
+              ? "#9ca3af"
+              : currentStatus === "good"
+                ? "#10b981"
+                : currentStatus === "warning"
+                  ? "#f59e0b"
+                  : "#ef4444",
+          }}
+        />
+        <span>{isUnknown ? "未检测到人体" : config.label}</span>
       </div>
 
       {/* Metric Cards */}

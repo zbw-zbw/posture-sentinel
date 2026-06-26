@@ -67,7 +67,7 @@ export default function TechPrivacySection() {
             </li>
           </ul>
           <div className="mt-6 pt-4 text-sm text-text-muted">
-            全程使用 TRAE IDE + TRAE Work 开发
+            前端基于 Next.js + React + TypeScript 构建
           </div>
         </div>
 
