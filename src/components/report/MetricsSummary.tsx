@@ -41,8 +41,11 @@ function ChangeArrow({ direction }: { direction: "up" | "down" | "neutral" }) {
 }
 
 function MetricCard({ icon, name, value, unit, threshold, change }: { icon: React.ReactNode; name: string; value: number; unit: string; threshold?: string; change?: number }) {
-  const color = change === undefined ? "" : change > 0 ? "text-primary" : change < 0 ? "text-danger" : "text-text-muted";
-  const direction = change === undefined ? "neutral" : change > 0 ? "up" : change < 0 ? "down" : "neutral";
+  // Guard against NaN/null/undefined values
+  const safeValue = Number.isFinite(value) ? value : 0;
+  const safeChange = change !== undefined && Number.isFinite(change) ? change : undefined;
+  const color = safeChange === undefined ? "" : safeChange > 0 ? "text-primary" : safeChange < 0 ? "text-danger" : "text-text-muted";
+  const direction = safeChange === undefined ? "neutral" : safeChange > 0 ? "up" : safeChange < 0 ? "down" : "neutral";
 
   return (
     <div className="bg-surface-alt rounded-xl p-3 md:p-4">
@@ -51,15 +54,15 @@ function MetricCard({ icon, name, value, unit, threshold, change }: { icon: Reac
         <span>{name}</span>
       </div>
       <p className="text-2xl font-bold text-text-primary mt-2">
-        {value}<span className="text-sm font-normal text-text-muted ml-1">{unit}</span>
+        {safeValue}<span className="text-sm font-normal text-text-muted ml-1">{unit}</span>
       </p>
       {threshold && (
         <p className="text-xs text-text-muted mt-1">{threshold}</p>
       )}
-      {change !== undefined && (
+      {safeChange !== undefined && (
         <p className={`text-xs mt-1 flex items-center gap-1 ${color}`}>
           <ChangeArrow direction={direction} />
-          较昨日 {change > 0 ? "+" : ""}{change}{unit}
+          较昨日 {safeChange > 0 ? "+" : ""}{safeChange}{unit}
         </p>
       )}
     </div>

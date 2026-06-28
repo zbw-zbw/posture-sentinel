@@ -45,20 +45,17 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
 
   useEffect(() => {
     let cancelled = false;
-    const t1 = setTimeout(() => setLoading(true), 0);
-    const t2 = setTimeout(() => {
+    setLoading(true);
+    // Use requestAnimationFrame instead of setTimeout for smoother UX
+    requestAnimationFrame(() => {
       if (cancelled) return;
       setReport(generateDailyReport(date));
       setWeeklyScores(getWeeklyScores());
       setYesterdayReport(getYesterdayReport());
       setAvailableDates(getAvailableDates());
       setLoading(false);
-    }, 150);
-    return () => {
-      cancelled = true;
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    });
+    return () => { cancelled = true; };
   }, [date]);
 
   const aiRequestData = useMemo(() => {
@@ -76,6 +73,11 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
       totalDuration: report.totalDuration,
       sessionCount: report.sessionCount,
     };
+  }, [report]);
+
+  const encouragement = useMemo(() => {
+    if (!report) return null;
+    return getEncouragement(report.avgScore);
   }, [report]);
 
   const yesterdayMetrics = yesterdayReport
@@ -106,9 +108,11 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
       {!loading && report && (
         <div className="space-y-6">
           {/* Encouragement Card */}
-          <div className={`px-4 py-3 rounded-xl text-sm font-medium ${getEncouragement(report.avgScore).color}`}>
-            {getEncouragement(report.avgScore).text}
-          </div>
+          {encouragement && (
+            <div className={`px-4 py-3 rounded-xl text-sm font-medium ${encouragement.color}`}>
+              {encouragement.text}
+            </div>
+          )}
 
           {/* Row 1: Score Ring + Distribution */}
           <section className="fade-in">

@@ -79,10 +79,27 @@ export function getSessions(): SessionRecord[] {
   if (typeof window === "undefined") return [];
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const raw: SessionRecord[] = JSON.parse(data);
+    // Migrate old session records that use pre-rename metric field names
+    return raw.map(migrateSessionRecord);
   } catch {
     return [];
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function migrateSessionRecord(s: any): SessionRecord {
+  const m = s.metrics || {};
+  return {
+    ...s,
+    metrics: {
+      avgHeadTilt: m.avgHeadTilt ?? m.avgHeadAngle ?? 0,
+      avgShoulderTilt: m.avgShoulderTilt ?? m.avgShoulderSymmetry ?? 0,
+      avgNeckForward: m.avgNeckForward ?? 0,
+      avgSpineTilt: m.avgSpineTilt ?? m.avgSpineAngle ?? 0,
+    },
+  };
 }
 
 export function getSessionsByDate(date: string): SessionRecord[] {

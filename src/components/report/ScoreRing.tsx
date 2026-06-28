@@ -26,11 +26,14 @@ function ArrowIcon({ up }: { up: boolean }) {
 }
 
 export default function ScoreRing({ score, yesterdayScore }: ScoreRingProps) {
-  const diff = yesterdayScore !== undefined ? score - yesterdayScore : undefined;
+  const safeScore = Number.isFinite(score) ? score : 0;
+  const diff = yesterdayScore !== undefined && Number.isFinite(yesterdayScore)
+    ? safeScore - yesterdayScore
+    : undefined;
   
   return (
     <div className="flex flex-col items-center">
-      <RingChart value={score} max={100} size={180} strokeWidth={12} animate={true} label={String(score)} sublabel="/100 分" />
+      <RingChart value={safeScore} max={100} size={180} strokeWidth={12} animate={true} label={String(safeScore)} sublabel="/100 分" />
       {diff !== undefined && (
         <div className={`flex items-center gap-1 mt-3 text-sm font-medium ${diff >= 0 ? "text-primary" : "text-danger"}`}>
           <ArrowIcon up={diff >= 0} />

@@ -50,16 +50,16 @@ export function generateDailyReport(date: string): DailyReportData | null {
   const scoreTimeline: { time: number; score: number }[] = [];
 
   for (const s of sessions) {
-    totalDuration += s.duration;
-    totalScore += s.avgScore;
-    totalAlerts += s.alertCount;
-    totalHeadTilt += s.metrics.avgHeadTilt;
-    totalShoulderTilt += s.metrics.avgShoulderTilt;
-    totalNeckForward += s.metrics.avgNeckForward;
-    totalSpineTilt += s.metrics.avgSpineTilt;
-    totalGood += (s.goodPercent / 100) * s.duration;
-    totalWarning += (s.warningPercent / 100) * s.duration;
-    totalBad += (s.badPercent / 100) * s.duration;
+    totalDuration += s.duration || 0;
+    totalScore += s.avgScore || 0;
+    totalAlerts += s.alertCount || 0;
+    totalHeadTilt += s.metrics?.avgHeadTilt ?? 0;
+    totalShoulderTilt += s.metrics?.avgShoulderTilt ?? 0;
+    totalNeckForward += s.metrics?.avgNeckForward ?? 0;
+    totalSpineTilt += s.metrics?.avgSpineTilt ?? 0;
+    totalGood += ((s.goodPercent || 0) / 100) * (s.duration || 0);
+    totalWarning += ((s.warningPercent || 0) / 100) * (s.duration || 0);
+    totalBad += ((s.badPercent || 0) / 100) * (s.duration || 0);
 
     // Merge score histories
     if (s.scoreHistory && s.scoreHistory.length > 0) {
@@ -107,8 +107,12 @@ export function getWeeklyScores(): WeeklyScore[] {
 
     let score = 0;
     if (daySessions.length > 0) {
-      const total = daySessions.reduce((sum, s) => sum + s.avgScore, 0);
-      score = Math.round(total / daySessions.length);
+      // Only count sessions with non-zero scores (filter out old broken sessions)
+      const validSessions = daySessions.filter((s) => s.avgScore > 0);
+      if (validSessions.length > 0) {
+        const total = validSessions.reduce((sum, s) => sum + s.avgScore, 0);
+        score = Math.round(total / validSessions.length);
+      }
     }
 
     result.push({
