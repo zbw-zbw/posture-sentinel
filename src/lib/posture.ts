@@ -144,15 +144,33 @@ function scoreFromBadness(value: number, goodThreshold: number, badThreshold: nu
 }
 
 export function analyzePosture(landmarks: NormalizedLandmark[]): PostureMetrics {
-  // Check if essential landmarks are visible
-  const requiredIndices = [0, 7, 8, 11, 12, 23, 24];
-  const isDetected = requiredIndices.every(
-    (i) =>
-      landmarks[i] &&
-      (landmarks[i].visibility === undefined || landmarks[i].visibility > 0.3)
-  );
+  // Check if essential landmarks exist and have valid coordinates.
+  // Note: MediaPipe pose_landmarker_lite often returns visibility=0 or undefined
+  // even when landmarks are clearly detected, so we do NOT use visibility threshold.
+  // We only require that the landmark object exists with valid x,y coordinates.
+  const hasValidLandmark = (i: number): boolean => {
+    const lm = landmarks[i];
+    if (!lm) return false;
+    if (typeof lm.x !== "number" || typeof lm.y !== "number") return false;
+    // Sanity check: coordinates should be in normalized [0, 1] range
+    if (lm.x < -0.1 || lm.x > 1.1 || lm.y < -0.1 || lm.y > 1.1) return false;
+    return true;
+  };
 
-  if (!isDetected) {
+  // Core landmarks needed for head + shoulder metrics (upper body)
+  const coreIndices = [0, 11, 12]; // nose, left shoulder, right shoulder
+  const coreDetected = coreIndices.every(hasValidLandmark);
+
+  // Hip landmarks are needed for spine tilt, but may be off-screen in close-up shots
+  const hipIndices = [23, 24]; // left hip, right hip
+  const hipsDetected = hipIndices.every(hasValidLandmark);
+
+  // Ear landmarks for head tilt (may occasionally be occluded)
+  const earIndices = [7, 8];
+  const earsDetected = earIndices.every(hasValidLandmark);
+
+  if (!coreDetected) {
+    // Can't do anything without nose and shoulders
     return {
       headTiltAngle: 0,
       shoulderTiltAngle: 0,
@@ -164,31 +182,41 @@ export function analyzePosture(landmarks: NormalizedLandmark[]): PostureMetrics 
     };
   }
 
-  const headTiltAngle = calculateHeadTiltAngle(landmarks);
+  // Compute metrics, using 0 for unavailable ones
+  const headTiltAngle = earsDetected ? calculateHeadTiltAngle(landmarks) : 0;
   const shoulderTiltAngle = calculateShoulderTiltAngle(landmarks);
   const neckForwardScore = calculateNeckForwardScore(landmarks);
-  const spineTiltAngle = calculateSpineTiltAngle(landmarks);
+  const spineTiltAngle = hipsDetected ? calculateSpineTiltAngle(landmarks) : 0;
 
   // Individual scores (0-100, higher = better posture)
-  // Head tilt: good < 5°, bad > 15°
-  const headScore = scoreFromBadness(headTiltAngle, 5, 15);
+  // Head tilt: good < 5°, bad > 15° (only scored if ears detected)
+  const headScore = earsDetected ? scoreFromBadness(headTiltAngle, 5, 15) : 100;
   // Shoulder tilt: good < 3°, bad > 8°
   const shoulderScore = scoreFromBadness(shoulderTiltAngle, 3, 8);
   // Forward neck: good < 20, bad > 60 (on the 0-100 severity scale)
   const neckScore = scoreFromBadness(neckForwardScore, 20, 60);
-  // Spine tilt: good < 5°, bad > 15°
-  const spineScore = scoreFromBadness(spineTiltAngle, 5, 15);
+  // Spine tilt: good < 5°, bad > 15° (only scored if hips detected)
+  const spineScore = hipsDetected ? scoreFromBadness(spineTiltAngle, 5, 15) : 100;
 
-  // Overall score: weighted average
+  // Overall score: weighted average (redistribute weights for unavailable metrics)
+  const weights = { head: 0.30, shoulder: 0.20, neck: 0.30, spine: 0.20 };
+  const totalWeight =
+    (earsDetected ? weights.head : 0) +
+    weights.shoulder +
+    weights.neck +
+    (hipsDetected ? weights.spine : 0);
   const overallScore = Math.round(
-    headScore * 0.30 +
-      shoulderScore * 0.20 +
-      neckScore * 0.30 +
-      spineScore * 0.20
+    (headScore * (earsDetected ? weights.head : 0) +
+      shoulderScore * weights.shoulder +
+      neckScore * weights.neck +
+      spineScore * (hipsDetected ? weights.spine : 0)) / totalWeight
   );
 
-  // Status based on worst metric (sensitive to any single bad metric)
-  const worstScore = Math.min(headScore, shoulderScore, neckScore, spineScore);
+  // Status based on worst available metric
+  const availableScores: number[] = [shoulderScore, neckScore];
+  if (earsDetected) availableScores.push(headScore);
+  if (hipsDetected) availableScores.push(spineScore);
+  const worstScore = Math.min(...availableScores);
   let status: PostureStatus = "good";
   if (worstScore < 50) status = "bad";
   else if (worstScore < 80) status = "warning";
