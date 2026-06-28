@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { getTodayDate } from "@/lib/storage";
 
 interface EmptyStateProps {
   date: string;
 }
 
 export default function EmptyState({ date }: EmptyStateProps) {
-  const isToday = date === new Date().toISOString().split("T")[0];
+  const isToday = date === getTodayDate();
 
   return (
     <div className="bg-surface rounded-2xl border border-border p-12 text-center">

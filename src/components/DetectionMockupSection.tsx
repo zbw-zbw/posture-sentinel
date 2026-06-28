@@ -177,7 +177,7 @@ function SkeletonSVG() {
 /* ── Main Component ── */
 export default function DetectionMockupSection() {
   return (
-    <div className="max-w-[1100px] mx-auto px-6 py-24 fade-in">
+    <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-24 fade-in">
       {/* Title */}
       <h2 className="text-3xl md:text-4xl font-bold text-center text-text-primary">
         实时检测界面
@@ -201,7 +201,7 @@ export default function DetectionMockupSection() {
       </div>
 
       {/* Main Mockup Card */}
-      <div className="bg-surface rounded-[20px] shadow-xl border border-border overflow-hidden mt-12">
+      <div className="bg-surface rounded-[20px] shadow-xl overflow-hidden mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* ─── Left Column: Camera Preview ─── */}
           <div className="bg-dark p-6 relative min-h-[400px] flex flex-col justify-between">

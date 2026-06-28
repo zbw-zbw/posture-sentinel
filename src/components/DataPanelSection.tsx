@@ -9,7 +9,7 @@ export default function DataPanelSection() {
   ];
 
   return (
-    <section className="max-w-[1100px] mx-auto px-6 py-24">
+    <section className="max-w-[1100px] mx-auto px-4 md:px-6 py-24">
       <div className="bg-dark rounded-2xl p-8 md:p-12 fade-in">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {metrics.map((metric, index) => (

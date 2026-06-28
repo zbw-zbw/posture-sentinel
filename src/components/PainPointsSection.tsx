@@ -43,7 +43,7 @@ export default function PainPointsSection() {
   ];
 
   return (
-    <section className="max-w-[1100px] mx-auto px-6 py-24">
+    <section className="max-w-[1100px] mx-auto px-4 md:px-6 py-24">
       <div className="fade-in">
         {/* Section Title */}
         <h2 className="text-3xl md:text-4xl font-bold text-center text-text-primary">
@@ -58,7 +58,7 @@ export default function PainPointsSection() {
           {cards.map((card, index) => (
             <div
               key={index}
-              className="bg-surface rounded-2xl border border-border card-hover overflow-hidden flex flex-col"
+              className="bg-surface rounded-2xl card-hover overflow-hidden flex flex-col"
             >
               {/* Card Content */}
               <div className="px-6 py-8 flex-1">

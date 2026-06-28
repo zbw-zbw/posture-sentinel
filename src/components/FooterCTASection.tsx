@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function FooterCTASection() {
   return (
-    <section className="max-w-[1100px] mx-auto px-6 py-24 text-center fade-in">
+    <section className="max-w-[1100px] mx-auto px-4 md:px-6 py-24 text-center fade-in">
       {/* Title */}
       <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary">
         你的脊椎，值得一个 24 小时的守卫

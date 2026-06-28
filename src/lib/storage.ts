@@ -24,6 +24,19 @@ export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
+// Format a Date to YYYY-MM-DD using LOCAL time (not UTC)
+// Avoids timezone shift bugs when using toISOString()
+export function toLocalDateString(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getTodayDate(): string {
+  return toLocalDateString(new Date());
+}
+
 function downsampleScoreHistory(history: { time: number; score: number }[]): { time: number; score: number }[] {
   if (history.length <= 200) return history;
   const step = Math.ceil(history.length / 200);
@@ -76,7 +89,7 @@ export function getSessionsByDate(date: string): SessionRecord[] {
 }
 
 export function getTodaySessions(): SessionRecord[] {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayDate();
   return getSessionsByDate(today);
 }
 

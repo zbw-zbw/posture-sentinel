@@ -4,7 +4,7 @@ export default function TechPrivacySection() {
   return (
     <section
       id="about"
-      className="mx-auto max-w-[1100px] px-6 py-24 fade-in"
+      className="mx-auto max-w-[1100px] px-4 md:px-6 py-24 fade-in"
     >
       {/* Title */}
       <h2 className="text-center text-3xl font-bold text-text-primary md:text-4xl">
@@ -17,7 +17,7 @@ export default function TechPrivacySection() {
       {/* Grid */}
       <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Left Card: Tech Stack */}
-        <div className="rounded-2xl border border-border bg-surface p-8 card-hover">
+        <div className="rounded-2xl bg-surface p-8 card-hover">
           <h3 className="mb-6 text-xl font-semibold">技术栈</h3>
           <ul className="flex flex-col gap-3">
             <li className="flex items-start gap-3 rounded-lg bg-surface-alt p-3 text-sm text-text-primary">

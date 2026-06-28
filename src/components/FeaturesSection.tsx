@@ -145,7 +145,7 @@ function MiniLineChart() {
 /* ── Main Component ── */
 export default function FeaturesSection() {
   return (
-    <div className="max-w-[1100px] mx-auto px-6 py-24 fade-in">
+    <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-24 fade-in">
       {/* Section Title */}
       <h2 className="text-3xl md:text-4xl font-bold text-center text-text-primary">
         三重守护，让坐姿不再失控
@@ -158,7 +158,7 @@ export default function FeaturesSection() {
         {/* ================================================================ */}
         {/* Feature 1: 实时 AI 检测 (standard layout)                       */}
         {/* ================================================================ */}
-        <div className="bg-surface rounded-2xl border border-border card-hover overflow-hidden">
+        <div className="bg-surface rounded-2xl card-hover overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Text */}
             <div className="p-8 md:p-12">
@@ -198,11 +198,11 @@ export default function FeaturesSection() {
         {/* ================================================================ */}
         {/* Feature 2: 智能温和提醒 (reverse layout)                        */}
         {/* ================================================================ */}
-        <div className="bg-surface rounded-2xl border border-border card-hover overflow-hidden">
+        <div className="bg-surface rounded-2xl card-hover overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Notification mockup */}
             <div className="h-full flex items-end p-4">
-              <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 w-full text-white relative animate-bounce-down">
+              <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 w-full text-white relative">
                 {/* Close button */}
                 <button className="absolute top-3 right-3 text-white/60 hover:text-white transition-colors">
                   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -238,7 +238,7 @@ export default function FeaturesSection() {
         {/* ================================================================ */}
         {/* Feature 3: 脊椎健康日报 (standard layout)                       */}
         {/* ================================================================ */}
-        <div className="bg-surface rounded-2xl border border-border card-hover overflow-hidden">
+        <div className="bg-surface rounded-2xl card-hover overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Text */}
             <div className="p-8 md:p-12">
@@ -255,7 +255,7 @@ export default function FeaturesSection() {
 
             {/* Right: Daily report card */}
             <div className="h-full flex items-center p-4">
-              <div className="bg-surface rounded-2xl border border-border p-6 w-full">
+              <div className="bg-surface rounded-2xl p-6 w-full">
                 {/* Report title */}
                 <p className="font-semibold text-base text-text-primary">
                   今日脊椎健康报告 &middot; 6月25日

@@ -121,7 +121,7 @@ export default function MetricsPanel({
           isUnknown
             ? "bg-surface-alt text-text-muted"
             : `${config.bg} ${config.color}`
-        } font-semibold text-lg px-5 py-3 rounded-2xl flex items-center gap-3 w-fit`}
+        } font-semibold text-lg px-5 py-3 rounded-2xl flex items-center gap-3 w-full sm:w-fit`}
       >
         {isUnknown && (
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

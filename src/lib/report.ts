@@ -1,5 +1,13 @@
 import { getSessionsByDate, getSessions, type SessionRecord } from "./storage";
 
+// Format a Date to YYYY-MM-DD using LOCAL time (not UTC)
+function toLocalDateString(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export interface DailyReportData {
   date: string;
   totalDuration: number;
@@ -90,7 +98,7 @@ export function getWeeklyScores(): WeeklyScore[] {
   for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
+    const dateStr = toLocalDateString(d);
     const daySessions = allSessions.filter((s) => s.date === dateStr);
 
     let score = 0;
@@ -112,7 +120,7 @@ export function getWeeklyScores(): WeeklyScore[] {
 export function getYesterdayReport(): DailyReportData | null {
   const d = new Date();
   d.setDate(d.getDate() - 1);
-  const yesterday = d.toISOString().split("T")[0];
+  const yesterday = toLocalDateString(d);
   return generateDailyReport(yesterday);
 }
 
@@ -125,7 +133,7 @@ export function formatDateCN(dateStr: string): string {
 }
 
 export function isToday(dateStr: string): boolean {
-  return dateStr === new Date().toISOString().split("T")[0];
+  return dateStr === toLocalDateString(new Date());
 }
 
 export function getAvailableDates(): string[] {

@@ -37,7 +37,7 @@ export default function HeroSection() {
     return () => observer.disconnect();
   }, []);
   return (
-    <section className="relative overflow-hidden py-24 px-6 text-center">
+    <section className="relative overflow-hidden py-24 px-4 md:px-6 text-center">
       {/* Background SVG - Sitting Posture Skeleton */}
       <div className="absolute right-0 top-0 h-full w-1/2 pointer-events-none opacity-5 select-none">
         <svg

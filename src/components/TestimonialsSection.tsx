@@ -2,7 +2,7 @@
 
 export default function TestimonialsSection() {
   return (
-    <section className="mx-auto max-w-[1100px] px-6 py-24 fade-in">
+    <section className="mx-auto max-w-[1100px] px-4 md:px-6 py-24 fade-in">
       {/* Title */}
       <h2 className="text-center text-3xl font-bold text-text-primary md:text-4xl">
         来自真实用户的体验
@@ -14,7 +14,7 @@ export default function TestimonialsSection() {
       {/* Cards Grid */}
       <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Card 1: 程序员小周 */}
-        <div className="card-hover relative flex flex-col rounded-2xl border border-border bg-surface p-6">
+        <div className="card-hover relative flex flex-col rounded-2xl bg-surface p-6">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-info to-info-light">
               <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,7 +39,7 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Card 2: 初中生小雨 */}
-        <div className="card-hover relative flex flex-col rounded-2xl border border-border bg-surface p-6">
+        <div className="card-hover relative flex flex-col rounded-2xl bg-surface p-6">
           <div className="absolute right-3 top-3 rounded-full bg-primary-light px-2 py-1 text-xs text-primary">
             公益
           </div>
@@ -67,7 +67,7 @@ export default function TestimonialsSection() {
         </div>
 
         {/* Card 3: 远程工作者阿琳 */}
-        <div className="card-hover relative flex flex-col rounded-2xl border border-border bg-surface p-6">
+        <div className="card-hover relative flex flex-col rounded-2xl bg-surface p-6">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-warning to-warning-light">
               <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

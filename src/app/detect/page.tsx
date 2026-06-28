@@ -9,7 +9,7 @@ import { useAlertSystem } from "@/hooks/useAlertSystem";
 import { useDetectSession } from "@/hooks/useDetectSession";
 import { useSettings } from "@/hooks/useSettings";
 import { initAudio } from "@/lib/sound";
-import { saveSession, generateId } from "@/lib/storage";
+import { saveSession, generateId, getTodayDate } from "@/lib/storage";
 import CameraView from "@/components/detect/CameraView";
 import MetricsPanel from "@/components/detect/MetricsPanel";
 import DetectControls from "@/components/detect/DetectControls";
@@ -116,7 +116,7 @@ export default function DetectPage() {
     // Save session to localStorage
     saveSession({
       id: generateId(),
-      date: new Date().toISOString().split("T")[0],
+      date: getTodayDate(),
       startTime: Date.now() - summary.duration * 1000,
       endTime: Date.now(),
       duration: summary.duration,
@@ -188,7 +188,7 @@ export default function DetectPage() {
 
           {/* Metrics panel */}
           <div className="lg:col-span-2">
-            <div className="bg-surface rounded-2xl border border-border p-5 md:p-6 h-full card-hover">
+            <div className="bg-surface rounded-2xl p-5 md:p-6 h-full card-hover">
               <MetricsPanel
                 metrics={metrics}
                 fps={fps}

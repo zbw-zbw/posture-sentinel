@@ -1,25 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-
+// This component is kept for backward compatibility but is now a no-op.
+// Fade-in animations are handled purely by CSS (see globals.css).
 export default function ScrollObserver() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = document.querySelectorAll(".fade-in");
-    elements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, []);
-
   return null;
 }

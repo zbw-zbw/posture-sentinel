@@ -32,7 +32,7 @@ export default function SettingsPanel({
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       {/* Card 1: Detection Settings */}
-      <div className="bg-surface rounded-2xl border border-border p-6 mb-6 card-hover">
+      <div className="bg-surface rounded-2xl p-6 mb-6 card-hover">
         <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
@@ -90,7 +90,7 @@ export default function SettingsPanel({
       </div>
 
       {/* Card 2: Alert Settings */}
-      <div className="bg-surface rounded-2xl border border-border p-6 mb-6 card-hover">
+      <div className="bg-surface rounded-2xl p-6 mb-6 card-hover">
         <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -196,7 +196,7 @@ export default function SettingsPanel({
       </div>
 
       {/* Card 3: Advanced Settings (Collapsible) */}
-      <div className="bg-surface rounded-2xl border border-border p-6 mb-6 card-hover">
+      <div className="bg-surface rounded-2xl p-6 mb-6 card-hover">
         <button
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
           className="flex items-center justify-between w-full text-left"
@@ -221,7 +221,7 @@ export default function SettingsPanel({
           <div className="mt-5 space-y-4">
             {/* Head Angle Threshold */}
             <div className="flex items-center gap-3">
-              <span className="text-sm text-text-secondary w-24 flex-shrink-0">头前倾角度</span>
+              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">头前倾角度</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -256,7 +256,7 @@ export default function SettingsPanel({
 
             {/* Shoulder Threshold */}
             <div className="flex items-center gap-3">
-              <span className="text-sm text-text-secondary w-24 flex-shrink-0">肩膀倾斜</span>
+              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">肩膀倾斜</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -291,7 +291,7 @@ export default function SettingsPanel({
 
             {/* Spine Angle Threshold */}
             <div className="flex items-center gap-3">
-              <span className="text-sm text-text-secondary w-24 flex-shrink-0">脊椎角度</span>
+              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">脊椎角度</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
