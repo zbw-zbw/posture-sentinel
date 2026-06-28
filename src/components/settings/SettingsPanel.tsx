@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import type { Settings } from "@/hooks/useSettings";
 
 interface SettingsPanelProps {
@@ -9,7 +8,6 @@ interface SettingsPanelProps {
   onSetSensitivity: (level: "low" | "medium" | "high") => void;
   onReset: () => void;
   onPreviewAlert: () => void;
-  onSave: () => void;
 }
 
 export default function SettingsPanel({
@@ -18,10 +16,7 @@ export default function SettingsPanel({
   onSetSensitivity,
   onReset,
   onPreviewAlert,
-  onSave,
 }: SettingsPanelProps) {
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-
   const alertMethods = ["visual", "sound", "both"] as const;
   const alertMethodLabels: Record<string, string> = {
     visual: "视觉",
@@ -31,6 +26,16 @@ export default function SettingsPanel({
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Auto-save hint */}
+      <div className="flex items-center gap-2 text-sm text-text-muted mb-6">
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
+        设置会自动保存到浏览器本地
+      </div>
+
       {/* Card 1: Detection Settings */}
       <div className="bg-surface rounded-2xl p-6 mb-6 card-hover">
         <h3 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
@@ -84,7 +89,7 @@ export default function SettingsPanel({
             className="w-full h-2 bg-border rounded-full appearance-none cursor-pointer accent-primary"
           />
           <p className="text-xs text-text-muted mt-1.5">
-            帧率越高检测越流畅，但会增加CPU/GPU负载
+            帧率越高检测越流畅，但会增加 CPU/GPU 负载
           </p>
         </div>
       </div>
@@ -180,7 +185,7 @@ export default function SettingsPanel({
         <div>
           <button
             onClick={onPreviewAlert}
-            className="flex items-center gap-2 bg-surface-alt hover:bg-border text-text-secondary font-medium px-4 py-2.5 rounded-xl border border-border transition-all text-sm"
+            className="flex items-center gap-2 bg-surface-alt hover:bg-border text-text-secondary font-medium px-4 py-2.5 rounded-xl transition-all text-sm"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 5L6 9H2v6h4l5 4V5z" />
@@ -196,32 +201,27 @@ export default function SettingsPanel({
       </div>
 
       {/* Card 3: Advanced Settings (Collapsible) */}
-      <div className="bg-surface rounded-2xl p-6 mb-6 card-hover">
-        <button
-          onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-          className="flex items-center justify-between w-full text-left"
-        >
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-            高级设置
-          <span
-            className={`text-text-muted transition-transform duration-200 ${
-              isAdvancedOpen ? "rotate-180" : ""
-            }`}
-          >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </span>
-        </button>
+      <div className="bg-surface rounded-2xl p-6 mb-6">
+        <details className="group">
+          <summary className="flex items-center justify-between w-full text-left list-none cursor-pointer">
+            <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              高级设置
+            </h3>
+            <span className="text-text-muted transition-transform duration-200 group-open:rotate-180">
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </span>
+          </summary>
 
-        {isAdvancedOpen && (
           <div className="mt-5 space-y-4">
             {/* Head Angle Threshold */}
             <div className="flex items-center gap-3">
-              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">头前倾角度</span>
+              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">头部倾斜</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -291,7 +291,7 @@ export default function SettingsPanel({
 
             {/* Spine Angle Threshold */}
             <div className="flex items-center gap-3">
-              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">脊椎角度</span>
+              <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">脊椎倾斜</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -324,35 +324,96 @@ export default function SettingsPanel({
               </div>
             </div>
 
+            {/* Status Debounce */}
+            <div>
+              <label className="block text-sm text-text-secondary mb-2">
+                状态切换防抖
+              </label>
+              <p className="text-xs text-text-muted mb-3">
+                避免姿态短暂波动导致状态频繁切换。数值越大状态越稳定。
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">坐姿良好</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={settings.statusDebounce.good}
+                    onChange={(e) =>
+                      onUpdate({
+                        statusDebounce: {
+                          ...settings.statusDebounce,
+                          good: Number(e.target.value),
+                        },
+                      })
+                    }
+                    className="flex-1 h-2 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+                  />
+                  <span className="text-text-primary text-sm font-medium w-10 text-right">{settings.statusDebounce.good}秒</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">需要注意</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={settings.statusDebounce.warning}
+                    onChange={(e) =>
+                      onUpdate({
+                        statusDebounce: {
+                          ...settings.statusDebounce,
+                          warning: Number(e.target.value),
+                        },
+                      })
+                    }
+                    className="flex-1 h-2 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+                  />
+                  <span className="text-text-primary text-sm font-medium w-10 text-right">{settings.statusDebounce.warning}秒</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-text-secondary w-20 sm:w-24 flex-shrink-0">坐姿不良</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={settings.statusDebounce.bad}
+                    onChange={(e) =>
+                      onUpdate({
+                        statusDebounce: {
+                          ...settings.statusDebounce,
+                          bad: Number(e.target.value),
+                        },
+                      })
+                    }
+                    className="flex-1 h-2 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+                  />
+                  <span className="text-text-primary text-sm font-medium w-10 text-right">{settings.statusDebounce.bad}秒</span>
+                </div>
+              </div>
+            </div>
+
             <p className="text-xs text-text-muted">
               调整各项角度阈值可自定义姿态判断标准，数值越小越严格
             </p>
-
-            {/* Reset Defaults */}
-            <div className="pt-2">
-              <button
-                onClick={onReset}
-                className="text-sm text-danger hover:text-danger/80 font-medium transition-colors"
-              >
-                恢复默认设置
-              </button>
-            </div>
           </div>
-        )}
+        </details>
       </div>
 
-      {/* Bottom Actions */}
-      <div className="flex gap-3">
-        <button onClick={onSave} className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors">
-          保存设置
-        </button>
-        <button
-          onClick={onReset}
-          className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-3 rounded-xl border border-border transition-colors"
-        >
-          重置
-        </button>
-      </div>
+      {/* Reset */}
+      <button
+        onClick={onReset}
+        className="w-full flex items-center justify-center gap-2 bg-surface-alt hover:bg-danger-light hover:text-danger text-text-secondary font-medium px-4 py-3 rounded-xl transition-all text-sm"
+      >
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+        恢复默认设置
+      </button>
     </div>
   );
 }

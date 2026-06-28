@@ -1,141 +1,99 @@
 "use client";
 
-import { useState } from "react";
 import { useSettings } from "@/hooks/useSettings";
-import { useAlertSystem } from "@/hooks/useAlertSystem";
-import { initAudio } from "@/lib/sound";
-import { clearAllSessions } from "@/lib/storage";
 import SettingsPanel from "@/components/settings/SettingsPanel";
 import AlertNotification from "@/components/detect/AlertNotification";
+import { playAlertSound, initAudio } from "@/lib/sound";
+import { useState } from "react";
 
 export default function SettingsPage() {
-  const { settings, isLoaded, updateSettings, setSensitivity, resetSettings } = useSettings();
-  const { isAlertVisible, alertMessage, alertType, showAlert, dismissAlert } = useAlertSystem(
-    settings.alertMethod,
-    settings.alertVolume
-  );
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showSaveToast, setShowSaveToast] = useState(false);
+  const { settings, updateSettings, setSensitivity, resetSettings } = useSettings();
+  const [dangerOpen, setDangerOpen] = useState(false);
+  const [cleared, setCleared] = useState(false);
+
+  const handleClearData = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("posture-sentinel:sessions");
+      localStorage.removeItem("posture-sentinel:settings");
+    }
+    setCleared(true);
+    setTimeout(() => setCleared(false), 2000);
+  };
 
   const handlePreviewAlert = () => {
     initAudio();
-    showAlert(
-      "这是一条提醒预览，实际检测时会根据你的坐姿状态触发提醒。",
-      "warning"
-    );
+    setDangerOpen(true);
+    if (settings.alertMethod !== "visual") {
+      playAlertSound("bad", settings.alertVolume / 100);
+    }
+    setTimeout(() => setDangerOpen(false), 3000);
   };
-
-  const handleSave = () => {
-    setShowSaveToast(true);
-    setTimeout(() => setShowSaveToast(false), 2000);
-  };
-
-  const handleClearData = () => {
-    clearAllSessions();
-    setShowClearConfirm(false);
-    showAlert("所有本地数据已清除", "warning");
-  };
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-bg pt-20 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-bg pt-20 pb-12">
-      <div className="max-w-[700px] mx-auto px-4 md:px-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
+    <div className="min-h-screen pb-10">
+      {/* Header */}
+      <section className="bg-surface px-4 md:px-6 pt-10 pb-8">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
             设置
           </h1>
-          <p className="text-text-secondary mt-1 text-sm">
-            自定义检测灵敏度、提醒方式和阈值参数
+          <p className="text-sm md:text-base text-text-secondary">
+            自定义检测灵敏度、提醒方式和高级阈值
           </p>
         </div>
+      </section>
 
-        {/* Settings Panel */}
-        <SettingsPanel
-          settings={settings}
-          onUpdate={updateSettings}
-          onSetSensitivity={setSensitivity}
-          onReset={resetSettings}
-          onPreviewAlert={handlePreviewAlert}
-          onSave={handleSave}
-        />
+      {/* Settings Panel */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-3xl mx-auto">
+          <SettingsPanel
+            settings={settings}
+            onUpdate={updateSettings}
+            onSetSensitivity={setSensitivity}
+            onReset={resetSettings}
+            onPreviewAlert={handlePreviewAlert}
+          />
+        </div>
+      </section>
 
-        {/* Danger Zone */}
-        <div className="mt-8 bg-surface rounded-2xl border border-danger/20 p-6 card-hover">
-          <h3 className="text-base font-semibold text-danger mb-4 flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            危险区域
-          </h3>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-text-secondary">清除所有本地数据</p>
-              <p className="text-xs text-text-muted mt-1">此操作不可恢复，将删除所有检测记录和设置</p>
-            </div>
-            {!showClearConfirm ? (
-              <button
-                onClick={() => setShowClearConfirm(true)}
-                className="w-full sm:w-auto bg-danger-light hover:bg-danger/10 text-danger font-medium px-5 py-2.5 rounded-xl border border-danger/20 transition-colors text-sm"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-                清除所有数据
-              </button>
-            ) : (
-              <div className="flex gap-2 w-full sm:w-auto">
-                <button
-                  onClick={handleClearData}
-                  className="flex-1 bg-danger hover:bg-danger/90 text-white font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
-                >
-                  确认清除
-                </button>
-                <button
-                  onClick={() => setShowClearConfirm(false)}
-                  className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium px-4 py-2.5 rounded-xl border border-border transition-colors text-sm"
-                >
-                  取消
-                </button>
-              </div>
-            )}
+      {/* Danger Zone */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-surface rounded-2xl p-6 border border-danger/20">
+            <h3 className="text-lg font-bold text-danger mb-2 flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              危险操作
+            </h3>
+            <p className="text-sm text-text-secondary mb-4">
+              清除所有本地数据后无法恢复，包括历史检测记录和当前设置。
+            </p>
+            <button
+              onClick={handleClearData}
+              className="w-full flex items-center justify-center gap-2 bg-danger-light hover:bg-danger/20 text-danger font-medium px-4 py-3 rounded-xl transition-all text-sm"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              {cleared ? "已清除" : "清除所有本地数据"}
+            </button>
           </div>
         </div>
+      </section>
 
-      </div>
-
-      {/* Alert Preview */}
+      {/* Preview */}
       <AlertNotification
-        isVisible={isAlertVisible}
-        message={alertMessage}
-        type={alertType}
-        alertCount={0}
-        statusDuration={0}
-        onDismiss={dismissAlert}
+        isVisible={dangerOpen}
+        message="这是一条提醒预览。当坐姿持续不良时，屏幕底部会弹出类似提示。"
+        type="bad"
+        alertCount={1}
+        statusDuration={settings.badPostureThreshold}
+        onDismiss={() => setDangerOpen(false)}
       />
-
-      {/* Save Success Toast */}
-      {showSaveToast && (
-        <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center animate-slide-up">
-          <div className="bg-primary text-white font-medium px-6 py-3 rounded-xl shadow-lg shadow-primary/25 flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            设置已保存
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

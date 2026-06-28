@@ -31,10 +31,6 @@ const ALERT_MESSAGES = [
   "已经驼背一会儿了，深吸一口气，把背挺直！",
 ];
 
-const DEBOUNCE_GOOD = 2;
-const DEBOUNCE_WARNING = 3;
-const DEBOUNCE_BAD = 2;
-
 export function usePostureAnalyzer(settings: Settings) {
   const [state, setState] = useState<PostureAnalyzerState>({
     currentStatus: "good",
@@ -92,9 +88,9 @@ export function usePostureAnalyzer(settings: Settings) {
           const dur = pendingDurationRef.current;
 
           // Check debounce thresholds
-          const threshold = pending === "good" ? DEBOUNCE_GOOD
-            : pending === "warning" ? DEBOUNCE_WARNING
-            : DEBOUNCE_BAD;
+          const threshold = pending === "good" ? settings.statusDebounce.good
+            : pending === "warning" ? settings.statusDebounce.warning
+            : settings.statusDebounce.bad;
 
           if (dur >= threshold) {
             currentStatusRef.current = pending;

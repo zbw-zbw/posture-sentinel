@@ -46,7 +46,7 @@ export function useDetectSession(): UseDetectSessionReturn {
 
   const startRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startSession = useCallback(() => {
     startRef.current = Date.now();

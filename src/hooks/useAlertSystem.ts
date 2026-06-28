@@ -15,7 +15,7 @@ export function useAlertSystem(alertMethod: "visual" | "sound" | "both", alertVo
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"warning" | "bad">("warning");
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alertCountRef = useRef<number>(0);
 
   const dismissAlert = useCallback(() => {

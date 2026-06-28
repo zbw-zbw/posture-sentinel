@@ -21,6 +21,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 type DetectState = "idle" | "detecting" | "paused";
 
 export default function DetectPage() {
+  const { settings } = useSettings();
   const { videoRef, isActive, isLoading, error, startCamera, stopCamera } = useCamera();
   const {
     landmarks,
@@ -29,9 +30,12 @@ export default function DetectPage() {
     fps,
     startDetection,
     stopDetection,
-  } = usePoseDetection();
-  const metrics = usePostureMetrics(landmarks);
-  const { settings } = useSettings();
+  } = usePoseDetection(settings.detectionFps);
+  const metrics = usePostureMetrics(landmarks, {
+    headAngleThreshold: settings.headAngleThreshold,
+    shoulderThreshold: settings.shoulderThreshold,
+    spineAngleThreshold: settings.spineAngleThreshold,
+  });
 
   const analyzer = usePostureAnalyzer(settings);
   const {

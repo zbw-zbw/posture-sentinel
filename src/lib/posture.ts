@@ -2,6 +2,12 @@ import { NormalizedLandmark } from "@mediapipe/tasks-vision";
 
 export type PostureStatus = "good" | "warning" | "bad";
 
+export interface PostureThresholds {
+  headAngle: { warning: number; bad: number };
+  shoulder: { warning: number; bad: number };
+  spineAngle: { warning: number; bad: number };
+}
+
 export interface PostureMetrics {
   headTiltAngle: number;      // 头部倾斜（度），ear-to-ear line from horizontal, 0=level
   shoulderTiltAngle: number;  // 肩膀倾斜（度），shoulder line from horizontal, 0=level
@@ -143,7 +149,16 @@ function scoreFromBadness(value: number, goodThreshold: number, badThreshold: nu
   return Math.round(100 * (1 - (value - goodThreshold) / (badThreshold - goodThreshold)));
 }
 
-export function analyzePosture(landmarks: NormalizedLandmark[]): PostureMetrics {
+export const DEFAULT_POSTURE_THRESHOLDS: PostureThresholds = {
+  headAngle: { warning: 5, bad: 15 },
+  shoulder: { warning: 3, bad: 8 },
+  spineAngle: { warning: 5, bad: 15 },
+};
+
+export function analyzePosture(
+  landmarks: NormalizedLandmark[],
+  thresholds: PostureThresholds = DEFAULT_POSTURE_THRESHOLDS
+): PostureMetrics {
   // Check if essential landmarks exist and have valid coordinates.
   // Note: MediaPipe pose_landmarker_lite often returns visibility=0 or undefined
   // even when landmarks are clearly detected, so we do NOT use visibility threshold.
@@ -189,14 +204,18 @@ export function analyzePosture(landmarks: NormalizedLandmark[]): PostureMetrics 
   const spineTiltAngle = hipsDetected ? calculateSpineTiltAngle(landmarks) : 0;
 
   // Individual scores (0-100, higher = better posture)
-  // Head tilt: good < 5°, bad > 15° (only scored if ears detected)
-  const headScore = earsDetected ? scoreFromBadness(headTiltAngle, 5, 15) : 100;
-  // Shoulder tilt: good < 3°, bad > 8°
-  const shoulderScore = scoreFromBadness(shoulderTiltAngle, 3, 8);
-  // Forward neck: good < 20, bad > 60 (on the 0-100 severity scale)
+  // Head tilt (only scored if ears detected)
+  const headScore = earsDetected
+    ? scoreFromBadness(headTiltAngle, thresholds.headAngle.warning, thresholds.headAngle.bad)
+    : 100;
+  // Shoulder tilt
+  const shoulderScore = scoreFromBadness(shoulderTiltAngle, thresholds.shoulder.warning, thresholds.shoulder.bad);
+  // Forward neck (good < 20, bad > 60 on the 0-100 severity scale)
   const neckScore = scoreFromBadness(neckForwardScore, 20, 60);
-  // Spine tilt: good < 5°, bad > 15° (only scored if hips detected)
-  const spineScore = hipsDetected ? scoreFromBadness(spineTiltAngle, 5, 15) : 100;
+  // Spine tilt (only scored if hips detected)
+  const spineScore = hipsDetected
+    ? scoreFromBadness(spineTiltAngle, thresholds.spineAngle.warning, thresholds.spineAngle.bad)
+    : 100;
 
   // Overall score: weighted average (redistribute weights for unavailable metrics)
   const weights = { head: 0.30, shoulder: 0.20, neck: 0.30, spine: 0.20 };

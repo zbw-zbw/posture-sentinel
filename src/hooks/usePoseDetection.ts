@@ -13,21 +13,27 @@ export interface UsePoseDetectionReturn {
   stopDetection: () => void;
 }
 
-export function usePoseDetection(): UsePoseDetectionReturn {
+export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn {
   const [landmarks, setLandmarks] = useState<NormalizedLandmark[][] | null>(null);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [fps, setFps] = useState(0);
-  
+
   const landmarkerRef = useRef<PoseLandmarker | null>(null);
   const animFrameRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
   const lastFpsUpdateRef = useRef<number>(0);
-  const skipFrameRef = useRef<boolean>(false);
+  const lastDetectTimeRef = useRef<number>(0);
   const prevLandmarksRef = useRef<NormalizedLandmark[] | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const detectingRef = useRef<boolean>(false);
   const detectFrameRef = useRef<() => void>(() => {});
+  const targetFpsRef = useRef<number>(targetFps);
+
+  // Keep target fps in sync without recreating callbacks
+  useEffect(() => {
+    targetFpsRef.current = targetFps;
+  }, [targetFps]);
 
   const loadModel = useCallback(async () => {
     if (landmarkerRef.current) return;
@@ -56,7 +62,7 @@ export function usePoseDetection(): UsePoseDetectionReturn {
 
   const detectFrame = useCallback(() => {
     if (!detectingRef.current || !landmarkerRef.current || !videoRef.current) return;
-    
+
     const video = videoRef.current;
     if (video.paused || video.ended) {
       animFrameRef.current = requestAnimationFrame(() => detectFrameRef.current());
@@ -69,11 +75,13 @@ export function usePoseDetection(): UsePoseDetectionReturn {
       return;
     }
 
-    // Control detection rate to ~15fps (skip every other frame)
-    skipFrameRef.current = !skipFrameRef.current;
-    if (!skipFrameRef.current) {
+    const now = performance.now();
+    const minInterval = 1000 / Math.max(1, targetFpsRef.current);
+
+    // Throttle detection to the configured target FPS
+    if (now - lastDetectTimeRef.current >= minInterval) {
+      lastDetectTimeRef.current = now;
       try {
-        const now = performance.now();
         const results = landmarkerRef.current.detectForVideo(video, now);
         if (results.landmarks && results.landmarks.length > 0) {
           const prevLandmarks = prevLandmarksRef.current;
@@ -86,12 +94,15 @@ export function usePoseDetection(): UsePoseDetectionReturn {
               maxDiff = Math.max(maxDiff, dx, dy);
             }
             if (maxDiff < 0.003) { // skip very small changes
-              animFrameRef.current = requestAnimationFrame(() => detectFrameRef.current());
-              return;
+              // still count fps but don't update landmarks
+            } else {
+              prevLandmarksRef.current = structuredClone(results.landmarks[0]);
+              setLandmarks(results.landmarks);
             }
+          } else {
+            prevLandmarksRef.current = structuredClone(results.landmarks[0]);
+            setLandmarks(results.landmarks);
           }
-          prevLandmarksRef.current = structuredClone(results.landmarks[0]);
-          setLandmarks(results.landmarks);
         }
       } catch {
         // Frame skipped silently
@@ -100,7 +111,6 @@ export function usePoseDetection(): UsePoseDetectionReturn {
 
     // FPS calculation
     frameCountRef.current++;
-    const now = performance.now();
     if (now - lastFpsUpdateRef.current >= 1000) {
       setFps(frameCountRef.current);
       frameCountRef.current = 0;
@@ -123,6 +133,7 @@ export function usePoseDetection(): UsePoseDetectionReturn {
       detectingRef.current = true;
       setIsDetecting(true);
       lastFpsUpdateRef.current = performance.now();
+      lastDetectTimeRef.current = performance.now();
       frameCountRef.current = 0;
       animFrameRef.current = requestAnimationFrame(() => detectFrameRef.current());
     },
