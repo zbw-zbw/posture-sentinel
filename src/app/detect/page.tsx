@@ -127,9 +127,10 @@ export default function DetectPage() {
       alertCount: summary.alertCount,
       scoreHistory: summary.scoreHistory,
       metrics: {
-        avgHeadAngle: finalMetrics.headForwardAngle,
-        avgShoulderSymmetry: finalMetrics.shoulderSymmetry,
-        avgSpineAngle: finalMetrics.spineAngle,
+        avgHeadTilt: finalMetrics.headTiltAngle,
+        avgShoulderTilt: finalMetrics.shoulderTiltAngle,
+        avgNeckForward: finalMetrics.neckForwardScore,
+        avgSpineTilt: finalMetrics.spineTiltAngle,
       },
     });
 
@@ -182,7 +183,7 @@ export default function DetectPage() {
               isModelLoading={isModelLoading}
               isRequestingPermission={isLoading}
               error={error}
-              headAngle={metrics.headForwardAngle}
+              headTiltAngle={metrics.headTiltAngle}
             />
           </div>
 

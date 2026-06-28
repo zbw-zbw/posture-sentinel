@@ -11,7 +11,7 @@ interface SkeletonOverlayProps {
   width: number;
   height: number;
   videoRef: React.RefObject<HTMLVideoElement | null>;
-  headAngle: number;
+  headTiltAngle: number;
 }
 
 const STATUS_COLORS: Record<PostureStatus, string> = {
@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<PostureStatus, string> = {
   bad: "#ef4444",
 };
 
-export default function SkeletonOverlay({ landmarks, status, width, height, videoRef, headAngle }: SkeletonOverlayProps) {
+export default function SkeletonOverlay({ landmarks, status, width, height, videoRef, headTiltAngle }: SkeletonOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -45,6 +45,26 @@ export default function SkeletonOverlay({ landmarks, status, width, height, vide
       const lms = landmarks[0];
       const color = STATUS_COLORS[status];
 
+      // Draw reference lines (faint guides)
+      ctx.globalAlpha = 0.15;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+
+      // Vertical center reference line (through shoulder midpoint)
+      const leftShoulder = lms[11];
+      const rightShoulder = lms[12];
+      if (leftShoulder && rightShoulder) {
+        const shoulderMidX = ((leftShoulder.x + rightShoulder.x) / 2) * width;
+        ctx.beginPath();
+        ctx.moveTo(shoulderMidX, 0);
+        ctx.lineTo(shoulderMidX, height);
+        ctx.stroke();
+      }
+
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+
       // Draw connections
       ctx.shadowColor = color;
       ctx.shadowBlur = 4;
@@ -62,7 +82,7 @@ export default function SkeletonOverlay({ landmarks, status, width, height, vide
       }
       ctx.shadowBlur = 0;
 
-      // Draw keypoints (selected ones)
+      // Draw keypoints
       ctx.globalAlpha = 0.9;
       const keyIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
       for (const i of keyIndices) {
@@ -75,32 +95,50 @@ export default function SkeletonOverlay({ landmarks, status, width, height, vide
         ctx.fillStyle = color;
         ctx.fill();
         ctx.shadowBlur = 0;
-        // white border
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
 
-      // Draw head forward angle annotation
+      // Draw head tilt angle annotation near ears
       const leftEar = lms[7];
       const rightEar = lms[8];
       if (leftEar && rightEar) {
-        const earX = ((leftEar.x + rightEar.x) / 2) * width;
-        const earY = ((leftEar.y + rightEar.y) / 2) * height;
-        const angleText = `${Math.round(headAngle)}°`;
-        const angleColor = headAngle <= 15 ? "#10b981" : headAngle <= 25 ? "#f59e0b" : "#ef4444";
+        const earMidX = ((leftEar.x + rightEar.x) / 2) * width;
+        const earMidY = ((leftEar.y + rightEar.y) / 2) * height;
+        const angleText = `${Math.round(headTiltAngle)}°`;
+        const angleColor = headTiltAngle <= 5 ? "#10b981" : headTiltAngle <= 10 ? "#f59e0b" : "#ef4444";
+
+        // Background pill
+        const textWidth = ctx.measureText(angleText).width;
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.beginPath();
+        ctx.roundRect(earMidX - textWidth / 2 - 8, earMidY - 28, textWidth + 16, 20, 10);
+        ctx.fill();
+
         ctx.fillStyle = angleColor;
-        ctx.font = "bold 14px Inter, sans-serif";
+        ctx.font = "bold 13px Inter, sans-serif";
         ctx.textAlign = "center";
-        ctx.shadowColor = "rgba(0,0,0,0.5)";
-        ctx.shadowBlur = 3;
-        ctx.fillText(angleText, earX, earY - 14);
-        ctx.shadowBlur = 0;
+        ctx.fillText(angleText, earMidX, earMidY - 14);
+      }
+
+      // Draw ear-to-ear reference line (shows head tilt visually)
+      if (leftEar && rightEar) {
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = headTiltAngle <= 5 ? "#10b981" : headTiltAngle <= 10 ? "#f59e0b" : "#ef4444";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(leftEar.x * width, leftEar.y * height);
+        ctx.lineTo(rightEar.x * width, rightEar.y * height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
       }
     }
 
     ctx.restore();
-  }, [landmarks, status, width, height, videoRef, headAngle]);
+  }, [landmarks, status, width, height, videoRef, headTiltAngle]);
 
   return (
     <canvas

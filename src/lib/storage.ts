@@ -11,9 +11,10 @@ export interface SessionRecord {
   alertCount: number;
   scoreHistory: { time: number; score: number }[];
   metrics: {
-    avgHeadAngle: number;
-    avgShoulderSymmetry: number;
-    avgSpineAngle: number;
+    avgHeadTilt: number;
+    avgShoulderTilt: number;
+    avgNeckForward: number;
+    avgSpineTilt: number;
   };
 }
 

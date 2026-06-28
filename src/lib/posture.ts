@@ -1,75 +1,129 @@
 import { NormalizedLandmark } from "@mediapipe/tasks-vision";
-import { POSTURE_THRESHOLDS, SCORE_WEIGHTS } from "./mediapipe-config";
 
 export type PostureStatus = "good" | "warning" | "bad";
 
 export interface PostureMetrics {
-  headForwardAngle: number;
-  shoulderSymmetry: number;
-  forwardLean: number;
-  spineAngle: number;
-  overallScore: number;
+  headTiltAngle: number;      // 头部倾斜（度），ear-to-ear line from horizontal, 0=level
+  shoulderTiltAngle: number;  // 肩膀倾斜（度），shoulder line from horizontal, 0=level
+  neckForwardScore: number;   // 脖子前倾程度（0-100），0=正常，越高越严重
+  spineTiltAngle: number;     // 脊椎倾斜（度），shoulder-to-hip from vertical, 0=straight
+  overallScore: number;       // 总评分（0-100），越高越好
   status: PostureStatus;
   isDetected: boolean;
 }
 
-// Helper: get midpoint between two landmarks
-function getMidpoint(a: NormalizedLandmark, b: NormalizedLandmark) {
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 };
+interface Point {
+  x: number;
+  y: number;
 }
 
-// Helper: angle of a line from vertical, in degrees (0 = perfectly vertical)
-// top is the upper point (smaller y in screen coords), bottom is the lower point
-// Returns 0-90 degrees representing deviation from vertical
-function angleFromVertical(top: {x:number,y:number}, bottom: {x:number,y:number}): number {
+function getMidpoint(a: Point, b: Point): Point {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+function distance(a: Point, b: Point): number {
+  return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+}
+
+// Angle of a line between two points from the horizontal axis (0° = level, 90° = vertical)
+// Always returns 0-90° as the "tilt" from horizontal
+function tiltFromHorizontal(a: Point, b: Point): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const angle = Math.abs(Math.atan2(dy, dx) * (180 / Math.PI));
+  // Normalize to 0-90°: 0 = perfectly horizontal, 90 = perfectly vertical
+  return angle > 90 ? 180 - angle : angle;
+}
+
+// Angle of a line between two points from the vertical axis (0° = straight up, 90° = horizontal)
+function tiltFromVertical(top: Point, bottom: Point): number {
   const dx = top.x - bottom.x;
-  // In MediaPipe screen coords, y increases downward.
-  // top.y < bottom.y for normal upright posture, so dy > 0.
-  // Use Math.abs to handle edge cases.
   const dy = Math.abs(bottom.y - top.y);
-  if (dy < 0.001) return 0; // Avoid division by near-zero
+  if (dy < 0.001) return 0;
   return Math.abs(Math.atan2(dx, dy) * (180 / Math.PI));
 }
 
-// 1. calculateHeadForwardAngle
-// Nose position relative to shoulder midpoint, angle from vertical
-// This measures how far forward the head is relative to the shoulders
-export function calculateHeadForwardAngle(landmarks: NormalizedLandmark[]): number {
+// ── Metric 1: Head Tilt ──
+// Uses ear-to-ear line angle from horizontal.
+// When head is upright, ears are level → angle ≈ 0°.
+// When head tilts sideways (歪头), angle increases.
+function calculateHeadTiltAngle(landmarks: NormalizedLandmark[]): number {
+  const leftEar = landmarks[7];
+  const rightEar = landmarks[8];
+  if (!leftEar || !rightEar) return 0;
+  return tiltFromHorizontal(leftEar, rightEar);
+}
+
+// ── Metric 2: Shoulder Tilt ──
+// Uses shoulder-to-shoulder line angle from horizontal.
+// When shoulders are level → angle ≈ 0°.
+// When one shoulder is higher (耸肩/倾斜), angle increases.
+function calculateShoulderTiltAngle(landmarks: NormalizedLandmark[]): number {
+  const leftShoulder = landmarks[11];
+  const rightShoulder = landmarks[12];
+  if (!leftShoulder || !rightShoulder) return 0;
+  return tiltFromHorizontal(leftShoulder, rightShoulder);
+}
+
+// ── Metric 3: Forward Neck Score (0-100, higher = worse) ──
+// Combines two indicators for front-facing webcam:
+//
+// A) Vertical ratio: (shoulderMidY - noseY) / shoulderWidth
+//    When neck is pushed forward, the head drops toward shoulders, ratio decreases.
+//    Good posture: ratio > 0.50 | Forward neck: ratio < 0.35
+//
+// B) Face-to-shoulder ratio: earDist / shoulderWidth
+//    When head moves forward (closer to camera), face appears larger.
+//    Good posture: ratio < 0.45 | Forward neck: ratio > 0.55
+function calculateNeckForwardScore(landmarks: NormalizedLandmark[]): number {
   const nose = landmarks[0];
   const leftShoulder = landmarks[11];
   const rightShoulder = landmarks[12];
+  const leftEar = landmarks[7];
+  const rightEar = landmarks[8];
+
   if (!nose || !leftShoulder || !rightShoulder) return 0;
+
   const shoulderMid = getMidpoint(leftShoulder, rightShoulder);
-  return angleFromVertical(nose, shoulderMid);
+  const shoulderWidth = distance(leftShoulder, rightShoulder);
+  if (shoulderWidth < 0.001) return 0;
+
+  // Indicator A: vertical ratio
+  const verticalGap = shoulderMid.y - nose.y;
+  const verticalRatio = verticalGap / shoulderWidth;
+
+  let verticalScore = 0;
+  if (verticalRatio <= 0.35) {
+    verticalScore = 100;
+  } else if (verticalRatio >= 0.50) {
+    verticalScore = 0;
+  } else {
+    verticalScore = ((0.50 - verticalRatio) / (0.50 - 0.35)) * 100;
+  }
+
+  // Indicator B: face-to-shoulder ratio
+  let faceScore = 0;
+  if (leftEar && rightEar) {
+    const earDist = distance(leftEar, rightEar);
+    const faceRatio = earDist / shoulderWidth;
+    if (faceRatio >= 0.58) {
+      faceScore = 100;
+    } else if (faceRatio <= 0.45) {
+      faceScore = 0;
+    } else {
+      faceScore = ((faceRatio - 0.45) / (0.58 - 0.45)) * 100;
+    }
+  }
+
+  // Take the worse (higher) of the two indicators
+  return Math.max(verticalScore, faceScore);
 }
 
-// 2. calculateShoulderSymmetry
-// 1 - abs(leftY - rightY) / max(leftY, rightY), as percentage
-export function calculateShoulderSymmetry(landmarks: NormalizedLandmark[]): number {
-  const left = landmarks[11];
-  const right = landmarks[12];
-  if (!left || !right) return 100;
-  const diff = Math.abs(left.y - right.y);
-  const maxY = Math.max(left.y, right.y);
-  if (maxY === 0) return 100;
-  return Math.max(0, Math.min(100, (1 - diff / maxY) * 100));
-}
-
-// 3. calculateForwardLean
-// Nose x offset from hip midpoint x, normalized, scaled by 100 for display
-export function calculateForwardLean(landmarks: NormalizedLandmark[]): number {
-  const nose = landmarks[0];
-  const leftHip = landmarks[23];
-  const rightHip = landmarks[24];
-  if (!nose || !leftHip || !rightHip) return 0;
-  const hipMid = getMidpoint(leftHip, rightHip);
-  return Math.abs(nose.x - hipMid.x) * 100;
-}
-
-// 4. calculateSpineAngle
-// Angle between shoulder midpoint -> hip midpoint line and vertical
-// Measures lateral/forward lean of the upper body
-export function calculateSpineAngle(landmarks: NormalizedLandmark[]): number {
+// ── Metric 4: Spine Tilt ──
+// Uses shoulder-midpoint to hip-midpoint line angle from vertical.
+// When sitting straight → angle ≈ 0°.
+// When leaning sideways → angle increases.
+function calculateSpineTiltAngle(landmarks: NormalizedLandmark[]): number {
   const leftShoulder = landmarks[11];
   const rightShoulder = landmarks[12];
   const leftHip = landmarks[23];
@@ -77,51 +131,74 @@ export function calculateSpineAngle(landmarks: NormalizedLandmark[]): number {
   if (!leftShoulder || !rightShoulder || !leftHip || !rightHip) return 0;
   const shoulderMid = getMidpoint(leftShoulder, rightShoulder);
   const hipMid = getMidpoint(leftHip, rightHip);
-  return angleFromVertical(shoulderMid, hipMid);
+  return tiltFromVertical(shoulderMid, hipMid);
 }
 
-// Linear interpolation scoring: 100 at goodThreshold, 0 at badThreshold
-function metricScore(value: number, goodThreshold: number, badThreshold: number): number {
+// ── Scoring helpers ──
+
+// Convert a "badness" metric (lower = better) to a 0-100 score (higher = better)
+function scoreFromBadness(value: number, goodThreshold: number, badThreshold: number): number {
   if (value <= goodThreshold) return 100;
   if (value >= badThreshold) return 0;
-  // Linear interpolation between good and bad
-  const ratio = (value - goodThreshold) / (badThreshold - goodThreshold);
-  return Math.round(100 - ratio * 100);
+  return Math.round(100 * (1 - (value - goodThreshold) / (badThreshold - goodThreshold)));
 }
 
-// 5. calculateOverallScore + status
-export function calculateOverallScore(landmarks: NormalizedLandmark[]): PostureMetrics {
-  const headAngle = calculateHeadForwardAngle(landmarks);
-  const shoulderSym = calculateShoulderSymmetry(landmarks);
-  const forwardLean = calculateForwardLean(landmarks);
-  const spineAngle = calculateSpineAngle(landmarks);
-
-  // Use linear scoring with "bad" thresholds doubled from warning for smooth degradation
-  const headScore = metricScore(headAngle, POSTURE_THRESHOLDS.headForward.good, 30);
-  const shoulderScore = metricScore(100 - shoulderSym, 100 - POSTURE_THRESHOLDS.shoulderSymmetry.good, 35);
-  const leanScore = metricScore(forwardLean, POSTURE_THRESHOLDS.forwardLean.good, 15);
-  const spineScore = metricScore(spineAngle, POSTURE_THRESHOLDS.spineAngle.good, 45);
-
-  const overall = Math.round(
-    headScore * SCORE_WEIGHTS.headForward +
-    shoulderScore * SCORE_WEIGHTS.shoulderSymmetry +
-    leanScore * SCORE_WEIGHTS.forwardLean +
-    spineScore * SCORE_WEIGHTS.spineAngle
+export function analyzePosture(landmarks: NormalizedLandmark[]): PostureMetrics {
+  // Check if essential landmarks are visible
+  const requiredIndices = [0, 7, 8, 11, 12, 23, 24];
+  const isDetected = requiredIndices.every(
+    (i) =>
+      landmarks[i] &&
+      (landmarks[i].visibility === undefined || landmarks[i].visibility > 0.3)
   );
 
-  // Status is based on the worst individual metric, not the weighted average.
-  // Tightened thresholds so that mild misalignments (e.g. head tilt) show warning.
-  const worstMetric = Math.min(headScore, shoulderScore, leanScore, spineScore);
+  if (!isDetected) {
+    return {
+      headTiltAngle: 0,
+      shoulderTiltAngle: 0,
+      neckForwardScore: 0,
+      spineTiltAngle: 0,
+      overallScore: 0,
+      status: "good",
+      isDetected: false,
+    };
+  }
+
+  const headTiltAngle = calculateHeadTiltAngle(landmarks);
+  const shoulderTiltAngle = calculateShoulderTiltAngle(landmarks);
+  const neckForwardScore = calculateNeckForwardScore(landmarks);
+  const spineTiltAngle = calculateSpineTiltAngle(landmarks);
+
+  // Individual scores (0-100, higher = better posture)
+  // Head tilt: good < 5°, bad > 15°
+  const headScore = scoreFromBadness(headTiltAngle, 5, 15);
+  // Shoulder tilt: good < 3°, bad > 8°
+  const shoulderScore = scoreFromBadness(shoulderTiltAngle, 3, 8);
+  // Forward neck: good < 20, bad > 60 (on the 0-100 severity scale)
+  const neckScore = scoreFromBadness(neckForwardScore, 20, 60);
+  // Spine tilt: good < 5°, bad > 15°
+  const spineScore = scoreFromBadness(spineTiltAngle, 5, 15);
+
+  // Overall score: weighted average
+  const overallScore = Math.round(
+    headScore * 0.30 +
+      shoulderScore * 0.20 +
+      neckScore * 0.30 +
+      spineScore * 0.20
+  );
+
+  // Status based on worst metric (sensitive to any single bad metric)
+  const worstScore = Math.min(headScore, shoulderScore, neckScore, spineScore);
   let status: PostureStatus = "good";
-  if (worstMetric < 50) status = "bad";
-  else if (worstMetric < 80) status = "warning";
+  if (worstScore < 50) status = "bad";
+  else if (worstScore < 80) status = "warning";
 
   return {
-    headForwardAngle: Math.round(headAngle * 10) / 10,
-    shoulderSymmetry: Math.round(shoulderSym * 10) / 10,
-    forwardLean: Math.round(forwardLean * 10) / 10,
-    spineAngle: Math.round(spineAngle * 10) / 10,
-    overallScore: overall,
+    headTiltAngle: Math.round(headTiltAngle * 10) / 10,
+    shoulderTiltAngle: Math.round(shoulderTiltAngle * 10) / 10,
+    neckForwardScore: Math.round(neckForwardScore),
+    spineTiltAngle: Math.round(spineTiltAngle * 10) / 10,
+    overallScore,
     status,
     isDetected: true,
   };

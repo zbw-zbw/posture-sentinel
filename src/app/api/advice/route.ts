@@ -16,9 +16,10 @@ export async function POST(req: NextRequest) {
     goodPercent,
     warningPercent,
     badPercent,
-    avgHeadAngle,
-    avgShoulderSymmetry,
-    avgSpineAngle,
+    avgHeadTilt,
+    avgShoulderTilt,
+    avgNeckForward,
+    avgSpineTilt,
     alertCount,
     totalDuration,
     sessionCount,
@@ -27,9 +28,10 @@ export async function POST(req: NextRequest) {
     goodPercent: number;
     warningPercent: number;
     badPercent: number;
-    avgHeadAngle: number;
-    avgShoulderSymmetry: number;
-    avgSpineAngle: number;
+    avgHeadTilt: number;
+    avgShoulderTilt: number;
+    avgNeckForward: number;
+    avgSpineTilt: number;
     alertCount: number;
     totalDuration: number;
     sessionCount: number;
@@ -58,9 +60,10 @@ export async function POST(req: NextRequest) {
 - 良好坐姿占比：${goodPercent}%
 - 需要注意占比：${warningPercent}%
 - 坐姿不良占比：${badPercent}%
-- 平均头前倾角度：${avgHeadAngle}°（正常<15°）
-- 平均肩膀对称度：${avgShoulderSymmetry}%（正常>85%）
-- 平均脊椎弧度：${avgSpineAngle}°（正常<20°）
+- 平均头部倾斜：${avgHeadTilt}°（正常<5°）
+- 平均肩膀倾斜：${avgShoulderTilt}°（正常<3°）
+- 平均脖子前倾程度：${avgNeckForward}%（正常<30%）
+- 平均脊椎倾斜：${avgSpineTilt}°（正常<5°）
 - 今日提醒次数：${alertCount}次
 - 总检测时长：${totalDuration}分钟
 - 检测次数：${sessionCount}次

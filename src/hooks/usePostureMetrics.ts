@@ -2,23 +2,21 @@
 
 import { useMemo } from "react";
 import { NormalizedLandmark } from "@mediapipe/tasks-vision";
-import { calculateOverallScore, PostureMetrics } from "@/lib/posture";
+import { analyzePosture, type PostureMetrics } from "@/lib/posture";
 
-export function usePostureMetrics(
-  landmarks: NormalizedLandmark[][] | null
-): PostureMetrics {
-  return useMemo<PostureMetrics>(() => {
-    if (!landmarks || landmarks.length === 0) {
-      return {
-        headForwardAngle: 0,
-        shoulderSymmetry: 100,
-        forwardLean: 0,
-        spineAngle: 0,
-        overallScore: 0,
-        status: "good",
-        isDetected: false,
-      };
-    }
-    return calculateOverallScore(landmarks[0]);
+const DEFAULT_METRICS: PostureMetrics = {
+  headTiltAngle: 0,
+  shoulderTiltAngle: 0,
+  neckForwardScore: 0,
+  spineTiltAngle: 0,
+  overallScore: 0,
+  status: "good",
+  isDetected: false,
+};
+
+export function usePostureMetrics(landmarks: NormalizedLandmark[][] | null): PostureMetrics {
+  return useMemo(() => {
+    if (!landmarks || landmarks.length === 0) return DEFAULT_METRICS;
+    return analyzePosture(landmarks[0]);
   }, [landmarks]);
 }

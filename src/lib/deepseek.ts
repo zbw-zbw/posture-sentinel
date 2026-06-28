@@ -3,9 +3,10 @@ export interface AdviceRequest {
   goodPercent: number;
   warningPercent: number;
   badPercent: number;
-  avgHeadAngle: number;
-  avgShoulderSymmetry: number;
-  avgSpineAngle: number;
+  avgHeadTilt: number;
+  avgShoulderTilt: number;
+  avgNeckForward: number;
+  avgSpineTilt: number;
   alertCount: number;
   totalDuration: number;
   sessionCount: number;

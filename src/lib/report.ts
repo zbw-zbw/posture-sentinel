@@ -18,9 +18,10 @@ export interface DailyReportData {
   badPercent: number;
   totalAlerts: number;
   avgMetrics: {
-    headAngle: number;
-    shoulderSymmetry: number;
-    spineAngle: number;
+    headTilt: number;
+    shoulderTilt: number;
+    neckForward: number;
+    spineTilt: number;
   };
   scoreTimeline: { time: number; score: number }[];
   sessions: SessionRecord[];
@@ -39,9 +40,10 @@ export function generateDailyReport(date: string): DailyReportData | null {
   let totalDuration = 0;
   let totalScore = 0;
   let totalAlerts = 0;
-  let totalHeadAngle = 0;
-  let totalShoulderSym = 0;
-  let totalSpineAngle = 0;
+  let totalHeadTilt = 0;
+  let totalShoulderTilt = 0;
+  let totalNeckForward = 0;
+  let totalSpineTilt = 0;
   let totalGood = 0;
   let totalWarning = 0;
   let totalBad = 0;
@@ -51,9 +53,10 @@ export function generateDailyReport(date: string): DailyReportData | null {
     totalDuration += s.duration;
     totalScore += s.avgScore;
     totalAlerts += s.alertCount;
-    totalHeadAngle += s.metrics.avgHeadAngle;
-    totalShoulderSym += s.metrics.avgShoulderSymmetry;
-    totalSpineAngle += s.metrics.avgSpineAngle;
+    totalHeadTilt += s.metrics.avgHeadTilt;
+    totalShoulderTilt += s.metrics.avgShoulderTilt;
+    totalNeckForward += s.metrics.avgNeckForward;
+    totalSpineTilt += s.metrics.avgSpineTilt;
     totalGood += (s.goodPercent / 100) * s.duration;
     totalWarning += (s.warningPercent / 100) * s.duration;
     totalBad += (s.badPercent / 100) * s.duration;
@@ -81,9 +84,10 @@ export function generateDailyReport(date: string): DailyReportData | null {
     badPercent: Math.round((totalBad / totalPostureTime) * 100),
     totalAlerts,
     avgMetrics: {
-      headAngle: Math.round((totalHeadAngle / sessionCount) * 10) / 10,
-      shoulderSymmetry: Math.round((totalShoulderSym / sessionCount) * 10) / 10,
-      spineAngle: Math.round((totalSpineAngle / sessionCount) * 10) / 10,
+      headTilt: Math.round((totalHeadTilt / sessionCount) * 10) / 10,
+      shoulderTilt: Math.round((totalShoulderTilt / sessionCount) * 10) / 10,
+      neckForward: Math.round((totalNeckForward / sessionCount) * 10) / 10,
+      spineTilt: Math.round((totalSpineTilt / sessionCount) * 10) / 10,
     },
     scoreTimeline,
     sessions,

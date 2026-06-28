@@ -68,9 +68,10 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
       goodPercent: report.goodPercent,
       warningPercent: report.warningPercent,
       badPercent: report.badPercent,
-      avgHeadAngle: report.avgMetrics.headAngle,
-      avgShoulderSymmetry: report.avgMetrics.shoulderSymmetry,
-      avgSpineAngle: report.avgMetrics.spineAngle,
+      avgHeadTilt: report.avgMetrics.headTilt,
+      avgShoulderTilt: report.avgMetrics.shoulderTilt,
+      avgNeckForward: report.avgMetrics.neckForward,
+      avgSpineTilt: report.avgMetrics.spineTilt,
       alertCount: report.totalAlerts,
       totalDuration: report.totalDuration,
       sessionCount: report.sessionCount,
@@ -79,9 +80,10 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
 
   const yesterdayMetrics = yesterdayReport
     ? {
-        headAngle: yesterdayReport.avgMetrics.headAngle,
-        shoulderSymmetry: yesterdayReport.avgMetrics.shoulderSymmetry,
-        spineAngle: yesterdayReport.avgMetrics.spineAngle,
+        headTilt: yesterdayReport.avgMetrics.headTilt,
+        shoulderTilt: yesterdayReport.avgMetrics.shoulderTilt,
+        neckForward: yesterdayReport.avgMetrics.neckForward,
+        spineTilt: yesterdayReport.avgMetrics.spineTilt,
         alertCount: yesterdayReport.totalAlerts,
       }
     : undefined;
@@ -159,9 +161,10 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
               <div className="bg-surface rounded-2xl p-6 card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-4">关键指标</h3>
                 <MetricsSummary
-                  headAngle={report.avgMetrics.headAngle}
-                  shoulderSymmetry={report.avgMetrics.shoulderSymmetry}
-                  spineAngle={report.avgMetrics.spineAngle}
+                  headTilt={report.avgMetrics.headTilt}
+                  shoulderTilt={report.avgMetrics.shoulderTilt}
+                  neckForward={report.avgMetrics.neckForward}
+                  spineTilt={report.avgMetrics.spineTilt}
                   alertCount={report.totalAlerts}
                   yesterdayMetrics={yesterdayMetrics}
                 />
