@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 
 export default function HeroSection() {
   const [counts, setCounts] = useState({ a: 0, b: 0, c: 0 });
@@ -93,6 +94,31 @@ export default function HeroSection() {
         <p className="text-lg md:text-xl text-text-secondary mt-4">
           打开摄像头，AI 守护你的每一寸脊椎
         </p>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
+          <Link
+            href="/detect"
+            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 7l-7 5 7 5V7z" />
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
+            立即开始检测
+          </Link>
+          <Link
+            href="/report"
+            className="inline-flex items-center justify-center gap-2 bg-surface hover:bg-surface-alt text-text-primary font-medium px-7 py-3.5 rounded-xl transition-colors text-base"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+            查看健康日报
+          </Link>
+        </div>
 
         {/* Stat Cards Row */}
         <div id="hero-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-4xl mx-auto">

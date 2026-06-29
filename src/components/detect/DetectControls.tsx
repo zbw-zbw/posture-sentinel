@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 interface DetectControlsProps {
   state: "idle" | "detecting" | "paused";
   onStart: () => void;
@@ -9,6 +11,24 @@ interface DetectControlsProps {
 }
 
 export default function DetectControls({ state, onStart, onPause, onResume, onStop }: DetectControlsProps) {
+  useEffect(() => {
+    if (state === "idle") return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (state === "detecting") onPause();
+        else if (state === "paused") onResume();
+      } else if (e.code === "Escape") {
+        e.preventDefault();
+        onStop();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [state, onPause, onResume, onStop]);
+
   if (state === "idle") {
     return (
       <button
@@ -29,6 +49,7 @@ export default function DetectControls({ state, onStart, onPause, onResume, onSt
       {state === "detecting" ? (
         <button
           onClick={onPause}
+          title="暂停 (Space)"
           className="flex items-center gap-2 bg-warning hover:bg-warning/90 text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
@@ -40,6 +61,7 @@ export default function DetectControls({ state, onStart, onPause, onResume, onSt
       ) : (
         <button
           onClick={onResume}
+          title="继续 (Space)"
           className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
@@ -50,7 +72,8 @@ export default function DetectControls({ state, onStart, onPause, onResume, onSt
       )}
       <button
         onClick={onStop}
-        className="flex items-center gap-2 bg-surface-alt hover:bg-border text-text-secondary font-semibold px-6 py-3 rounded-full border border-border transition-all w-full sm:w-auto justify-center"
+        title="结束检测 (Esc)"
+        className="flex items-center gap-2 bg-danger/10 hover:bg-danger/20 text-danger font-semibold px-6 py-3 rounded-full border border-danger/20 transition-all w-full sm:w-auto justify-center"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
           <rect x="4" y="4" width="16" height="16" rx="2" />

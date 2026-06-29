@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { CHART_COLORS } from "./LineChart";
+
 interface RingChartProps {
   value: number;
   max?: number;
@@ -20,7 +22,7 @@ export default function RingChart({
   size = 180,
   strokeWidth = 12,
   color,
-  bgColor = "#e2e8f0",
+  bgColor = CHART_COLORS.grid,
   animate = true,
   label,
   sublabel,
@@ -28,7 +30,7 @@ export default function RingChart({
   const [displayValue, setDisplayValue] = useState(animate ? 0 : value);
 
   const resolvedColor =
-    color || (value >= 80 ? "#10b981" : value >= 60 ? "#f59e0b" : "#ef4444");
+    color || (value >= 80 ? CHART_COLORS.primary : value >= 60 ? CHART_COLORS.warning : CHART_COLORS.danger);
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = (displayValue / max) * circumference;

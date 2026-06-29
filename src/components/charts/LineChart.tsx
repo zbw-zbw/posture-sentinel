@@ -2,6 +2,17 @@
 
 import { useRef, useState } from "react";
 
+export const CHART_COLORS = {
+  primary: "#10b981",
+  warning: "#f59e0b",
+  danger: "#ef4444",
+  primaryLight: "#d1fae5",
+  warningLight: "#fef3c7",
+  dangerLight: "#fee2e2",
+  grid: "#e2e8f0",
+  text: "#94a3b8",
+} as const;
+
 interface LineChartProps {
   data: { x: number | string; y: number }[];
   width?: number;
@@ -18,7 +29,7 @@ export default function LineChart({
   data,
   width = 600,
   height = 200,
-  color = "#10b981",
+  color = CHART_COLORS.primary,
   showArea = true,
   showGrid = true,
   yMax = 100,
@@ -74,7 +85,7 @@ export default function LineChart({
               y1={getY(t)}
               x2={width - padding.right}
               y2={getY(t)}
-              stroke="#e2e8f0"
+              stroke={CHART_COLORS.grid}
               strokeWidth="1"
               strokeDasharray="4 4"
             />
@@ -141,32 +152,37 @@ export default function LineChart({
             x={padding.left - 8}
             y={getY(t) + 4}
             fontSize="10"
-            fill="#94a3b8"
+            fill={CHART_COLORS.text}
             textAnchor="end"
           >
             {t}
           </text>
         ))}
 
-        {/* X-axis labels (first and last) */}
-        <text
-          x={padding.left}
-          y={height - 8}
-          fontSize="10"
-          fill="#94a3b8"
-          textAnchor="middle"
-        >
-          {data[0].x}
-        </text>
-        <text
-          x={width - padding.right}
-          y={height - 8}
-          fontSize="10"
-          fill="#94a3b8"
-          textAnchor="middle"
-        >
-          {data[data.length - 1].x}
-        </text>
+        {/* X-axis labels */}
+        {data.length >= 3 && (() => {
+          const interval = Math.max(1, Math.floor(data.length / 6));
+          const labels: { index: number; label: string }[] = [];
+          for (let i = 0; i < data.length; i += interval) {
+            labels.push({ index: i, label: String(data[i].x) });
+          }
+          // Ensure the last data point is always shown
+          if (labels[labels.length - 1].index !== data.length - 1) {
+            labels.push({ index: data.length - 1, label: String(data[data.length - 1].x) });
+          }
+          return labels.map(({ index, label }) => (
+            <text
+              key={index}
+              x={getX(index)}
+              y={height - 8}
+              fontSize="10"
+              fill={CHART_COLORS.text}
+              textAnchor="middle"
+            >
+              {label}
+            </text>
+          ));
+        })()}
       </svg>
 
       {/* Tooltip */}

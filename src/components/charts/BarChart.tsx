@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { CHART_COLORS } from "./LineChart";
+
 interface BarChartProps {
   data: { label: string; value: number; color?: string }[];
   width?: number;
@@ -49,7 +51,7 @@ export default function BarChart({
             y1={padding.top + chartH - (t / yMax) * chartH}
             x2={width - padding.right}
             y2={padding.top + chartH - (t / yMax) * chartH}
-            stroke="#e2e8f0"
+            stroke={CHART_COLORS.grid}
             strokeWidth="1"
             strokeDasharray="4 4"
           />
@@ -58,7 +60,7 @@ export default function BarChart({
         {data.map((d, i) => {
           const barColor =
             d.color ||
-            (d.value >= 80 ? "#10b981" : d.value >= 60 ? "#f59e0b" : "#ef4444");
+            (d.value >= 80 ? CHART_COLORS.primary : d.value >= 60 ? CHART_COLORS.warning : CHART_COLORS.danger);
           const h = animated ? getBarHeight(d.value) : 0;
           const x = getBarX(i);
           const y = getBarY(d.value);
@@ -87,7 +89,7 @@ export default function BarChart({
                   x={x + barWidth / 2}
                   y={y - 10}
                   fontSize="11"
-                  fill="#475569"
+                  fill={CHART_COLORS.text}
                   textAnchor="middle"
                 >
                   {d.value}
@@ -97,7 +99,7 @@ export default function BarChart({
                 x={x + barWidth / 2}
                 y={height - 8}
                 fontSize="10"
-                fill="#94a3b8"
+                fill={CHART_COLORS.text}
                 textAnchor="middle"
               >
                 {d.label}

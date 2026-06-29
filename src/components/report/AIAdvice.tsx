@@ -4,27 +4,77 @@ import { useState, useEffect, useCallback } from "react";
 import { fetchAdvice } from "@/lib/deepseek";
 import type { AdviceRequest } from "@/lib/deepseek";
 
-interface AIAdviceProps {
-  data: AdviceRequest;
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+interface CacheEntry {
+  text: string;
+  timestamp: number;
 }
 
-export default function AIAdvice({ data }: AIAdviceProps) {
+function getCachedAdvice(date: string): string[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(`posture-advice-${date}`);
+    if (!raw) return null;
+    const entry: CacheEntry = JSON.parse(raw);
+    if (Date.now() - entry.timestamp > CACHE_TTL) {
+      localStorage.removeItem(`posture-advice-${date}`);
+      return null;
+    }
+    return JSON.parse(entry.text) as string[];
+  } catch {
+    return null;
+  }
+}
+
+function setCachedAdvice(date: string, advice: string[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    const entry: CacheEntry = {
+      text: JSON.stringify(advice),
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(`posture-advice-${date}`, JSON.stringify(entry));
+  } catch {
+    // localStorage might be full or unavailable — silently ignore
+  }
+}
+
+interface AIAdviceProps {
+  data: AdviceRequest;
+  date: string;
+}
+
+export default function AIAdvice({ data, date }: AIAdviceProps) {
   const [advice, setAdvice] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   
-  const load = useCallback(async () => {
+  const load = useCallback(async (useCache = true) => {
     setLoading(true);
     setError(false);
+
+    // 1. Check localStorage cache
+    if (useCache) {
+      const cached = getCachedAdvice(date);
+      if (cached) {
+        setAdvice(cached);
+        setLoading(false);
+        return;
+      }
+    }
+
+    // 2. Cache miss / expired — fetch from API
     try {
       const result = await fetchAdvice(data);
       setAdvice(result);
+      setCachedAdvice(date, result);
     } catch {
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, [data]);
+  }, [data, date]);
   
   useEffect(() => {
     const t = setTimeout(() => load(), 0);
@@ -49,7 +99,7 @@ export default function AIAdvice({ data }: AIAdviceProps) {
           <p className="text-sm text-text-muted mt-0.5">基于今日检测数据生成的个性化建议</p>
         </div>
         {!loading && (
-          <button onClick={load} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors flex items-center gap-1">
+          <button onClick={() => load(false)} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors flex items-center gap-1">
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 4 23 10 17 10" />
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
@@ -74,7 +124,7 @@ export default function AIAdvice({ data }: AIAdviceProps) {
       {error && !loading && (
         <div className="text-center py-4">
           <p className="text-text-secondary text-sm mb-3">AI 分析暂时不可用，请稍后重试</p>
-          <button onClick={load} className="bg-primary hover:bg-primary-dark text-white text-sm px-4 py-2 rounded-lg transition-colors">
+          <button onClick={() => load(false)} className="bg-primary hover:bg-primary-dark text-white text-sm px-4 py-2 rounded-lg transition-colors">
             重试
           </button>
         </div>

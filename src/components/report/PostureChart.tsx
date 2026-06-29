@@ -1,6 +1,6 @@
 "use client";
 
-import LineChart from "@/components/charts/LineChart";
+import LineChart, { CHART_COLORS } from "@/components/charts/LineChart";
 
 interface PostureChartProps {
   scoreTimeline: { time: number; score: number }[];
@@ -27,14 +27,14 @@ export default function PostureChart({ scoreTimeline }: PostureChartProps) {
       <LineChart
         data={chartData}
         height={200}
-        color="#10b981"
+        color={CHART_COLORS.primary}
         showArea={true}
         showGrid={true}
         yMax={100}
         yTicks={[0, 25, 50, 75, 100]}
         thresholdLines={[
-          { value: 80, color: "#10b981", label: "良好" },
-          { value: 60, color: "#f59e0b", label: "注意" },
+          { value: 80, color: CHART_COLORS.primary, label: "良好" },
+          { value: 60, color: CHART_COLORS.warning, label: "注意" },
         ]}
       />
     </div>

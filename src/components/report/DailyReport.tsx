@@ -147,7 +147,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           {/* Row 2: AI Advice */}
           <section className="fade-in">
             {aiRequestData && (
-              <AIAdvice data={aiRequestData} />
+              <AIAdvice data={aiRequestData} date={date} />
             )}
           </section>
 
