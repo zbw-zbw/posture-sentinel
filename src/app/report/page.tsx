@@ -1,7 +1,29 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import DailyReport from "@/components/report/DailyReport";
+
+function ReportContent() {
+  const searchParams = useSearchParams();
+  const dateParam = searchParams.get("date");
+  return <DailyReport initialDate={dateParam || undefined} />;
+}
+
+function ReportFallback() {
+  return (
+    <div className="animate-pulse space-y-6">
+      <div className="h-10 bg-surface-alt rounded-xl w-64" />
+      <div className="h-64 bg-surface-alt rounded-2xl" />
+      <div className="grid grid-cols-3 gap-4">
+        <div className="h-32 bg-surface-alt rounded-2xl" />
+        <div className="h-32 bg-surface-alt rounded-2xl" />
+        <div className="h-32 bg-surface-alt rounded-2xl" />
+      </div>
+    </div>
+  );
+}
 
 export default function ReportPage() {
   return (
@@ -19,7 +41,9 @@ export default function ReportPage() {
         </div>
 
         {/* Daily Report */}
-        <DailyReport />
+        <Suspense fallback={<ReportFallback />}>
+          <ReportContent />
+        </Suspense>
       </div>
     </div>
   );

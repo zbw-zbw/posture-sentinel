@@ -92,32 +92,67 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowPicker(false)} />
           <div className="absolute top-full mt-2 left-0 right-0 z-50 bg-surface rounded-2xl shadow-xl p-4 max-h-72 overflow-y-auto">
-            <div className="grid grid-cols-7 gap-1">
-              {last30Days.map((d) => {
-                const dayNum = new Date(d + "T00:00:00").getDate();
-                const selected = d === date;
-                const hasData = isAvailable(d);
-                const isFuture = d > today;
-                return (
-                  <button
-                    key={d}
-                    onClick={() => { if (!isFuture) { onChange(d); setShowPicker(false); } }}
-                    disabled={isFuture}
-                    className={`h-9 rounded-lg text-sm font-medium transition-colors ${
-                      selected
-                        ? "bg-primary text-white"
-                        : isFuture
-                        ? "text-text-muted opacity-40"
-                        : hasData
-                        ? "bg-surface-alt text-text-primary hover:bg-border"
-                        : "text-text-muted hover:bg-surface-alt"
-                    }`}
-                  >
-                    {dayNum}
-                  </button>
-                );
-              })}
+            {/* Day-of-week headers */}
+            <div className="grid grid-cols-7 gap-1 mb-1">
+              {["一", "二", "三", "四", "五", "六", "日"].map((d) => (
+                <div key={d} className="h-6 flex items-center justify-center text-xs text-text-muted font-medium">
+                  {d}
+                </div>
+              ))}
             </div>
+            {/* Group by month */}
+            {(() => {
+              const groups: { month: string; days: string[] }[] = [];
+              let currentMonth = "";
+              for (const d of last30Days) {
+                const monthLabel = `${new Date(d + "T00:00:00").getFullYear()}年${new Date(d + "T00:00:00").getMonth() + 1}月`;
+                if (monthLabel !== currentMonth) {
+                  groups.push({ month: monthLabel, days: [d] });
+                  currentMonth = monthLabel;
+                } else {
+                  groups[groups.length - 1].days.push(d);
+                }
+              }
+              return groups.map((group) => (
+                <div key={group.month}>
+                  {groups.length > 1 && (
+                    <div className="text-xs text-text-muted font-medium mb-1 mt-2 first:mt-0">
+                      {group.month}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-7 gap-1">
+                    {group.days.map((d) => {
+                      // Pad leading empty cells for correct day-of-week alignment
+                      const dayOfWeek = new Date(d + "T00:00:00").getDay();
+                      const colIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Mon=0, Sun=6
+                      // Only render cells for this month's days
+                      const dayNum = new Date(d + "T00:00:00").getDate();
+                      const selected = d === date;
+                      const hasData = isAvailable(d);
+                      const isFuture = d > today;
+                      return (
+                        <button
+                          key={d}
+                          onClick={() => { if (!isFuture) { onChange(d); setShowPicker(false); } }}
+                          disabled={isFuture}
+                          className={`h-9 rounded-lg text-sm font-medium transition-colors ${
+                            selected
+                              ? "bg-primary text-white"
+                              : isFuture
+                              ? "text-text-muted opacity-40"
+                              : hasData
+                              ? "bg-surface-alt text-text-primary hover:bg-border"
+                              : "text-text-muted hover:bg-surface-alt"
+                          }`}
+                        >
+                          {dayNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
         </>
       )}

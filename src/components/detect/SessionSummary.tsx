@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
+import { getTodayDate } from "@/lib/storage";
 
 interface SessionSummaryProps {
   data: SessionSummaryData;
@@ -118,7 +119,7 @@ export default function SessionSummary({ data, onClose }: SessionSummaryProps) {
         <div className="flex gap-3">
           {data.duration > 0 && (
             <Link
-              href="/report"
+              href={`/report?date=${getTodayDate()}`}
               className="flex-1 text-center bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors"
             >
               查看详细报告
