@@ -15,6 +15,7 @@ import CameraView from "@/components/detect/CameraView";
 import MetricsPanel from "@/components/detect/MetricsPanel";
 import DetectControls from "@/components/detect/DetectControls";
 import AlertNotification from "@/components/detect/AlertNotification";
+import PostureTimeline from "@/components/detect/PostureTimeline";
 import SessionSummary from "@/components/detect/SessionSummary";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -60,6 +61,7 @@ export default function DetectPage() {
   const [detectState, setDetectState] = useState<DetectState>("idle");
   const [showSummary, setShowSummary] = useState(false);
   const [summaryDataLocal, setSummaryDataLocal] = useState<SessionSummaryData | null>(null);
+  const [showCompletionBanner, setShowCompletionBanner] = useState(false);
 
   // Feed metrics to analyzer - ALWAYS feed when detecting, even if score is 0
   // This ensures the analyzer's timer tracks duration correctly
@@ -78,6 +80,7 @@ export default function DetectPage() {
 
   const handleStart = useCallback(async () => {
     initAudio();
+    setShowCompletionBanner(false);
     await startCamera();
     setDetectState("detecting");
     startSession();
@@ -142,6 +145,7 @@ export default function DetectPage() {
 
     setDetectState("idle");
     setShowSummary(true);
+    setShowCompletionBanner(true);
   }, [stopDetection, stopCamera, analyzer, endSession, metrics, getElapsedTime]);
 
   // Start detection when camera becomes active
@@ -184,6 +188,29 @@ export default function DetectPage() {
         </section>
 
         {/* Main content: camera + metrics */}
+        {showCompletionBanner && !isDetecting && (
+          <div className="bg-primary-light border border-primary/20 rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
+            <div className="flex items-center gap-3">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-text-primary">检测已完成！</p>
+                <p className="text-xs text-text-secondary">查看今日报告或开始新的检测</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Link href={`/report?date=${getTodayDate()}`} className="bg-surface hover:bg-surface-alt text-text-primary font-medium px-4 py-2 rounded-xl transition-colors text-sm">
+                查看报告
+              </Link>
+              <button onClick={handleStart} className="bg-primary hover:bg-primary-dark text-white font-medium px-4 py-2 rounded-xl transition-colors text-sm">
+                再测一次
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
           {/* Camera area */}
           <div className="lg:col-span-3">
@@ -230,6 +257,13 @@ export default function DetectPage() {
             提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒
           </p>
         </div>
+
+        {/* Posture Timeline - 实时姿态时间线 */}
+        {detectState === "detecting" && (
+          <div className="mt-4">
+            <PostureTimeline scoreHistory={analyzer.sessionStats.scoreHistory} duration={sessionState === "idle" ? 0 : elapsedTime} />
+          </div>
+        )}
       </div>
 
       {/* Alert Notification (fixed) */}
@@ -247,6 +281,7 @@ export default function DetectPage() {
         <SessionSummary
           data={summaryDataLocal}
           onClose={() => setShowSummary(false)}
+          onRestart={() => { setShowSummary(false); setShowCompletionBanner(false); handleStart(); }}
         />
       )}
     </div>

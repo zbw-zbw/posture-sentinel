@@ -109,9 +109,32 @@ export default function MetricsPanel({
     },
   ];
 
-  const statusDurationText = currentStatus === "good"
-    ? `良好坐姿已持续 ${formatDuration(statusDuration)}`
-    : `不良坐姿已持续 ${statusDuration}秒`;
+  const formatStatusDuration = (seconds: number, status: PostureStatus): string => {
+    if (status === "good") {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      if (m > 0) {
+        return `已持续 ${m}分${s.toString().padStart(2, "0")}秒`;
+      }
+      return `已持续 ${s}秒`;
+    }
+    return `已持续 ${seconds}秒`;
+  };
+
+  const statusDurationText = formatStatusDuration(statusDuration, currentStatus);
+
+  if (!isDetecting) {
+    return (
+      <div className="bg-surface-alt rounded-2xl p-8 text-center">
+        <svg viewBox="0 0 24 24" className="w-10 h-10 text-text-muted mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="21" x2="9" y2="9"/>
+        </svg>
+        <p className="text-sm text-text-muted">开始检测后，这里将显示实时数据</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -165,7 +188,7 @@ export default function MetricsPanel({
         )}
 
         <div className="flex items-center justify-between text-sm text-text-secondary">
-          <span>检测帧率：{isDetecting ? displayFps : 0} FPS</span>
+          <span>检测帧率：{displayFps} FPS</span>
           <span>会话时长：{formatDuration(sessionDuration)}</span>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface AlertNotificationProps {
   isVisible: boolean;
@@ -19,6 +19,8 @@ export default function AlertNotification({
   statusDuration,
   onDismiss,
 }: AlertNotificationProps) {
+  const [remaining, setRemaining] = useState(100);
+
   useEffect(() => {
     if (isVisible) {
       // Prevent body scroll when alert is visible on mobile
@@ -29,6 +31,24 @@ export default function AlertNotification({
     };
   }, [isVisible]);
 
+  useEffect(() => {
+    if (!isVisible) return;
+    const startTime = Date.now();
+    const DURATION = 10000; // 10 seconds
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const pct = Math.max(0, 100 - (elapsed / DURATION) * 100);
+      setRemaining(pct);
+      if (pct <= 0) {
+        clearInterval(interval);
+        onDismiss();
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isVisible, onDismiss]);
+
   if (!isVisible) return null;
 
   const isWarning = type === "warning";
@@ -36,7 +56,7 @@ export default function AlertNotification({
   return (
     <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center animate-slide-up">
       <div
-        className={`w-[90vw] max-w-[500px] rounded-2xl border-l-4 p-5 shadow-xl ${
+        className={`w-[90vw] max-w-[500px] rounded-2xl border-l-4 p-5 shadow-xl relative overflow-hidden ${
           isWarning
             ? "bg-warning-light border-l-warning"
             : "bg-danger-light border-l-danger"
@@ -81,6 +101,13 @@ export default function AlertNotification({
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
+        </div>
+        {/* Countdown progress bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+          <div 
+            className="h-full bg-white/40 transition-all duration-100 ease-linear"
+            style={{ width: `${remaining}%` }}
+          />
         </div>
       </div>
     </div>

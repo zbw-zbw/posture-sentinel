@@ -45,10 +45,30 @@ interface AIAdviceProps {
   date: string;
 }
 
+function generateLocalAdvice(report: { avgScore: number }): string[] {
+  const advice: string[] = [];
+  if (report.avgScore >= 80) {
+    advice.push("今天的坐姿表现不错！继续保持挺直腰背的好习惯。");
+    advice.push("每隔 45 分钟站起来活动 2-3 分钟，做做拉伸。");
+    advice.push("保持显示器与眼睛齐平，避免低头看屏幕。");
+  } else if (report.avgScore >= 60) {
+    advice.push("坐姿整体还行，但仍有提升空间。注意保持肩膀放松下沉。");
+    advice.push("试试把椅子调高一点，让双脚能平放地面。");
+    advice.push("每 30 分钟提醒自己检查一次坐姿。");
+  } else {
+    advice.push("今天的坐姿需要多加注意。建议调整工作环境，让正确坐姿更自然。");
+    advice.push("显示器上移到与视线平齐的位置，减少低头。");
+    advice.push("考虑使用有腰部支撑的椅子，帮助保持腰椎自然弯曲。");
+    advice.push("每坐 20 分钟就站起来走动一下，避免长时间保持同一姿势。");
+  }
+  return advice;
+}
+
 export default function AIAdvice({ data, date }: AIAdviceProps) {
   const [advice, setAdvice] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [localAdvice, setLocalAdvice] = useState<string[]>([]);
   
   const load = useCallback(async (useCache = true) => {
     setLoading(true);
@@ -124,9 +144,41 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
       {error && !loading && (
         <div className="text-center py-4">
           <p className="text-text-secondary text-sm mb-3">AI 分析暂时不可用，请稍后重试</p>
-          <button onClick={() => load(false)} className="bg-primary hover:bg-primary-dark text-white text-sm px-4 py-2 rounded-lg transition-colors">
-            重试
-          </button>
+          <div className="flex items-center justify-center gap-3">
+            <button onClick={() => load(false)} className="bg-primary hover:bg-primary-dark text-white text-sm px-4 py-2 rounded-lg transition-colors">
+              重试
+            </button>
+            {localAdvice.length === 0 ? (
+              <button
+                onClick={() => setLocalAdvice(generateLocalAdvice({ avgScore: data.avgScore }))}
+                className="bg-surface-alt hover:bg-surface-alt/80 text-text-primary text-sm px-4 py-2 rounded-lg border border-border transition-colors"
+              >
+                查看本地建议
+              </button>
+            ) : (
+              <button
+                onClick={() => setLocalAdvice([])}
+                className="bg-surface-alt hover:bg-surface-alt/80 text-text-primary text-sm px-4 py-2 rounded-lg border border-border transition-colors"
+              >
+                隐藏本地建议
+              </button>
+            )}
+          </div>
+          {localAdvice.length > 0 && (
+            <div className="space-y-3 mt-4">
+              {localAdvice.map((item, i) => (
+                <div key={i} className="flex gap-3 items-start">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <p className="text-sm text-text-primary leading-relaxed">{item}</p>
+                </div>
+              ))}
+              <p className="text-xs text-text-muted mt-2">
+                本地建议为通用模板，未使用 AI 分析
+              </p>
+            </div>
+          )}
         </div>
       )}
       

@@ -11,14 +11,29 @@ export default function SettingsPage() {
   const { settings, updateSettings, setSensitivity, resetSettings } = useSettings();
   const [dangerOpen, setDangerOpen] = useState(false);
   const [cleared, setCleared] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
 
-  const handleClearData = () => {
+  const confirmClearData = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("posture-sentinel:sessions");
       localStorage.removeItem("posture-sentinel:settings");
+      // Clear all posture-sentinel:* keys and posture-advice-* caches
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith("posture-sentinel:") || key.startsWith("posture-advice-"))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
     }
+    setConfirmClear(false);
     setCleared(true);
     setTimeout(() => setCleared(false), 2000);
+  };
+
+  const handleClearData = () => {
+    setConfirmClear(true);
   };
 
   const handlePreviewAlert = () => {
@@ -33,8 +48,13 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen pb-10">
       {/* Header */}
-      <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-10 pb-8">
+      <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
         <div className="max-w-3xl mx-auto">
+          <nav className="flex items-center gap-2 text-sm text-text-muted mb-2">
+            <Link href="/" className="hover:text-text-primary transition-colors">首页</Link>
+            <span>/</span>
+            <span className="text-text-primary">设置</span>
+          </nav>
           <div className="flex items-center gap-3">
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -104,6 +124,24 @@ export default function SettingsPage() {
         statusDuration={settings.badPostureThreshold}
         onDismiss={() => setDangerOpen(false)}
       />
+
+      {/* Clear Data Confirmation Dialog */}
+      {confirmClear && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/50">
+          <div className="bg-surface rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
+            <h4 className="text-lg font-bold text-text-primary mb-2">确认清除数据</h4>
+            <p className="text-sm text-text-secondary mb-5">将清除所有检测记录、设置和 AI 建议，此操作无法撤销。</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmClear(false)} className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-2.5 rounded-xl transition-colors text-sm">
+                取消
+              </button>
+              <button onClick={confirmClearData} className="flex-1 bg-danger hover:bg-danger/90 text-white font-medium py-2.5 rounded-xl transition-colors text-sm">
+                确认清除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -34,7 +34,7 @@ export default function ReportPage() {
           <nav className="flex items-center gap-2 text-sm text-text-muted mb-2">
             <Link href="/" className="hover:text-text-primary transition-colors">首页</Link>
             <span>/</span>
-            <span className="text-text-primary">健康日报</span>
+            <span className="text-text-primary">脊椎健康日报</span>
           </nav>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-text-primary">脊椎健康日报</h1>
