@@ -27,6 +27,7 @@ export default function DetectPage() {
     landmarks,
     isModelLoading,
     isDetecting,
+    loadError,
     fps,
     startDetection,
     stopDetection,
@@ -185,6 +186,7 @@ export default function DetectPage() {
               isActive={isActive}
               isDetecting={isDetecting}
               isModelLoading={isModelLoading}
+              loadError={loadError}
               isRequestingPermission={isLoading}
               error={error}
               headTiltAngle={metrics.headTiltAngle}

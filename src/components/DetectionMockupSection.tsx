@@ -229,44 +229,44 @@ export default function DetectionMockupSection() {
           {/* ─── Right Column: Data Panel ─── */}
           <div className="p-6 md:p-8">
             {/* Status Badge */}
-            <div className="bg-primary-light text-primary font-semibold text-xl inline-block px-4 py-2 rounded-full flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-primary inline-block" />
-              坐姿良好
+            <div className="bg-primary-light text-primary font-semibold text-lg inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full">
+              <span className="w-3 h-3 rounded-full bg-primary inline-block flex-shrink-0" />
+              <span>坐姿良好</span>
             </div>
 
             {/* Metric Cards */}
             <div className="grid grid-cols-2 gap-4 mt-6">
               <MetricCard
-                name="头部前倾"
+                name="头部倾斜"
                 value={5}
                 suffix="°"
                 status="正常"
                 statusClass="bg-primary-light text-primary"
-                progressPercent={30}
+                progressPercent={33}
               />
               <MetricCard
-                name="肩膀对称"
-                value={96}
-                suffix="%"
-                status="正常"
-                statusClass="bg-primary-light text-primary"
-                progressPercent={96}
-              />
-              <MetricCard
-                name="前倾距离"
+                name="肩膀倾斜"
                 value={2}
-                suffix="cm"
-                status="正常"
-                statusClass="bg-primary-light text-primary"
-                progressPercent={40}
-              />
-              <MetricCard
-                name="脊椎弧度"
-                value={8}
                 suffix="°"
                 status="正常"
                 statusClass="bg-primary-light text-primary"
-                progressPercent={50}
+                progressPercent={25}
+              />
+              <MetricCard
+                name="脖子前倾"
+                value={15}
+                suffix="%"
+                status="正常"
+                statusClass="bg-primary-light text-primary"
+                progressPercent={25}
+              />
+              <MetricCard
+                name="脊椎倾斜"
+                value={3}
+                suffix="°"
+                status="正常"
+                statusClass="bg-primary-light text-primary"
+                progressPercent={20}
               />
             </div>
 

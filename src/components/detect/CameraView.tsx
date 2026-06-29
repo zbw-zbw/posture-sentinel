@@ -12,6 +12,7 @@ interface CameraViewProps {
   isActive: boolean;
   isDetecting: boolean;
   isModelLoading: boolean;
+  loadError?: string | null;
   isRequestingPermission?: boolean;
   error: string | null;
   headTiltAngle?: number;
@@ -24,6 +25,7 @@ export default function CameraView({
   isActive,
   isDetecting,
   isModelLoading,
+  loadError,
   isRequestingPermission = false,
   error,
   headTiltAngle = 0,
@@ -105,7 +107,29 @@ export default function CameraView({
           <div className="absolute inset-0 flex items-center justify-center bg-dark/80">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-white text-sm mt-3">AI 模型加载中...</p>
+              <p className="text-white text-sm mt-3">AI 模型加载中，首次可能需要 10-30 秒...</p>
+              <p className="text-text-muted text-xs mt-1">正在从 CDN 下载轻量级模型（约 2MB）</p>
+            </div>
+          </div>
+        )}
+
+        {/* Model load error */}
+        {loadError && isActive && !isModelLoading && !isDetecting && (
+          <div className="absolute inset-0 flex items-center justify-center bg-dark/80">
+            <div className="text-center max-w-xs px-4">
+              <svg viewBox="0 0 24 24" className="w-10 h-10 text-warning mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <p className="text-white text-sm font-medium">模型加载失败</p>
+              <p className="text-text-muted text-xs mt-1">请检查网络连接后刷新页面重试</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-3 bg-primary hover:bg-primary-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+              >
+                刷新重试
+              </button>
             </div>
           </div>
         )}

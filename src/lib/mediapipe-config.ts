@@ -1,6 +1,10 @@
 export const MEDIAPIPE_CONFIG = {
   modelAssetPath:
     "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+  modelAssetPathCdn:
+    "https://cdn.jsdelivr.net/gh/nicehash/nicehash-calculator@main/public/models/pose_landmarker_lite/pose_landmarker_lite.task",
+  wasmPath:
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm",
   runningMode: "VIDEO" as const,
   numPoses: 1,
   minPoseDetectionConfidence: 0.5,
@@ -24,17 +28,3 @@ export const POSE_CONNECTIONS: [number, number][] = [
   // Right leg
   [24, 26], [26, 28], [28, 30], [30, 32],
 ];
-
-export const POSTURE_THRESHOLDS = {
-  headForward: { good: 15, warning: 25 },
-  shoulderSymmetry: { good: 85, warning: 70 },
-  forwardLean: { good: 5, warning: 10 },
-  spineAngle: { good: 20, warning: 35 },
-};
-
-export const SCORE_WEIGHTS = {
-  headForward: 0.3,
-  shoulderSymmetry: 0.2,
-  forwardLean: 0.2,
-  spineAngle: 0.3,
-};
