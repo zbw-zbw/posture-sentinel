@@ -34,19 +34,29 @@ export default function Navbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+            ? "bg-bg/90 backdrop-blur-xl shadow-sm"
             : "bg-transparent"
         }`}
       >
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
-            <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2C12 2 8 6 8 12C8 18 12 22 12 22" />
-              <path d="M12 2C12 2 16 6 16 12C16 18 12 22 12 22" />
-              <line x1="12" y1="2" x2="12" y2="22" />
-              <line x1="9" y1="8" x2="15" y2="8" />
-              <line x1="9" y1="14" x2="15" y2="14" />
+            <svg viewBox="0 0 100 100" className="w-7 h-7">
+              <defs>
+                <linearGradient id="logoBg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#10b981"/>
+                  <stop offset="100%" stopColor="#059669"/>
+                </linearGradient>
+              </defs>
+              <rect width="100" height="100" rx="24" fill="url(#logoBg)"/>
+              <path d="M50 18 C50 18 36 34 36 52 C36 70 50 84 50 84" stroke="white" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.5"/>
+              <path d="M50 18 C50 18 64 34 64 52 C64 70 50 84 50 84" stroke="white" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.5"/>
+              <line x1="50" y1="18" x2="50" y2="84" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+              <line x1="38" y1="42" x2="62" y2="42" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+              <line x1="38" y1="62" x2="62" y2="62" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+              <circle cx="50" cy="30" r="3.5" fill="white"/>
+              <circle cx="50" cy="50" r="3.5" fill="white"/>
+              <circle cx="50" cy="70" r="3.5" fill="white"/>
             </svg>
             <span>体态哨兵</span>
           </Link>

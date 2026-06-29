@@ -32,7 +32,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen pb-10">
       {/* Header */}
-      <section className="bg-surface px-4 md:px-6 pt-10 pb-8">
+      <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-10 pb-8">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
             设置

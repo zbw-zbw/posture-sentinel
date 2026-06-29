@@ -121,8 +121,27 @@ function calculateNeckForwardScore(landmarks: NormalizedLandmark[]): number {
     }
   }
 
-  // Take the worse (higher) of the two indicators
-  return Math.max(verticalScore, faceScore);
+  // Indicator C: nose-to-shoulder midpoint angle from vertical
+  // When leaning back (后仰), the nose appears more directly above shoulders
+  // In good posture, nose should be slightly forward of shoulder midpoint
+  let backLeanScore = 0;
+  const noseAngle = Math.abs(Math.atan2(
+    shoulderMid.x - nose.x,
+    nose.y - shoulderMid.y  // negative because nose is above shoulders in image coords
+  ) * (180 / Math.PI));
+
+  // When sitting upright: angle ≈ 5-15° (nose slightly forward)
+  // When leaning back: angle ≈ 0-5° (nose directly above shoulders)
+  if (noseAngle <= 3) {
+    backLeanScore = 100; // extreme back lean
+  } else if (noseAngle >= 10) {
+    backLeanScore = 0;   // good forward posture
+  } else {
+    backLeanScore = ((10 - noseAngle) / (10 - 3)) * 100;
+  }
+
+  // Take the worse (higher) of the three indicators
+  return Math.max(verticalScore, faceScore, backLeanScore);
 }
 
 // ── Metric 4: Spine Tilt ──
