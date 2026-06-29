@@ -162,9 +162,17 @@ export default function FeaturesSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Text */}
             <div className="p-8 md:p-12">
-              <span className="inline-block bg-primary-light text-primary-dark text-xs font-medium px-3 py-1 rounded-full">
-                核心功能
-              </span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary-light shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </svg>
+                </div>
+                <span className="inline-block bg-primary-light text-primary-dark text-xs font-medium px-3 py-1 rounded-full">
+                  核心功能
+                </span>
+              </div>
               <h3 className="text-2xl font-bold mt-4 text-text-primary">
                 打开摄像头，3秒识别不良坐姿
               </h3>
@@ -222,9 +230,17 @@ export default function FeaturesSection() {
 
             {/* Right: Text */}
             <div className="p-8 md:p-12">
-              <span className="inline-block bg-warning-light text-warning text-xs font-medium px-3 py-1 rounded-full">
-                贴心提醒
-              </span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-warning-light shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 text-warning" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+                <span className="inline-block bg-warning-light text-warning text-xs font-medium px-3 py-1 rounded-full">
+                  贴心提醒
+                </span>
+              </div>
               <h3 className="text-2xl font-bold mt-4 text-text-primary">
                 不是粗暴弹窗，而是温和的守护
               </h3>
@@ -242,9 +258,18 @@ export default function FeaturesSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Text */}
             <div className="p-8 md:p-12">
-              <span className="inline-block bg-info-light text-info text-xs font-medium px-3 py-1 rounded-full">
-                数据洞察
-              </span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-info-light shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 text-info" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                </div>
+                <span className="inline-block bg-info-light text-info text-xs font-medium px-3 py-1 rounded-full">
+                  数据洞察
+                </span>
+              </div>
               <h3 className="text-2xl font-bold mt-4 text-text-primary">
                 每天一份健康报告，看见改变的轨迹
               </h3>

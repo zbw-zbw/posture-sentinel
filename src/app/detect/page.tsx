@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useCamera } from "@/hooks/useCamera";
 import { usePoseDetection } from "@/hooks/usePoseDetection";
 import { usePostureMetrics } from "@/hooks/usePostureMetrics";
@@ -165,15 +166,22 @@ export default function DetectPage() {
     <ErrorBoundary>
     <div className="min-h-screen bg-bg pt-20 pb-12">
       <div className="max-w-[1200px] mx-auto px-4 md:px-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
-            实时坐姿检测
-          </h1>
-          <p className="text-text-secondary mt-1 text-sm md:text-base">
-            请坐在摄像头前，确保上半身在画面中可见
-          </p>
-        </div>
+        {/* Breadcrumb + Header */}
+        <section className="bg-gradient-to-b from-primary-light/10 to-transparent -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-4 mb-6">
+          <nav className="flex items-center gap-2 text-sm text-text-muted mb-2">
+            <Link href="/" className="hover:text-text-primary transition-colors">首页</Link>
+            <span>/</span>
+            <span className="text-text-primary">实时检测</span>
+          </nav>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
+              实时坐姿检测
+            </h1>
+            <p className="text-text-secondary mt-1 text-sm">
+              打开摄像头，AI 实时分析你的坐姿状态
+            </p>
+          </div>
+        </section>
 
         {/* Main content: camera + metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">

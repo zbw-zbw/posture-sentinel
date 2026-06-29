@@ -107,8 +107,8 @@ export default function CameraView({
           <div className="absolute inset-0 flex items-center justify-center bg-dark/80">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-white text-sm mt-3">AI 模型加载中，首次可能需要 10-30 秒...</p>
-              <p className="text-text-muted text-xs mt-1">正在从 CDN 下载轻量级模型（约 2MB）</p>
+              <p className="text-white text-sm mt-3">AI 模型加载中...</p>
+              <p className="text-text-muted text-xs mt-1">首次加载约 3-5 秒，后续秒开</p>
             </div>
           </div>
         )}

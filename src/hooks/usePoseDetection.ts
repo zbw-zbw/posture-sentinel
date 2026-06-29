@@ -14,10 +14,11 @@ export interface UsePoseDetectionReturn {
   stopDetection: () => void;
 }
 
-// Model file URLs to try in order (primary → fallback CDN mirrors)
+// Model file URLs to try in order (local first, then CDN mirrors)
 const MODEL_URLS = [
-  MEDIAPIPE_CONFIG.modelAssetPath,
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/pose_landmarker_lite.task",
+  "/models/pose_landmarker_lite.task",  // Tier 1: ships with the app (~5.6MB, instant)
+  MEDIAPIPE_CONFIG.modelAssetPath,       // Tier 2: Google Storage CDN
+  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/pose_landmarker_lite.task", // Tier 3: jsDelivr mirror
 ];
 
 const WASM_URL = MEDIAPIPE_CONFIG.wasmPath;
