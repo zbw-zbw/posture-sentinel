@@ -62,7 +62,15 @@ export default function PainPointsSection() {
             >
               {/* Card Content */}
               <div className="px-6 py-8 flex-1">
-                <span className="text-5xl text-primary">{card.icon}</span>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
+                  index === 0 ? "bg-danger-light" : index === 1 ? "bg-warning-light" : "bg-info-light"
+                }`}>
+                  <span className={`text-2xl ${
+                    index === 0 ? "text-danger" : index === 1 ? "text-warning" : "text-info"
+                  }`}>
+                    {card.icon}
+                  </span>
+                </div>
                 <h3 className="text-xl font-semibold mt-4 text-text-primary">
                   {card.title}
                 </h3>

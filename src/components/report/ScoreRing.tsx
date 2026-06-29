@@ -30,10 +30,17 @@ export default function ScoreRing({ score, yesterdayScore }: ScoreRingProps) {
   const diff = yesterdayScore !== undefined && Number.isFinite(yesterdayScore)
     ? safeScore - yesterdayScore
     : undefined;
-  
+
+  const scoreColorClass =
+    safeScore >= 80
+      ? "text-primary"
+      : safeScore >= 50
+        ? "text-warning"
+        : "text-danger";
+
   return (
     <div className="flex flex-col items-center">
-      <RingChart value={safeScore} max={100} size={180} strokeWidth={12} animate={true} label={String(safeScore)} sublabel="/100 分" />
+      <RingChart value={safeScore} max={100} size={180} strokeWidth={12} animate={true} label={String(safeScore)} sublabel="/100 分" labelColor={scoreColorClass} />
       {diff !== undefined && (
         <div className={`flex items-center gap-1 mt-3 text-sm font-medium ${diff >= 0 ? "text-primary" : "text-danger"}`}>
           <ArrowIcon up={diff >= 0} />

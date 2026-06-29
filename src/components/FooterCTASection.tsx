@@ -19,7 +19,7 @@ export default function FooterCTASection() {
       <div className="mt-10">
         <Link
           href="/detect"
-          className="inline-block bg-primary hover:bg-primary-dark text-white font-semibold px-10 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03] active:scale-[0.98]"
+          className="inline-block bg-primary hover:bg-primary-dark text-white font-semibold px-10 py-4 rounded-xl text-lg transition-all hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03] active:scale-[0.98]"
         >
           开始检测
           <svg viewBox="0 0 24 24" className="w-5 h-5 inline-block ml-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -30,7 +30,7 @@ export default function FooterCTASection() {
       </div>
 
       {/* Footer Bar */}
-      <div className="pt-20 mt-20">
+      <div className="pt-12 mt-12">
         <div className="flex justify-center items-center text-sm text-text-muted">
           <span>体态哨兵 · 本地 AI 坐姿守护</span>
         </div>

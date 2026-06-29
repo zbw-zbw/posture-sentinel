@@ -17,8 +17,8 @@ export default function DataPanelSection() {
               <p className="text-3xl md:text-4xl font-bold text-white">
                 {metric.value}
               </p>
-              <p className="text-sm text-text-muted mt-1">
-                / {metric.label}
+              <p className="text-sm text-white/70 mt-1">
+                {metric.label}
               </p>
             </div>
           ))}

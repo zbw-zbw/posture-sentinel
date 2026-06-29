@@ -37,13 +37,13 @@ interface MetricCardProps {
 
 function MetricCard({ name, value, unit, threshold, progress, color }: MetricCardProps) {
   return (
-    <div className="bg-surface-alt rounded-xl p-4">
+    <div className="bg-surface-alt rounded-xl p-5">
       <p className="text-text-muted text-xs">{name}</p>
-      <p className="text-2xl font-bold mt-1 tabular-nums" style={{ transition: "all 0.3s ease" }}>
+      <p className="text-2xl font-bold mt-1 tabular-nums" style={{ transition: "all 0.3s ease", color }}>
         {value}<span className="text-sm font-normal text-text-muted ml-1">{unit}</span>
       </p>
-      <p className="text-xs text-text-muted mt-1">{threshold}</p>
-      <div className="mt-2 bg-border rounded-full h-1.5 overflow-hidden">
+      <p className="text-xs text-text-muted mt-2">{threshold}</p>
+      <div className="mt-2 bg-border rounded-full h-2 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${Math.min(progress, 100)}%`, backgroundColor: color }}
@@ -172,7 +172,7 @@ export default function MetricsPanel({
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {metricCards.map((card) => (
           <MetricCard key={card.name} {...card} />
         ))}

@@ -14,6 +14,7 @@ interface RingChartProps {
   animate?: boolean;
   label?: string;
   sublabel?: string;
+  labelColor?: string;
 }
 
 export default function RingChart({
@@ -26,6 +27,7 @@ export default function RingChart({
   animate = true,
   label,
   sublabel,
+  labelColor,
 }: RingChartProps) {
   const [displayValue, setDisplayValue] = useState(animate ? 0 : value);
 
@@ -86,7 +88,7 @@ export default function RingChart({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {label !== undefined && (
-          <span className="text-3xl font-bold text-text-primary">{label}</span>
+          <span className={`text-3xl font-bold ${labelColor ?? "text-text-primary"}`}>{label}</span>
         )}
         {sublabel && (
           <span className="text-sm text-text-muted mt-1">{sublabel}</span>

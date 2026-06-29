@@ -280,7 +280,7 @@ export default function FeaturesSection() {
 
             {/* Right: Daily report card */}
             <div className="h-full flex items-center p-4">
-              <div className="bg-surface rounded-2xl p-6 w-full">
+              <div className="bg-surface-alt rounded-2xl p-6 w-full">
                 {/* Report title */}
                 <p className="font-semibold text-base text-text-primary">
                   今日脊椎健康报告 &middot; 6月25日

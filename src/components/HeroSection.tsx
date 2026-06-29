@@ -103,7 +103,7 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
           <Link
             href="/detect"
-            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base"
+            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M23 7l-7 5 7 5V7z" />
@@ -113,7 +113,7 @@ export default function HeroSection() {
           </Link>
           <Link
             href="/report"
-            className="inline-flex items-center justify-center gap-2 bg-surface hover:bg-surface-alt text-text-primary font-medium px-7 py-3.5 rounded-xl transition-colors text-base"
+            className="inline-flex items-center justify-center gap-2 bg-white border border-border hover:bg-surface-alt text-text-primary font-medium px-7 py-3.5 rounded-xl transition-colors text-base"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="20" x2="18" y2="10" />
