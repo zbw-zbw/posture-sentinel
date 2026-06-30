@@ -221,7 +221,7 @@ export default function DetectPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start">
           {/* Camera area */}
           <div className="lg:col-span-3">
             <CameraView

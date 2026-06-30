@@ -7,6 +7,20 @@ interface ExportButtonProps {
   disabled?: boolean;
 }
 
+/**
+ * Strip modern CSS color functions (lab, oklch, oklab, color-mix, lch)
+ * from stylesheet text that html2canvas cannot parse.
+ */
+function sanitizeStylesheet(css: string): string {
+  return css
+    .replace(/oklch\([^)]*\)/gi, "#888888")
+    .replace(/oklab\([^)]*\)/gi, "#888888")
+    .replace(/\blab\([^)]*\)/gi, "#888888")
+    .replace(/\blch\([^)]*\)/gi, "#888888")
+    .replace(/color-mix\(.*?\)/gi, "#888888")
+    .replace(/hwb\([^)]*\)/gi, "#888888");
+}
+
 export default function ExportButton({ targetId, disabled }: ExportButtonProps) {
   const [exporting, setExporting] = useState(false);
   const [done, setDone] = useState(false);
@@ -22,31 +36,38 @@ export default function ExportButton({ targetId, disabled }: ExportButtonProps) 
         return;
       }
 
-      // Force all lab() colors to be resolved before html2canvas parses them
-      // by temporarily forcing a style recalculation
-      const computed = getComputedStyle(document.documentElement);
-
       const canvas = await html2canvas(element, {
         scale: 2,
         backgroundColor: "#ffffff",
         useCORS: true,
         logging: false,
-        // Ignore CSS variables — use computed colors instead
         onclone: (clonedDoc) => {
-          const root = clonedDoc.documentElement;
-          // Copy computed background to avoid lab() parsing issues
-          root.style.background = "#f8fafb";
-          // Remove any gradient backgrounds that use lab()
-          const allElements = root.querySelectorAll("*");
-          allElements.forEach((el) => {
-            const elAny = el as HTMLElement;
-            const bg = elAny.style.background;
-            if (bg && bg.includes("lab")) {
-              elAny.style.background = "#ffffff";
+          // Fix body background (remove lab/oklch gradients)
+          clonedDoc.body.style.background = "#f8fafb";
+          clonedDoc.body.style.backgroundImage = "none";
+          clonedDoc.documentElement.style.background = "#f8fafb";
+          clonedDoc.documentElement.style.backgroundImage = "none";
+
+          // Sanitize all <style> tags in the cloned document
+          const styleTags = clonedDoc.querySelectorAll("style");
+          styleTags.forEach((tag) => {
+            if (tag.textContent) {
+              tag.textContent = sanitizeStylesheet(tag.textContent);
             }
-            const gradient = elAny.style.backgroundImage;
-            if (gradient && gradient.includes("lab")) {
-              elAny.style.backgroundImage = "none";
+          });
+
+          // Also sanitize inline styles on every element
+          const allElements = clonedDoc.querySelectorAll("*");
+          allElements.forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            if (htmlEl.style) {
+              for (let i = 0; i < htmlEl.style.length; i++) {
+                const prop = htmlEl.style[i];
+                const val = htmlEl.style.getPropertyValue(prop);
+                if (val && /oklch|oklab|\blab\(|lch\(|color-mix|hwb/.test(val)) {
+                  htmlEl.style.removeProperty(prop);
+                }
+              }
             }
           });
         },

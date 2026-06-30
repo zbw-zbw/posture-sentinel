@@ -102,8 +102,8 @@ export default function CameraView({
           </div>
         )}
 
-        {/* Model loading */}
-        {isModelLoading && (
+        {/* Model loading — only show when camera is active but model not yet loaded and not yet detecting */}
+        {isModelLoading && isActive && !isDetecting && (
           <div className="absolute inset-0 flex items-center justify-center bg-dark/80">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
