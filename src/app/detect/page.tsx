@@ -185,13 +185,8 @@ export default function DetectPage() {
     <ErrorBoundary>
     <div className="min-h-screen bg-bg pt-20 pb-12">
       <div className="max-w-[1200px] mx-auto px-4 md:px-6">
-        {/* Breadcrumb + Header */}
+        {/* Header */}
         <section className="bg-gradient-to-b from-primary-light/10 to-transparent -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-4 mb-6">
-          <nav className="flex items-center gap-2 text-sm text-text-muted mb-2">
-            <Link href="/" className="hover:text-text-primary transition-colors">首页</Link>
-            <span>/</span>
-            <span className="text-text-primary">实时检测</span>
-          </nav>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
               实时坐姿检测

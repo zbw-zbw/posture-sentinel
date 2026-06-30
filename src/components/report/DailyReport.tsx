@@ -113,7 +113,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
         <div className="flex-1">
           <DatePicker date={date} onChange={setDate} availableDates={availableDates} />
         </div>
-        <ExportButton targetId="report-content" />
+        <ExportButton targetId="report-content" disabled={!report} />
       </div>
 
       {loading && (

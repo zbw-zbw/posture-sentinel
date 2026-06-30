@@ -50,11 +50,6 @@ export default function SettingsPage() {
       {/* Header */}
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
         <div className="max-w-3xl mx-auto">
-          <nav className="flex items-center gap-2 text-sm text-text-muted mb-2">
-            <Link href="/" className="hover:text-text-primary transition-colors">首页</Link>
-            <span>/</span>
-            <span className="text-text-primary">设置</span>
-          </nav>
           <div className="flex items-center gap-3">
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -14,16 +14,13 @@ export interface UsePoseDetectionReturn {
   stopDetection: () => void;
 }
 
-// Model file URLs to try in order (local first, then CDN mirrors)
-const MODEL_URLS = [
-  "/models/pose_landmarker_lite.task",  // Tier 1: ships with the app (~5.6MB, instant)
-  MEDIAPIPE_CONFIG.modelAssetPath,       // Tier 2: Google Storage CDN
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/pose_landmarker_lite.task", // Tier 3: jsDelivr mirror
+// Model and WASM CDN URLs
+const WASM_CDN_URL = MEDIAPIPE_CONFIG.wasmPath;
+const MODEL_CDN_URLS = [
+  MEDIAPIPE_CONFIG.modelAssetPath,
+  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/pose_landmarker_lite.task",
 ];
-
-const WASM_URL = MEDIAPIPE_CONFIG.wasmPath;
-const DELEGATES = ["gpu", "cpu"] as const;
-const LOAD_TIMEOUT_MS = 30_000; // 30 seconds max per attempt
+const LOAD_TIMEOUT_MS = 45_000;
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -61,66 +58,58 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
     setIsModelLoading(true);
     setLoadError(null);
 
+    // Step 1: Resolve WASM — try CDN only (relative paths don't work with FilesetResolver)
+    let vision;
     try {
-      const vision = await withTimeout(
-        FilesetResolver.forVisionTasks(WASM_URL),
+      vision = await withTimeout(
+        FilesetResolver.forVisionTasks(WASM_CDN_URL),
         LOAD_TIMEOUT_MS
       );
+    } catch (err) {
+      console.error("Failed to resolve WASM:", err);
+      throw new Error("WASM 加载失败，请检查网络连接");
+    }
 
-      let lastError: Error | null = null;
+    // Step 2: Try loading model from CDN URLs with GPU then CPU fallback
+    let lastError: Error | null = null;
 
-      // Try each delegate (GPU first, then CPU)
-      for (const delegate of DELEGATES) {
-        // Try each model URL
-        for (const modelUrl of MODEL_URLS) {
-          try {
-            landmarkerRef.current = await withTimeout(
-              PoseLandmarker.createFromOptions(vision, {
-                baseOptions: {
-                  modelAssetPath: modelUrl,
-                  delegate: delegate.toUpperCase() as "GPU" | "CPU",
-                },
-                runningMode: MEDIAPIPE_CONFIG.runningMode,
-                numPoses: MEDIAPIPE_CONFIG.numPoses,
-                minPoseDetectionConfidence: MEDIAPIPE_CONFIG.minPoseDetectionConfidence,
-                minPosePresenceConfidence: MEDIAPIPE_CONFIG.minPosePresenceConfidence,
-                minTrackingConfidence: MEDIAPIPE_CONFIG.minTrackingConfidence,
-              }),
-              LOAD_TIMEOUT_MS
-            );
-            return; // Success!
-          } catch (err) {
-            lastError = err as Error;
-            console.warn(`Failed to load model (${delegate}, ${modelUrl}):`, err);
-            // Clean up failed landmarker
-            if (landmarkerRef.current) {
-              try { landmarkerRef.current.close(); } catch { /* ignore */ }
-              landmarkerRef.current = null;
-            }
+    for (const delegate of ["GPU", "CPU"] as const) {
+      for (const modelUrl of MODEL_CDN_URLS) {
+        try {
+          landmarkerRef.current = await withTimeout(
+            PoseLandmarker.createFromOptions(vision, {
+              baseOptions: {
+                modelAssetPath: modelUrl,
+                delegate: delegate,
+              },
+              runningMode: MEDIAPIPE_CONFIG.runningMode,
+              numPoses: MEDIAPIPE_CONFIG.numPoses,
+              minPoseDetectionConfidence: MEDIAPIPE_CONFIG.minPoseDetectionConfidence,
+              minPosePresenceConfidence: MEDIAPIPE_CONFIG.minPosePresenceConfidence,
+              minTrackingConfidence: MEDIAPIPE_CONFIG.minTrackingConfidence,
+            }),
+            LOAD_TIMEOUT_MS
+          );
+          return; // Success
+        } catch (err) {
+          lastError = err as Error;
+          console.warn(`Failed (${delegate}, ${modelUrl}):`, err);
+          if (landmarkerRef.current) {
+            try { landmarkerRef.current.close(); } catch { /* ignore */ }
+            landmarkerRef.current = null;
           }
         }
       }
-
-      throw lastError || new Error("All model loading attempts failed");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
-      console.error("Failed to load pose model:", message);
-      setLoadError(message);
-    } finally {
-      setIsModelLoading(false);
     }
+
+    throw lastError || new Error("所有模型加载尝试均失败");
   }, []);
 
   const detectFrame = useCallback(() => {
     if (!detectingRef.current || !landmarkerRef.current || !videoRef.current) return;
 
     const video = videoRef.current;
-    if (video.paused || video.ended) {
-      animFrameRef.current = requestAnimationFrame(() => detectFrameRef.current());
-      return;
-    }
-
-    if (document.hidden) {
+    if (video.paused || video.ended || document.hidden) {
       animFrameRef.current = requestAnimationFrame(() => detectFrameRef.current());
       return;
     }
@@ -143,7 +132,7 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
               maxDiff = Math.max(maxDiff, dx, dy);
             }
             if (maxDiff < 0.003) {
-              // Skip small changes
+              // skip tiny changes
             } else {
               prevLandmarksRef.current = structuredClone(results.landmarks[0]);
               setLandmarks(results.landmarks);
@@ -154,7 +143,7 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
           }
         }
       } catch {
-        // Frame skipped silently
+        // Frame skipped
       }
     }
 

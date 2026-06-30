@@ -75,21 +75,26 @@ function migrateSettings(saved: any): Settings {
 }
 
 export function useSettings() {
-  const [settings, setSettingsState] = useState<Settings>(DEFAULT_SETTINGS);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [settings, setSettingsState] = useState<Settings>(() => {
+    if (typeof window === "undefined") return DEFAULT_SETTINGS;
+    try {
+      const saved = loadSettings<Settings>(DEFAULT_SETTINGS);
+      return migrateSettings(saved);
+    } catch {
+      return DEFAULT_SETTINGS;
+    }
+  });
+  const [isLoaded, setIsLoaded] = useState(typeof window !== "undefined");
 
   useEffect(() => {
+    if (isLoaded) return; // Already initialized from useState
     const saved = loadSettings<Settings>(DEFAULT_SETTINGS);
     const migrated = migrateSettings(saved);
-    // Save back the migrated settings so next load is fast
     if ((saved as Settings | undefined)?.version !== SETTINGS_VERSION) {
       saveSettings(migrated);
     }
-    const t = setTimeout(() => {
-      setSettingsState(migrated);
-      setIsLoaded(true);
-    }, 0);
-    return () => clearTimeout(t);
+    setSettingsState(migrated);
+    setIsLoaded(true);
   }, []);
 
   const updateSettings = useCallback((updates: Partial<Settings>) => {
