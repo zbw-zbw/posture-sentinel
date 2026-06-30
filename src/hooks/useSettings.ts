@@ -15,6 +15,7 @@ export interface Settings {
   headAngleThreshold: { warning: number; bad: number };
   shoulderThreshold: { warning: number; bad: number };
   spineAngleThreshold: { warning: number; bad: number };
+  dailyGoalMinutes: number; // 每日检测目标时长（分钟）
 }
 
 const SETTINGS_VERSION = 2;
@@ -31,6 +32,7 @@ const DEFAULT_SETTINGS: Settings = {
   headAngleThreshold: { warning: 5, bad: 15 },
   shoulderThreshold: { warning: 3, bad: 8 },
   spineAngleThreshold: { warning: 5, bad: 15 },
+  dailyGoalMinutes: 30,
 };
 
 const SENSITIVITY_PRESETS: Record<string, Partial<Settings>> = {

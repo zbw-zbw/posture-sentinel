@@ -133,3 +133,56 @@ export function loadSettings<T>(defaults: T): T {
     return defaults;
   }
 }
+
+export interface DailyGoalProgress {
+  todayMinutes: number;        // 今日已检测分钟数
+  goalMinutes: number;         // 目标分钟数
+  percent: number;             // 完成百分比 0-100
+  isCompleted: boolean;        // 今日是否达标
+  streakDays: number;         // 连续达标天数
+  streakLabel: string;        // 如 "连续 3 天达标"
+}
+
+export function getDailyGoalProgress(goalMinutes: number): DailyGoalProgress {
+  const today = getTodayDate();
+  const sessions = getSessions();
+
+  // 计算今日总检测时长（秒 → 分钟）
+  const todaySessions = sessions.filter(s => s.date === today);
+  const todaySeconds = todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+  const todayMinutes = Math.round(todaySeconds / 60);
+
+  const percent = goalMinutes > 0 ? Math.min(100, Math.round((todayMinutes / goalMinutes) * 100)) : 0;
+  const isCompleted = todayMinutes >= goalMinutes;
+
+  // 计算连续达标天数（从今天往回数）
+  let streakDays = 0;
+  if (isCompleted) {
+    streakDays = 1;
+    // 往前一天一天检查
+    const checkDate = new Date();
+    checkDate.setDate(checkDate.getDate() - 1);
+    while (true) {
+      const dateStr = toLocalDateString(checkDate);
+      const daySessions = sessions.filter(s => s.date === dateStr);
+      const dayMinutes = Math.round(daySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
+      if (dayMinutes >= goalMinutes) {
+        streakDays++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+      // 最多查 365 天
+      if (streakDays >= 365) break;
+    }
+  }
+
+  return {
+    todayMinutes,
+    goalMinutes,
+    percent,
+    isCompleted,
+    streakDays,
+    streakLabel: streakDays > 0 ? `连续 ${streakDays} 天达标` : "今日尚未达标",
+  };
+}

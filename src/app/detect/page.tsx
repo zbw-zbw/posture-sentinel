@@ -17,6 +17,7 @@ import DetectControls from "@/components/detect/DetectControls";
 import AlertNotification from "@/components/detect/AlertNotification";
 import PostureTimeline from "@/components/detect/PostureTimeline";
 import SessionSummary from "@/components/detect/SessionSummary";
+import CalibrationWizard from "@/components/detect/CalibrationWizard";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -62,6 +63,20 @@ export default function DetectPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [summaryDataLocal, setSummaryDataLocal] = useState<SessionSummaryData | null>(null);
   const [showCompletionBanner, setShowCompletionBanner] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
+
+  // Check if first-time user and show calibration wizard
+  useEffect(() => {
+    const hasCalibrated = localStorage.getItem("posture-sentinel:calibrated");
+    if (!hasCalibrated) {
+      setShowWizard(true);
+    }
+  }, []);
+
+  const handleWizardComplete = () => {
+    localStorage.setItem("posture-sentinel:calibrated", "true");
+    setShowWizard(false);
+  };
 
   // Feed metrics to analyzer - ALWAYS feed when detecting, even if score is 0
   // This ensures the analyzer's timer tracks duration correctly
@@ -285,6 +300,10 @@ export default function DetectPage() {
         />
       )}
     </div>
+    {/* Calibration Wizard */}
+    {showWizard && (
+      <CalibrationWizard onComplete={handleWizardComplete} onSkip={handleWizardComplete} />
+    )}
     </ErrorBoundary>
   );
 }

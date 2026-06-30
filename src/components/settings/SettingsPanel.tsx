@@ -92,6 +92,29 @@ export default function SettingsPanel({
             帧率越高检测越流畅，但会增加 CPU/GPU 负载
           </p>
         </div>
+
+        {/* Daily Goal */}
+        <div className="mt-5">
+          <label className="block text-sm text-text-secondary mb-2">
+            每日检测目标: <span className="text-text-primary font-medium">{settings.dailyGoalMinutes} 分钟</span>
+          </label>
+          <input
+            type="range"
+            min={10}
+            max={120}
+            step={5}
+            value={settings.dailyGoalMinutes}
+            onChange={(e) => onUpdate({ dailyGoalMinutes: Number(e.target.value) })}
+            className="w-full h-2 bg-border rounded-full appearance-none cursor-pointer accent-primary"
+          />
+          <div className="flex justify-between text-xs text-text-muted mt-1">
+            <span>10 分钟</span>
+            <span>120 分钟</span>
+          </div>
+          <p className="text-xs text-text-muted mt-1.5">
+            每日检测达到目标时长即为达标
+          </p>
+        </div>
       </div>
 
       {/* Card 2: Alert Settings */}

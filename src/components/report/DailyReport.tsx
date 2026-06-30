@@ -8,7 +8,8 @@ import {
   getAvailableDates,
   type DailyReportData,
 } from "@/lib/report";
-import { getTodayDate } from "@/lib/storage";
+import { getTodayDate, getDailyGoalProgress, type DailyGoalProgress } from "@/lib/storage";
+import { useSettings } from "@/hooks/useSettings";
 import DatePicker from "./DatePicker";
 import ScoreRing from "./ScoreRing";
 import DistributionBar from "./DistributionBar";
@@ -16,7 +17,10 @@ import PostureChart from "./PostureChart";
 import MetricsSummary from "./MetricsSummary";
 import WeeklyTrend from "./WeeklyTrend";
 import AIAdvice from "./AIAdvice";
+import MonthlyHeatmap from "./MonthlyHeatmap";
 import EmptyState from "./EmptyState";
+import DailyGoalCard from "./DailyGoalCard";
+import ExportButton from "./ExportButton";
 
 interface DailyReportProps {
   initialDate?: string;
@@ -36,12 +40,20 @@ function getEncouragement(score: number): { text: string; color: string } {
 }
 
 export default function DailyReport({ initialDate }: DailyReportProps) {
+  const { settings } = useSettings();
   const [date, setDate] = useState(initialDate || getTodayDate());
   const [report, setReport] = useState<DailyReportData | null>(null);
   const [weeklyScores, setWeeklyScores] = useState(getWeeklyScores());
   const [yesterdayReport, setYesterdayReport] = useState<DailyReportData | null>(null);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const goalProgress: DailyGoalProgress = useMemo(
+    () => getDailyGoalProgress(settings.dailyGoalMinutes),
+    // Recompute when report changes (new session saved) or settings change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [settings.dailyGoalMinutes, report]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -90,11 +102,18 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
       }
     : undefined;
 
+  const reportDate = new Date(date + "T00:00:00");
+  const heatmapYear = reportDate.getFullYear();
+  const heatmapMonth = reportDate.getMonth();
+
   return (
-    <div>
-      {/* Date Picker */}
-      <div className="mb-8">
-        <DatePicker date={date} onChange={setDate} availableDates={availableDates} />
+    <div id="report-content">
+      {/* Date Picker + Export */}
+      <div className="mb-8 flex items-center gap-4">
+        <div className="flex-1">
+          <DatePicker date={date} onChange={setDate} availableDates={availableDates} />
+        </div>
+        <ExportButton targetId="report-content" />
       </div>
 
       {loading && (
@@ -114,9 +133,9 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           )}
 
-          {/* Row 1: Score Ring + Distribution */}
+          {/* Row 1: Score Ring + Daily Goal + Distribution */}
           <section className="fade-in">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-surface rounded-2xl p-6 flex flex-col items-center justify-center card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-4 self-start flex items-center gap-2">
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -131,6 +150,8 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
                   yesterdayScore={yesterdayReport?.avgScore}
                 />
               </div>
+
+              <DailyGoalCard progress={goalProgress} />
 
               <div className="bg-surface rounded-2xl p-6 card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-4">姿态分布</h3>
@@ -181,7 +202,12 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           </section>
 
-          {/* Row 5: Session Records */}
+          {/* Row 5: Monthly Heatmap */}
+          <section className="fade-in">
+            <MonthlyHeatmap year={heatmapYear} month={heatmapMonth} />
+          </section>
+
+          {/* Row 6: Session Records */}
           <section className="fade-in">
             <div className="bg-surface rounded-2xl p-6 card-hover">
               <h3 className="text-lg font-bold text-text-primary mb-4">今日检测记录</h3>
