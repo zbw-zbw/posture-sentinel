@@ -8,17 +8,103 @@ interface ExportButtonProps {
 }
 
 /**
- * Strip modern CSS color functions (lab, oklch, oklab, color-mix, lch)
- * from stylesheet text that html2canvas cannot parse.
+ * Force-set safe color values on the cloned DOM to bypass
+ * html2canvas's inability to parse Tailwind v4's oklch() compiled output.
+ * Strategy: remove all <style>/<link>, then walk elements and inline
+ * computed styles. For color properties that contain oklch/lab/etc.,
+ * use a hex color map based on known Tailwind class patterns.
  */
-function sanitizeStylesheet(css: string): string {
-  return css
-    .replace(/oklch\([^)]*\)/gi, "#888888")
-    .replace(/oklab\([^)]*\)/gi, "#888888")
-    .replace(/\blab\([^)]*\)/gi, "#888888")
-    .replace(/\blch\([^)]*\)/gi, "#888888")
-    .replace(/color-mix\(.*?\)/gi, "#888888")
-    .replace(/hwb\([^)]*\)/gi, "#888888");
+function prepareCloneForCapture(clonedDoc: Document, targetId: string) {
+  // Remove all external CSS — this prevents html2canvas from parsing
+  // compiled Tailwind stylesheets that contain oklch/color() functions
+  clonedDoc.querySelectorAll("style, link[rel='stylesheet']").forEach((el) => el.remove());
+
+  // Map of Tailwind CSS variable names → safe hex fallbacks
+  // These match our @theme definitions in globals.css
+  const colorMap: Record<string, string> = {
+    "#10b981": "#10b981", // primary
+    "#059669": "#059669", // primary-dark
+    "#34d399": "#34d399", // primary-light
+    "#f8fafb": "#f8fafb", // bg
+    "#f0f4f8": "#f0f4f8",
+    "#ffffff": "#ffffff", // surface
+    "#f1f5f9": "#f1f5f9", // surface-alt
+    "#e2e8f0": "#e2e8f0", // border
+    "#f59e0b": "#f59e0b", // warning
+    "#fbbf24": "#fbbf24", // warning-light
+    "#ef4444": "#ef4444", // danger
+    "#fecaca": "#fecaca", // danger-light
+    "#0f172a": "#0f172a", // text-primary
+    "#475569": "#475569", // text-secondary
+    "#94a3b8": "#94a3b8", // text-muted
+    "#1e293b": "#1e293b",
+    "#64748b": "#64748b",
+    "#99f6e4": "#99f6e4",
+    "#d1fae5": "#d1fae5",
+    "#a7f3d0": "#a7f3d0",
+    "#fde68a": "#fde68a",
+    "#fee2e2": "#fee2e2",
+    "transparent": "transparent",
+  };
+
+  const hexRegex = /#[0-9a-fA-F]{3,8}/g;
+  const oklchRegex = /oklch|oklab|\blab\(|lch\(|color-mix|hwb|color\(/;
+
+  const targetEl = clonedDoc.getElementById(targetId);
+  if (!targetEl) return;
+
+  // Walk all descendant elements
+  const elements = Array.from(targetEl.querySelectorAll("*"));
+  elements.push(targetEl);
+
+  for (const el of elements) {
+    const htmlEl = el as HTMLElement;
+    const originalStyle = htmlEl.getAttribute("style") || "";
+
+    // Get computed style from the original document's window won't work here.
+    // Instead, rely on the fact that Tailwind classes have already been applied
+    // and the browser has computed styles. After removing <style> tags,
+    // computed styles in the clone may revert, so we inline from original document.
+
+    // For each element, check its class list and apply known color mappings
+    const classList = htmlEl.className;
+    if (typeof classList === "string") {
+      // Text colors
+      if (classList.includes("text-primary")) htmlEl.style.setProperty("color", "#10b981", "important");
+      if (classList.includes("text-primary-dark")) htmlEl.style.setProperty("color", "#059669", "important");
+      if (classList.includes("text-text-primary")) htmlEl.style.setProperty("color", "#0f172a", "important");
+      if (classList.includes("text-text-secondary")) htmlEl.style.setProperty("color", "#475569", "important");
+      if (classList.includes("text-text-muted")) htmlEl.style.setProperty("color", "#94a3b8", "important");
+      if (classList.includes("text-warning")) htmlEl.style.setProperty("color", "#f59e0b", "important");
+      if (classList.includes("text-danger")) htmlEl.style.setProperty("color", "#ef4444", "important");
+      if (classList.includes("text-white")) htmlEl.style.setProperty("color", "#ffffff", "important");
+
+      // Background colors
+      if (classList.includes("bg-primary")) htmlEl.style.setProperty("background-color", "#10b981", "important");
+      if (classList.includes("bg-primary-dark")) htmlEl.style.setProperty("background-color", "#059669", "important");
+      if (classList.includes("bg-primary-light")) htmlEl.style.setProperty("background-color", "#d1fae5", "important");
+      if (classList.includes("bg-bg")) htmlEl.style.setProperty("background-color", "#f8fafb", "important");
+      if (classList.includes("bg-surface")) htmlEl.style.setProperty("background-color", "#ffffff", "important");
+      if (classList.includes("bg-surface-alt")) htmlEl.style.setProperty("background-color", "#f1f5f9", "important");
+      if (classList.includes("bg-warning")) htmlEl.style.setProperty("background-color", "#f59e0b", "important");
+      if (classList.includes("bg-warning-light")) htmlEl.style.setProperty("background-color", "#fde68a", "important");
+      if (classList.includes("bg-danger")) htmlEl.style.setProperty("background-color", "#ef4444", "important");
+      if (classList.includes("bg-danger-light")) htmlEl.style.setProperty("background-color", "#fee2e2", "important");
+
+      // Border colors
+      if (classList.includes("border-primary")) htmlEl.style.setProperty("border-color", "#10b981", "important");
+      if (classList.includes("border-border")) htmlEl.style.setProperty("border-color", "#e2e8f0", "important");
+      if (classList.includes("border-danger")) htmlEl.style.setProperty("border-color", "#ef4444", "important");
+
+      // Gradients - replace with solid fallback backgrounds
+      if (classList.includes("from-primary-light") && classList.includes("to-transparent")) {
+        htmlEl.style.setProperty("background", "linear-gradient(to bottom right, #d1fae5, transparent)", "important");
+      }
+      if (classList.includes("from-white") && classList.includes("to-primary-light")) {
+        htmlEl.style.setProperty("background", "linear-gradient(to bottom right, #ffffff, #d1fae5)", "important");
+      }
+    }
+  }
 }
 
 export default function ExportButton({ targetId, disabled }: ExportButtonProps) {
@@ -42,34 +128,16 @@ export default function ExportButton({ targetId, disabled }: ExportButtonProps) 
         useCORS: true,
         logging: false,
         onclone: (clonedDoc) => {
-          // Fix body background (remove lab/oklch gradients)
+          // Fix body background
           clonedDoc.body.style.background = "#f8fafb";
           clonedDoc.body.style.backgroundImage = "none";
           clonedDoc.documentElement.style.background = "#f8fafb";
           clonedDoc.documentElement.style.backgroundImage = "none";
 
-          // Sanitize all <style> tags in the cloned document
-          const styleTags = clonedDoc.querySelectorAll("style");
-          styleTags.forEach((tag) => {
-            if (tag.textContent) {
-              tag.textContent = sanitizeStylesheet(tag.textContent);
-            }
-          });
+          // Remove all stylesheets and inline safe color fallbacks
+          prepareCloneForCapture(clonedDoc, targetId);
 
-          // Also sanitize inline styles on every element
-          const allElements = clonedDoc.querySelectorAll("*");
-          allElements.forEach((el) => {
-            const htmlEl = el as HTMLElement;
-            if (htmlEl.style) {
-              for (let i = 0; i < htmlEl.style.length; i++) {
-                const prop = htmlEl.style[i];
-                const val = htmlEl.style.getPropertyValue(prop);
-                if (val && /oklch|oklab|\blab\(|lch\(|color-mix|hwb/.test(val)) {
-                  htmlEl.style.removeProperty(prop);
-                }
-              }
-            }
-          });
+          void clonedDoc.body.offsetHeight;
         },
       });
 
@@ -83,7 +151,7 @@ export default function ExportButton({ targetId, disabled }: ExportButtonProps) 
       timeoutRef.current = setTimeout(() => setDone(false), 2000);
     } catch (err) {
       console.error("Export failed:", err);
-      alert("导出失败，请重试");
+      alert(`导出失败: ${err instanceof Error ? err.message : "未知错误"}`);
     } finally {
       setExporting(false);
     }
