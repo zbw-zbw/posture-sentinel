@@ -51,41 +51,72 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
   const isAvailable = (d: string) => !availableDates || availableDates.includes(d);
   const today = getTodayString();
 
+  const goYesterday = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    onChange(toLocalDateString(d));
+  };
+
   return (
     <div className="relative w-full md:w-auto">
-      <div className="flex items-center gap-2 md:gap-3">
-        <button
-          onClick={goPrev}
-          className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl bg-surface-alt hover:bg-border text-text-secondary transition-colors"
-          aria-label="上一天"
-        >
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-        </button>
-        <button
-          onClick={() => setShowPicker(!showPicker)}
-          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-surface-alt hover:bg-border text-text-primary font-medium transition-colors text-sm md:text-base"
-        >
-          {formatDateCN(date)}
-          {isToday(date) && <span className="bg-primary-light text-primary-dark text-xs px-2 py-0.5 rounded-full">今天</span>}
-        </button>
-        <button
-          onClick={goNext}
-          disabled={date >= today}
-          className={`w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-colors ${
-            date >= today
-              ? "bg-surface-alt text-text-muted opacity-40"
-              : "bg-surface-alt hover:bg-border text-text-secondary"
-          }`}
-          aria-label="下一天"
-        >
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </button>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
+          <button
+            onClick={goPrev}
+            className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl bg-surface-alt hover:bg-border text-text-secondary transition-colors"
+            aria-label="上一天"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setShowPicker(!showPicker)}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 rounded-xl bg-surface-alt hover:bg-border text-text-primary font-medium transition-colors text-sm md:text-base"
+          >
+            {formatDateCN(date)}
+            {isToday(date) && <span className="bg-primary-light text-primary-dark text-xs px-2 py-0.5 rounded-full">今天</span>}
+          </button>
+          <button
+            onClick={goNext}
+            disabled={date >= today}
+            className={`w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-colors ${
+              date >= today
+                ? "bg-surface-alt text-text-muted opacity-40"
+                : "bg-surface-alt hover:bg-border text-text-secondary"
+            }`}
+            aria-label="下一天"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </button>
+        </div>
+        {/* Quick jump buttons */}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => onChange(today)}
+            className={`text-xs px-2.5 py-1.5 rounded-lg transition-colors font-medium ${
+              date === today
+                ? "bg-primary text-white"
+                : "bg-surface-alt text-text-secondary hover:bg-border"
+            }`}
+          >
+            今天
+          </button>
+          <button
+            onClick={goYesterday}
+            className={`text-xs px-2.5 py-1.5 rounded-lg transition-colors font-medium ${
+              date === toLocalDateString(new Date(Date.now() - 86400000))
+                ? "bg-primary text-white"
+                : "bg-surface-alt text-text-secondary hover:bg-border"
+            }`}
+          >
+            昨天
+          </button>
+        </div>
       </div>
 
       {showPicker && (

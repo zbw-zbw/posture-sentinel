@@ -1,0 +1,31 @@
+{
+  "name": "体态哨兵 - AI坐姿检测",
+  "short_name": "体态哨兵",
+  "description": "基于Web摄像头的AI实时坐姿检测工具，守护你的脊椎健康",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#10b981",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "utilities"],
+  "shortcuts": [
+    {
+      "name": "开始检测",
+      "short_name": "检测",
+      "url": "/detect"
+    },
+    {
+      "name": "查看报告",
+      "short_name": "报告",
+      "url": "/report"
+    }
+  ]
+}

@@ -2,8 +2,8 @@ import SkeletonBlock from "@/components/SkeletonBlock";
 
 export default function DetectLoading() {
   return (
-    <div className="min-h-screen bg-bg">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+    <div className="min-h-screen bg-bg pt-20 pb-12">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6">
         {/* Header skeleton */}
         <div className="mb-6">
           <SkeletonBlock className="h-8 w-48 mb-3" />

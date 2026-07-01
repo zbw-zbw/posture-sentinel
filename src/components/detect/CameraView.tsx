@@ -11,6 +11,7 @@ interface CameraViewProps {
   status: PostureStatus;
   isActive: boolean;
   isDetecting: boolean;
+  isPaused?: boolean;
   isModelLoading: boolean;
   loadError?: string | null;
   isRequestingPermission?: boolean;
@@ -24,6 +25,7 @@ export default function CameraView({
   status,
   isActive,
   isDetecting,
+  isPaused = false,
   isModelLoading,
   loadError,
   isRequestingPermission = false,
@@ -171,6 +173,22 @@ export default function CameraView({
                 </svg>
               </div>
               <p className="text-white/60 text-sm">点击「开始检测」启动摄像头</p>
+            </div>
+          </div>
+        )}
+
+        {/* Paused overlay */}
+        {isPaused && isActive && (
+          <div className="absolute inset-0 flex items-center justify-center bg-dark/60 backdrop-blur-sm z-10">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur flex items-center justify-center mx-auto mb-3">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-white" fill="currentColor">
+                  <rect x="6" y="4" width="4" height="16" rx="1" />
+                  <rect x="14" y="4" width="4" height="16" rx="1" />
+                </svg>
+              </div>
+              <p className="text-white text-lg font-semibold">检测已暂停</p>
+              <p className="text-white/60 text-sm mt-1">点击「继续」恢复检测</p>
             </div>
           </div>
         )}

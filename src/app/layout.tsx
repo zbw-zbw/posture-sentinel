@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -19,6 +19,12 @@ const notoSansSC = Noto_Sans_SC({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#10b981",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "体态哨兵 - AI实时坐姿检测，守护你的脊椎健康",
   description:
@@ -26,6 +32,12 @@ export const metadata: Metadata = {
   keywords: ["坐姿检测", "AI", "脊椎健康", "驼背矫正", "姿态检测", "体态哨兵"],
   icons: {
     icon: "/favicon.svg",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "体态哨兵",
+    statusBarStyle: "default",
   },
   openGraph: {
     title: "体态哨兵 - AI实时坐姿检测",

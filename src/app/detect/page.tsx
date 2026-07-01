@@ -178,6 +178,45 @@ export default function DetectPage() {
     };
   }, [stopDetection, stopCamera]);
 
+  // Beforeunload warning when detecting
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (detectState === "detecting" || detectState === "paused") {
+        e.preventDefault();
+        e.returnValue = "检测正在进行中，确定要离开吗？当前会话数据将丢失。";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [detectState]);
+
+  // Request notification permission on first start
+  useEffect(() => {
+    if (detectState === "detecting" && "Notification" in window && Notification.permission === "default") {
+      // Request permission after a short delay to not block the start flow
+      const t = setTimeout(() => {
+        Notification.requestPermission().catch(() => {});
+      }, 2000);
+      return () => clearTimeout(t);
+    }
+  }, [detectState]);
+
+  // Show system notification when alert fires and page is not visible
+  useEffect(() => {
+    if (isAlertVisible && "Notification" in window && Notification.permission === "granted" && document.hidden) {
+      try {
+        new Notification("体态哨兵 - 坐姿提醒", {
+          body: alertMessage || "请注意你的坐姿！",
+          icon: "/favicon.svg",
+          tag: "posture-alert",
+        });
+      } catch {
+        // Silently ignore notification errors
+      }
+    }
+  }, [isAlertVisible, alertMessage]);
+
   // Map detectState for DetectControls
   const controlState: DetectState = detectState;
 
@@ -230,6 +269,7 @@ export default function DetectPage() {
               status={analyzer.currentStatus}
               isActive={isActive}
               isDetecting={isDetecting}
+              isPaused={detectState === "paused"}
               isModelLoading={isModelLoading}
               loadError={loadError}
               isRequestingPermission={isLoading}

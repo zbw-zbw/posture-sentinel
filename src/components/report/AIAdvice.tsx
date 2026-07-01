@@ -67,12 +67,11 @@ function generateLocalAdvice(report: { avgScore: number }): string[] {
 export default function AIAdvice({ data, date }: AIAdviceProps) {
   const [advice, setAdvice] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [localAdvice, setLocalAdvice] = useState<string[]>([]);
+  const [isLocalAdvice, setIsLocalAdvice] = useState(false);
   
   const load = useCallback(async (useCache = true) => {
     setLoading(true);
-    setError(false);
+    setIsLocalAdvice(false);
 
     // 1. Check localStorage cache
     if (useCache) {
@@ -90,7 +89,9 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
       setAdvice(result);
       setCachedAdvice(date, result);
     } catch {
-      setError(true);
+      // Auto-fallback to local advice on API failure
+      setAdvice(generateLocalAdvice({ avgScore: data.avgScore }));
+      setIsLocalAdvice(true);
     } finally {
       setLoading(false);
     }
@@ -104,7 +105,7 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
   return (
     <div className="bg-gradient-to-br from-white to-primary-light/30 rounded-2xl border border-border p-6 relative card-hover">
       {/* Left border accent */}
-      <div className="absolute left-0 top-4 bottom-4 w-1 rounded-full bg-primary" />
+      <div className={`absolute left-0 top-4 bottom-4 w-1 rounded-full ${isLocalAdvice ? "bg-text-muted" : "bg-primary"}`} />
       
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -115,8 +116,15 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
               <path d="M10 22h4" />
             </svg>
             AI 健康顾问
+            {isLocalAdvice && (
+              <span className="text-xs font-normal bg-surface-alt text-text-muted px-2 py-0.5 rounded-full">
+                通用建议
+              </span>
+            )}
           </h3>
-          <p className="text-sm text-text-muted mt-0.5">基于今日检测数据生成的个性化建议</p>
+          <p className="text-sm text-text-muted mt-0.5">
+            {isLocalAdvice ? "AI 暂时不可用，以下为通用健康建议" : "基于今日检测数据生成的个性化建议"}
+          </p>
         </div>
         {!loading && (
           <button onClick={() => load(false)} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors flex items-center gap-1">
@@ -124,7 +132,7 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
               <polyline points="23 4 23 10 17 10" />
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
             </svg>
-            重新生成
+            {isLocalAdvice ? "重试 AI" : "重新生成"}
           </button>
         )}
       </div>
@@ -141,52 +149,13 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
         </div>
       )}
       
-      {error && !loading && (
-        <div className="text-center py-4">
-          <p className="text-text-secondary text-sm mb-3">AI 分析暂时不可用，请稍后重试</p>
-          <div className="flex items-center justify-center gap-3">
-            <button onClick={() => load(false)} className="bg-primary hover:bg-primary-dark text-white text-sm px-4 py-2 rounded-lg transition-colors">
-              重试
-            </button>
-            {localAdvice.length === 0 ? (
-              <button
-                onClick={() => setLocalAdvice(generateLocalAdvice({ avgScore: data.avgScore }))}
-                className="bg-surface-alt hover:bg-surface-alt/80 text-text-primary text-sm px-4 py-2 rounded-lg border border-border transition-colors"
-              >
-                查看本地建议
-              </button>
-            ) : (
-              <button
-                onClick={() => setLocalAdvice([])}
-                className="bg-surface-alt hover:bg-surface-alt/80 text-text-primary text-sm px-4 py-2 rounded-lg border border-border transition-colors"
-              >
-                隐藏本地建议
-              </button>
-            )}
-          </div>
-          {localAdvice.length > 0 && (
-            <div className="space-y-3 mt-4">
-              {localAdvice.map((item, i) => (
-                <div key={i} className="flex gap-3 items-start">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center mt-0.5">
-                    {i + 1}
-                  </span>
-                  <p className="text-sm text-text-primary leading-relaxed">{item}</p>
-                </div>
-              ))}
-              <p className="text-xs text-text-muted mt-2">
-                本地建议为通用模板，未使用 AI 分析
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {!loading && !error && (
+      {!loading && (
         <div className="space-y-3">
           {advice.map((item, i) => (
             <div key={i} className="flex gap-3 items-start">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+              <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5 ${
+                isLocalAdvice ? "bg-surface-alt text-text-muted" : "bg-primary-light text-primary"
+              }`}>
                 {i + 1}
               </span>
               <p className="text-sm text-text-primary leading-relaxed">{item}</p>
@@ -195,8 +164,8 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
         </div>
       )}
       
-      <p className="text-xs text-text-muted mt-4 pt-3">
-        由 DeepSeek AI 提供分析支持 · 建议仅供参考
+      <p className="text-xs text-text-muted mt-4 pt-3 border-t border-border/50">
+        {isLocalAdvice ? "通用健康建议 · 建议仅供参考" : "由 DeepSeek AI 提供分析支持 · 建议仅供参考"}
       </p>
     </div>
   );

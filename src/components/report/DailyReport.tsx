@@ -204,7 +204,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
 
           {/* Row 5: Monthly Heatmap */}
           <section className="fade-in">
-            <MonthlyHeatmap year={heatmapYear} month={heatmapMonth} />
+            <MonthlyHeatmap year={heatmapYear} month={heatmapMonth} onDateSelect={setDate} />
           </section>
 
           {/* Row 6: Session Records */}
