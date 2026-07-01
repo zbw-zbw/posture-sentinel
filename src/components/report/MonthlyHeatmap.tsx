@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { getSessions } from "@/lib/storage";
+import { getSessions, getTodayDate } from "@/lib/storage";
 
 interface MonthlyHeatmapProps {
   year: number;
   month: number; // 0-indexed
+  onDateSelect?: (date: string) => void;
 }
 
 interface DayData {
@@ -15,7 +16,9 @@ interface DayData {
   duration: number;  // seconds
 }
 
-export default function MonthlyHeatmap({ year, month }: MonthlyHeatmapProps) {
+export default function MonthlyHeatmap({ year, month, onDateSelect }: MonthlyHeatmapProps) {
+  const today = getTodayDate();
+
   const data = useMemo(() => {
     const sessions = getSessions();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -88,10 +91,15 @@ export default function MonthlyHeatmap({ year, month }: MonthlyHeatmapProps) {
         {data.map(d => (
           <div
             key={d.date}
-            className={`h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-colors ${getColor(d.score)} ${
+            className={`h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-colors ${
+              d.score >= 0 ? "cursor-pointer" : "cursor-default"
+            } ${
+              d.date === today ? "ring-2 ring-primary ring-offset-1" : ""
+            } ${getColor(d.score)} ${
               d.score < 0 ? "text-text-muted" : d.score >= 60 ? "text-white" : "text-white/80"
             }`}
             title={d.score >= 0 ? `${d.date}: ${d.score}分, ${Math.round(d.duration / 60)}分钟` : `${d.date}: 无数据`}
+            onClick={() => d.score >= 0 && onDateSelect?.(d.date)}
           >
             {d.day}
           </div>

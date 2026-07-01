@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface AlertNotificationProps {
   isVisible: boolean;
@@ -20,10 +20,18 @@ export default function AlertNotification({
   onDismiss,
 }: AlertNotificationProps) {
   const [remaining, setRemaining] = useState(100);
+  const [visible, setVisible] = useState(false);
 
+  // Sync visibility state with isVisible prop
   useEffect(() => {
     if (isVisible) {
-      // Prevent body scroll when alert is visible on mobile
+      setVisible(true);
+    }
+  }, [isVisible]);
+
+  // Prevent body scroll when alert is visible on mobile
+  useEffect(() => {
+    if (isVisible) {
       document.body.style.overflow = "hidden";
     }
     return () => {
@@ -31,6 +39,13 @@ export default function AlertNotification({
     };
   }, [isVisible]);
 
+  // Handle dismiss with exit animation
+  const handleDismiss = useCallback(() => {
+    setVisible(false); // trigger exit animation
+    setTimeout(() => onDismiss(), 300); // wait for animation, then actually dismiss
+  }, [onDismiss]);
+
+  // Auto-dismiss countdown
   useEffect(() => {
     if (!isVisible) return;
     const startTime = Date.now();
@@ -42,21 +57,23 @@ export default function AlertNotification({
       setRemaining(pct);
       if (pct <= 0) {
         clearInterval(interval);
-        onDismiss();
+        handleDismiss();
       }
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isVisible, onDismiss]);
+  }, [isVisible, handleDismiss]);
 
   if (!isVisible) return null;
 
   const isWarning = type === "warning";
 
   return (
-    <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center animate-slide-up">
+    <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center">
       <div
-        className={`w-[90vw] max-w-[500px] rounded-2xl border-l-4 p-5 shadow-xl relative overflow-hidden ${
+        className={`w-[90vw] max-w-[500px] rounded-2xl border-l-4 p-5 shadow-xl relative overflow-hidden transition-all duration-300 ease-in-out ${
+          visible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        } ${
           isWarning
             ? "bg-warning-light border-l-warning"
             : "bg-danger-light border-l-danger"
@@ -92,7 +109,7 @@ export default function AlertNotification({
 
           {/* Close button */}
           <button
-            onClick={onDismiss}
+            onClick={handleDismiss}
             className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-text-muted hover:text-text-primary transition-colors"
             aria-label="关闭提醒"
           >

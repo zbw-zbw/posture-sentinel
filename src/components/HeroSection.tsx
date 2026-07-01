@@ -2,10 +2,26 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { getSessions } from "@/lib/storage";
 
 export default function HeroSection() {
   const [counts, setCounts] = useState({ a: 0, b: 0, c: 0 });
   const countedRef = useRef(false);
+  const [todayProgress, setTodayProgress] = useState<{ minutes: number; sessions: number } | null>(null);
+
+  useEffect(() => {
+    try {
+      const sessions = getSessions();
+      const today = new Date().toISOString().split("T")[0];
+      const todaySessions = sessions.filter(s => s.date === today);
+      const todayMinutes = Math.round(todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
+      if (todayMinutes > 0) {
+        setTodayProgress({ minutes: todayMinutes, sessions: todaySessions.length });
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -98,6 +114,25 @@ export default function HeroSection() {
         <p className="text-lg md:text-xl text-text-secondary mt-4">
           打开摄像头，AI 守护你的每一寸脊椎
         </p>
+
+        {/* Today Progress for returning users */}
+        {todayProgress && (
+          <div className="bg-white/80 backdrop-blur-sm border border-primary/20 rounded-xl px-5 py-3 flex items-center gap-3 mb-6 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-text-primary">
+                今日已检测 {todayProgress.minutes} 分钟 · {todayProgress.sessions} 次会话
+              </p>
+              <p className="text-xs text-text-secondary">
+                继续保持，查看今日完整报告
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">

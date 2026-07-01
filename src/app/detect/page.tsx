@@ -254,6 +254,24 @@ export default function DetectPage() {
           </div>
         </div>
 
+        {/* Posture Timeline - 实时姿态时间线 */}
+        {(detectState === "detecting" || detectState === "paused") && (
+          <div className="mt-4">
+            {detectState === "paused" && (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1.5 bg-warning/10 text-warning text-xs font-medium px-3 py-1 rounded-full">
+                  <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                  </svg>
+                  已暂停
+                </span>
+              </div>
+            )}
+            <PostureTimeline scoreHistory={analyzer.sessionStats.scoreHistory} duration={sessionState === "idle" ? 0 : elapsedTime} />
+          </div>
+        )}
+
         {/* Controls */}
         <div className="mt-8">
           <DetectControls
@@ -268,12 +286,6 @@ export default function DetectPage() {
           </p>
         </div>
 
-        {/* Posture Timeline - 实时姿态时间线 */}
-        {detectState === "detecting" && (
-          <div className="mt-4">
-            <PostureTimeline scoreHistory={analyzer.sessionStats.scoreHistory} duration={sessionState === "idle" ? 0 : elapsedTime} />
-          </div>
-        )}
       </div>
 
       {/* Alert Notification (fixed) */}
