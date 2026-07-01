@@ -41,10 +41,15 @@ export default function DetectPage() {
     startDetection,
     stopDetection,
   } = usePoseDetection(settings.detectionFps);
+
+  // Load baseline early (needed by usePostureMetrics)
+  const { baseline, hasBaseline, captureBaseline } = useBaseline();
+
   const metrics = usePostureMetrics(landmarks, {
     headAngleThreshold: settings.headAngleThreshold,
     shoulderThreshold: settings.shoulderThreshold,
     spineAngleThreshold: settings.spineAngleThreshold,
+    baseline: baseline,
   });
 
   const analyzer = usePostureAnalyzer(settings);
@@ -72,9 +77,8 @@ export default function DetectPage() {
   const [showWizard, setShowWizard] = useState(false);
   const [showBaselineSampling, setShowBaselineSampling] = useState(false);
 
-  // Rest reminder, baseline, and achievements
+  // Rest reminder and achievements
   const restReminder = useRestReminder(detectState === "detecting", detectState === "paused");
-  const { baseline, hasBaseline, captureBaseline } = useBaseline();
   const achievements = useAchievements(settings.dailyGoalMinutes);
 
   // Check if first-time user and show calibration wizard
