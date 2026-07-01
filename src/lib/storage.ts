@@ -143,6 +143,193 @@ export interface DailyGoalProgress {
   streakLabel: string;        // 如 "连续 3 天达标"
 }
 
+// ── Baseline (personal posture calibration) ──
+
+export interface PostureBaseline {
+  headTilt: number;
+  shoulderTilt: number;
+  neckForward: number;
+  spineTilt: number;
+  capturedAt: number;
+}
+
+const BASELINE_KEY = "posture-sentinel:baseline";
+
+export function getBaseline(): PostureBaseline | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const data = localStorage.getItem(BASELINE_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveBaseline(baseline: PostureBaseline): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(BASELINE_KEY, JSON.stringify(baseline));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearBaseline(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(BASELINE_KEY);
+}
+
+// ── Achievements ──
+
+const ACHIEVEMENTS_KEY = "posture-sentinel:achievements";
+
+export function getUnlockedAchievements(): { id: string; unlockedAt: number }[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const data = localStorage.getItem(ACHIEVEMENTS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveUnlockedAchievements(list: { id: string; unlockedAt: number }[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(list));
+  } catch {
+    // ignore
+  }
+}
+
+// ── Rest reminder settings ──
+
+export interface RestReminderSettings {
+  enabled: boolean;
+  intervalMinutes: number; // 15/30/45/60
+  restDurationMinutes: number; // 1-5
+  showStretchGuide: boolean;
+}
+
+export const DEFAULT_REST_SETTINGS: RestReminderSettings = {
+  enabled: false,
+  intervalMinutes: 30,
+  restDurationMinutes: 2,
+  showStretchGuide: true,
+};
+
+const REST_SETTINGS_KEY = "posture-sentinel:rest-settings";
+
+export function getRestSettings(): RestReminderSettings {
+  if (typeof window === "undefined") return DEFAULT_REST_SETTINGS;
+  try {
+    const data = localStorage.getItem(REST_SETTINGS_KEY);
+    return data ? { ...DEFAULT_REST_SETTINGS, ...JSON.parse(data) } : DEFAULT_REST_SETTINGS;
+  } catch {
+    return DEFAULT_REST_SETTINGS;
+  }
+}
+
+export function saveRestSettings(settings: RestReminderSettings): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(REST_SETTINGS_KEY, JSON.stringify(settings));
+  } catch {
+    // ignore
+  }
+}
+
+// ── Data export / import ──
+
+export interface ExportData {
+  version: number;
+  exportedAt: number;
+  sessions: SessionRecord[];
+  settings: unknown;
+  baseline: PostureBaseline | null;
+  achievements: { id: string; unlockedAt: number }[];
+  restSettings: RestReminderSettings;
+}
+
+export function exportAllData(): ExportData {
+  const settingsRaw = localStorage.getItem(SETTINGS_KEY);
+  return {
+    version: 1,
+    exportedAt: Date.now(),
+    sessions: getSessions(),
+    settings: settingsRaw ? JSON.parse(settingsRaw) : null,
+    baseline: getBaseline(),
+    achievements: getUnlockedAchievements(),
+    restSettings: getRestSettings(),
+  };
+}
+
+export function importAllData(data: ExportData, mode: "overwrite" | "merge" = "overwrite"): { sessions: number; achievements: number } {
+  if (mode === "overwrite") {
+    // Clear and replace all
+    if (data.sessions) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data.sessions));
+    }
+    if (data.settings) {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
+    }
+    if (data.baseline) {
+      localStorage.setItem(BASELINE_KEY, JSON.stringify(data.baseline));
+    } else {
+      localStorage.removeItem(BASELINE_KEY);
+    }
+    if (data.achievements) {
+      localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(data.achievements));
+    }
+    if (data.restSettings) {
+      localStorage.setItem(REST_SETTINGS_KEY, JSON.stringify(data.restSettings));
+    }
+    return {
+      sessions: data.sessions?.length || 0,
+      achievements: data.achievements?.length || 0,
+    };
+  }
+
+  // Merge mode: deduplicate sessions by ID, merge achievements
+  const existingSessions = getSessions();
+  const existingIds = new Set(existingSessions.map((s) => s.id));
+  const mergedSessions = [...existingSessions];
+  let newSessionCount = 0;
+  for (const s of data.sessions || []) {
+    if (!existingIds.has(s.id)) {
+      mergedSessions.push(s);
+      newSessionCount++;
+    }
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedSessions));
+
+  // Merge achievements
+  const existingAchievements = getUnlockedAchievements();
+  const existingAchIds = new Set(existingAchievements.map((a) => a.id));
+  const mergedAchievements = [...existingAchievements];
+  let newAchCount = 0;
+  for (const a of data.achievements || []) {
+    if (!existingAchIds.has(a.id)) {
+      mergedAchievements.push(a);
+      newAchCount++;
+    }
+  }
+  localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(mergedAchievements));
+
+  // For settings/baseline/restSettings, only import if not already set
+  if (data.settings && !localStorage.getItem(SETTINGS_KEY)) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
+  }
+  if (data.baseline && !getBaseline()) {
+    localStorage.setItem(BASELINE_KEY, JSON.stringify(data.baseline));
+  }
+  if (data.restSettings && !localStorage.getItem(REST_SETTINGS_KEY)) {
+    localStorage.setItem(REST_SETTINGS_KEY, JSON.stringify(data.restSettings));
+  }
+
+  return { sessions: newSessionCount, achievements: newAchCount };
+}
+
 export function getDailyGoalProgress(goalMinutes: number): DailyGoalProgress {
   const today = getTodayDate();
   const sessions = getSessions();

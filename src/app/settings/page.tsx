@@ -1,17 +1,83 @@
 "use client";
 
 import { useSettings } from "@/hooks/useSettings";
+import { useBaseline } from "@/hooks/useBaseline";
+import { useAchievements } from "@/hooks/useAchievements";
+import { useRestReminder } from "@/hooks/useRestReminder";
 import SettingsPanel from "@/components/settings/SettingsPanel";
+import RestSettingsCard from "@/components/settings/RestSettingsCard";
+import DataManagementCard from "@/components/settings/DataManagementCard";
+import BaselineCard from "@/components/settings/BaselineCard";
+import AchievementsCard from "@/components/settings/AchievementsCard";
+import AchievementToast from "@/components/detect/AchievementToast";
 import AlertNotification from "@/components/detect/AlertNotification";
 import { playAlertSound, initAudio } from "@/lib/sound";
-import { useState } from "react";
+import { exportAllData, importAllData } from "@/lib/storage";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SettingsPage() {
   const { settings, updateSettings, setSensitivity, resetSettings } = useSettings();
+  const router = useRouter();
+  const { baseline, removeBaseline } = useBaseline();
+  const achievements = useAchievements(settings.dailyGoalMinutes);
+  const restReminder = useRestReminder(false, false);
   const [dangerOpen, setDangerOpen] = useState(false);
   const [cleared, setCleared] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+
+  // Export data as JSON download
+  const handleExport = useCallback(() => {
+    const data = exportAllData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const today = new Date().toISOString().slice(0, 10);
+    a.download = `posture-sentinel-backup-${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, []);
+
+  // Import data from JSON file
+  const handleImport = useCallback((file: File, mode: "overwrite" | "merge") => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        if (!data.version || !data.sessions) {
+          alert("文件格式不正确，请选择体态哨兵导出的 JSON 文件");
+          return;
+        }
+        importAllData(data, mode);
+        // Reload page to refresh all data
+        window.location.reload();
+      } catch {
+        alert("文件解析失败，请检查文件内容");
+      }
+    };
+    reader.readAsText(file);
+  }, []);
+
+  // Handle baseline recalibrate - navigate to detect page
+  const handleRecalibrate = useCallback(() => {
+    router.push("/detect");
+  }, [router]);
+
+  const handleClearBaseline = useCallback(() => {
+    removeBaseline();
+  }, [removeBaseline]);
+
+  // Check for newly unlocked achievements on mount
+  useEffect(() => {
+    const t = setTimeout(() => {
+      achievements.checkAndUnlock();
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [achievements]);
 
   const confirmClearData = () => {
     if (typeof window !== "undefined") {
@@ -81,6 +147,41 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      {/* Rest Reminder Settings */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-3xl mx-auto">
+          <RestSettingsCard
+            settings={restReminder.settings}
+            onUpdate={restReminder.updateSettings}
+          />
+        </div>
+      </section>
+
+      {/* Baseline Calibration */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-3xl mx-auto">
+          <BaselineCard
+            baseline={baseline}
+            onRecalibrate={handleRecalibrate}
+            onClear={handleClearBaseline}
+          />
+        </div>
+      </section>
+
+      {/* Achievements */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-3xl mx-auto">
+          <AchievementsCard unlocked={achievements.unlocked} />
+        </div>
+      </section>
+
+      {/* Data Management */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-3xl mx-auto">
+          <DataManagementCard onExport={handleExport} onImport={handleImport} />
+        </div>
+      </section>
+
       {/* Danger Zone */}
       <section className="px-4 md:px-6 mt-6">
         <div className="max-w-2xl mx-auto">
@@ -118,6 +219,12 @@ export default function SettingsPage() {
         alertCount={1}
         statusDuration={settings.badPostureThreshold}
         onDismiss={() => setDangerOpen(false)}
+      />
+
+      {/* Achievement Toast */}
+      <AchievementToast
+        achievement={achievements.newlyUnlocked}
+        onDismiss={achievements.dismissToast}
       />
 
       {/* Clear Data Confirmation Dialog */}

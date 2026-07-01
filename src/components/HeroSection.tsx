@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { getSessions } from "@/lib/storage";
+import { getSessions, getUnlockedAchievements } from "@/lib/storage";
+import { ACHIEVEMENTS } from "@/lib/achievements";
 
 export default function HeroSection() {
   const [counts, setCounts] = useState({ a: 0, b: 0, c: 0 });
   const countedRef = useRef(false);
   const [todayProgress, setTodayProgress] = useState<{ minutes: number; sessions: number } | null>(null);
+  const [achievementCount, setAchievementCount] = useState(0);
 
   useEffect(() => {
     try {
@@ -18,6 +20,9 @@ export default function HeroSection() {
       if (todayMinutes > 0) {
         setTodayProgress({ minutes: todayMinutes, sessions: todaySessions.length });
       }
+      // Load achievement count
+      const unlocked = getUnlockedAchievements();
+      setAchievementCount(unlocked.length);
     } catch {
       // ignore
     }
@@ -123,7 +128,7 @@ export default function HeroSection() {
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
               </svg>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium text-text-primary">
                 今日已检测 {todayProgress.minutes} 分钟 · {todayProgress.sessions} 次会话
               </p>
@@ -131,6 +136,12 @@ export default function HeroSection() {
                 继续保持，查看今日完整报告
               </p>
             </div>
+            {achievementCount > 0 && (
+              <Link href="/settings" className="flex items-center gap-1.5 bg-primary-light px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary-light/80 transition-colors flex-shrink-0">
+                <span>🏆</span>
+                <span>{achievementCount} / {ACHIEVEMENTS.length}</span>
+              </Link>
+            )}
           </div>
         )}
 

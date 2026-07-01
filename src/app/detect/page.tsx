@@ -9,6 +9,9 @@ import { usePostureAnalyzer } from "@/hooks/usePostureAnalyzer";
 import { useAlertSystem } from "@/hooks/useAlertSystem";
 import { useDetectSession } from "@/hooks/useDetectSession";
 import { useSettings } from "@/hooks/useSettings";
+import { useRestReminder } from "@/hooks/useRestReminder";
+import { useBaseline } from "@/hooks/useBaseline";
+import { useAchievements } from "@/hooks/useAchievements";
 import { initAudio } from "@/lib/sound";
 import { saveSession, generateId, getTodayDate } from "@/lib/storage";
 import CameraView from "@/components/detect/CameraView";
@@ -18,6 +21,9 @@ import AlertNotification from "@/components/detect/AlertNotification";
 import PostureTimeline from "@/components/detect/PostureTimeline";
 import SessionSummary from "@/components/detect/SessionSummary";
 import CalibrationWizard from "@/components/detect/CalibrationWizard";
+import RestReminderBanner, { RestTriggerPrompt } from "@/components/detect/RestReminderBanner";
+import AchievementToast from "@/components/detect/AchievementToast";
+import BaselineSampling from "@/components/detect/BaselineSampling";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -64,6 +70,12 @@ export default function DetectPage() {
   const [summaryDataLocal, setSummaryDataLocal] = useState<SessionSummaryData | null>(null);
   const [showCompletionBanner, setShowCompletionBanner] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [showBaselineSampling, setShowBaselineSampling] = useState(false);
+
+  // Rest reminder, baseline, and achievements
+  const restReminder = useRestReminder(detectState === "detecting", detectState === "paused");
+  const { baseline, hasBaseline, captureBaseline } = useBaseline();
+  const achievements = useAchievements(settings.dailyGoalMinutes);
 
   // Check if first-time user and show calibration wizard
   useEffect(() => {
@@ -161,7 +173,12 @@ export default function DetectPage() {
     setDetectState("idle");
     setShowSummary(true);
     setShowCompletionBanner(true);
-  }, [stopDetection, stopCamera, analyzer, endSession, metrics, getElapsedTime]);
+
+    // Check for newly unlocked achievements after saving session
+    setTimeout(() => {
+      achievements.checkAndUnlock();
+    }, 500);
+  }, [stopDetection, stopCamera, analyzer, endSession, metrics, getElapsedTime, achievements]);
 
   // Start detection when camera becomes active
   useEffect(() => {
@@ -219,6 +236,25 @@ export default function DetectPage() {
 
   // Map detectState for DetectControls
   const controlState: DetectState = detectState;
+
+  // Handle baseline capture
+  const handleBaselineCapture = useCallback((data: { headTilt: number; shoulderTilt: number; neckForward: number; spineTilt: number }) => {
+    captureBaseline(data);
+  }, [captureBaseline]);
+
+  // Start camera for baseline sampling
+  const handleStartBaselineSampling = useCallback(async () => {
+    await startCamera();
+    setShowBaselineSampling(true);
+  }, [startCamera]);
+
+  // Close baseline sampling and stop camera if not detecting
+  const handleCloseBaselineSampling = useCallback(() => {
+    setShowBaselineSampling(false);
+    if (detectState === "idle") {
+      stopCamera();
+    }
+  }, [detectState, stopCamera]);
 
   return (
     <ErrorBoundary>
@@ -312,6 +348,24 @@ export default function DetectPage() {
           </div>
         )}
 
+        {/* Rest reminder progress bar (during counting) */}
+        {restReminder.settings.enabled && (detectState === "detecting" || detectState === "paused") && restReminder.phase !== "triggered" && restReminder.phase !== "resting" && (
+          <div className="mt-3">
+            <RestReminderBanner
+              phase={restReminder.phase}
+              elapsedSinceLastRest={restReminder.elapsedSinceLastRest}
+              restRemaining={restReminder.restRemaining}
+              progress={restReminder.progress}
+              intervalMinutes={restReminder.settings.intervalMinutes}
+              showStretchGuide={restReminder.settings.showStretchGuide}
+              onStartRest={restReminder.startRestNow}
+              onSnooze={restReminder.snooze}
+              onSkip={restReminder.skipRest}
+              onSkipRest={restReminder.skipRest}
+            />
+          </div>
+        )}
+
         {/* Controls */}
         <div className="mt-8">
           <DetectControls
@@ -323,7 +377,22 @@ export default function DetectPage() {
           />
           <p className="text-center text-xs text-text-muted mt-4">
             提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒
+            {restReminder.settings.enabled && ` · 每 ${restReminder.settings.intervalMinutes} 分钟提醒休息`}
           </p>
+          {/* Baseline calibration button */}
+          <div className="text-center mt-3">
+            <button
+              onClick={handleStartBaselineSampling}
+              className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-primary transition-colors"
+            >
+              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              {hasBaseline ? "重新校准个人基线" : "校准个人姿态基线"}
+              {hasBaseline && <span className="text-primary">（已校准）</span>}
+            </button>
+          </div>
         </div>
 
       </div>
@@ -350,6 +419,53 @@ export default function DetectPage() {
     {/* Calibration Wizard */}
     {showWizard && (
       <CalibrationWizard onComplete={handleWizardComplete} onSkip={handleWizardComplete} />
+    )}
+
+    {/* Rest trigger prompt - shows when rest time arrives */}
+    {restReminder.settings.enabled && restReminder.phase === "triggered" && (
+      <RestTriggerPrompt
+        elapsedMinutes={restReminder.settings.intervalMinutes}
+        onStart={restReminder.startRestNow}
+        onSnooze={restReminder.snooze}
+        onSkip={restReminder.skipRest}
+      />
+    )}
+
+    {/* Rest overlay - shows during rest countdown */}
+    {restReminder.settings.enabled && restReminder.phase === "resting" && (
+      <RestReminderBanner
+        phase={restReminder.phase}
+        elapsedSinceLastRest={restReminder.elapsedSinceLastRest}
+        restRemaining={restReminder.restRemaining}
+        progress={restReminder.progress}
+        intervalMinutes={restReminder.settings.intervalMinutes}
+        showStretchGuide={restReminder.settings.showStretchGuide}
+        onStartRest={restReminder.startRestNow}
+        onSnooze={restReminder.snooze}
+        onSkip={restReminder.skipRest}
+        onSkipRest={restReminder.skipRest}
+      />
+    )}
+
+    {/* Achievement toast */}
+    <AchievementToast
+      achievement={achievements.newlyUnlocked}
+      onDismiss={achievements.dismissToast}
+    />
+
+    {/* Baseline sampling overlay */}
+    {showBaselineSampling && (
+      <BaselineSampling
+        metrics={landmarks && landmarks.length > 0 ? {
+          headTiltAngle: metrics.headTiltAngle,
+          shoulderTiltAngle: metrics.shoulderTiltAngle,
+          neckForwardScore: metrics.neckForwardScore,
+          spineTiltAngle: metrics.spineTiltAngle,
+        } : null}
+        isActive={isDetecting}
+        onCapture={handleBaselineCapture}
+        onCancel={handleCloseBaselineSampling}
+      />
     )}
     </ErrorBoundary>
   );
