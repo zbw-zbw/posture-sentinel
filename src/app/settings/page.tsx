@@ -1,89 +1,23 @@
 "use client";
 
 import { useSettings } from "@/hooks/useSettings";
-import { useBaseline } from "@/hooks/useBaseline";
-import { useAchievements } from "@/hooks/useAchievements";
 import { useRestReminder } from "@/hooks/useRestReminder";
 import SettingsPanel from "@/components/settings/SettingsPanel";
 import RestSettingsCard from "@/components/settings/RestSettingsCard";
-import DataManagementCard from "@/components/settings/DataManagementCard";
-import BaselineCard from "@/components/settings/BaselineCard";
-import AchievementsCard from "@/components/settings/AchievementsCard";
-import AchievementToast from "@/components/detect/AchievementToast";
 import AlertNotification from "@/components/detect/AlertNotification";
 import { playAlertSound, initAudio } from "@/lib/sound";
-import { exportAllData, importAllData } from "@/lib/storage";
-import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 
 export default function SettingsPage() {
   const { settings, updateSettings, setSensitivity, resetSettings } = useSettings();
-  const router = useRouter();
-  const { baseline, removeBaseline } = useBaseline();
-  const achievements = useAchievements(settings.dailyGoalMinutes);
   const restReminder = useRestReminder(false, false);
   const [dangerOpen, setDangerOpen] = useState(false);
   const [cleared, setCleared] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
 
-  // Export data as JSON download
-  const handleExport = useCallback(() => {
-    const data = exportAllData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    const today = new Date().toISOString().slice(0, 10);
-    a.download = `posture-sentinel-backup-${today}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, []);
-
-  // Import data from JSON file
-  const handleImport = useCallback((file: File, mode: "overwrite" | "merge") => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string);
-        if (!data.version || !data.sessions) {
-          alert("文件格式不正确，请选择体态哨兵导出的 JSON 文件");
-          return;
-        }
-        importAllData(data, mode);
-        // Reload page to refresh all data
-        window.location.reload();
-      } catch {
-        alert("文件解析失败，请检查文件内容");
-      }
-    };
-    reader.readAsText(file);
-  }, []);
-
-  // Handle baseline recalibrate - navigate to detect page
-  const handleRecalibrate = useCallback(() => {
-    router.push("/detect");
-  }, [router]);
-
-  const handleClearBaseline = useCallback(() => {
-    removeBaseline();
-  }, [removeBaseline]);
-
-  // Check for newly unlocked achievements on mount
-  useEffect(() => {
-    const t = setTimeout(() => {
-      achievements.checkAndUnlock();
-    }, 1000);
-    return () => clearTimeout(t);
-  }, [achievements]);
-
   const confirmClearData = () => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("posture-sentinel:sessions");
-      localStorage.removeItem("posture-sentinel:settings");
-      // Clear all posture-sentinel:* keys and posture-advice-* caches
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -96,10 +30,6 @@ export default function SettingsPage() {
     setConfirmClear(false);
     setCleared(true);
     setTimeout(() => setCleared(false), 2000);
-  };
-
-  const handleClearData = () => {
-    setConfirmClear(true);
   };
 
   const handlePreviewAlert = () => {
@@ -123,14 +53,40 @@ export default function SettingsPage() {
               </svg>
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
-                设置
-              </h1>
-              <p className="text-sm md:text-base text-text-secondary">
-                自定义检测灵敏度、提醒方式和高级阈值
-              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">设置</h1>
+              <p className="text-sm md:text-base text-text-secondary">自定义检测灵敏度、提醒方式和高级阈值</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Quick Links to sub-pages */}
+      <section className="px-4 md:px-6 mt-4">
+        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Link href="/achievements" className="bg-surface rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-light flex items-center justify-center text-lg">🏆</div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">成就徽章</p>
+                <p className="text-xs text-text-muted">查看已解锁成就和目标</p>
+              </div>
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </Link>
+          <Link href="/data" className="bg-surface rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-light flex items-center justify-center text-lg">💾</div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">数据管理</p>
+                <p className="text-xs text-text-muted">校准基线、导入导出备份</p>
+              </div>
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </Link>
         </div>
       </section>
 
@@ -157,31 +113,6 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Baseline Calibration */}
-      <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-3xl mx-auto">
-          <BaselineCard
-            baseline={baseline}
-            onRecalibrate={handleRecalibrate}
-            onClear={handleClearBaseline}
-          />
-        </div>
-      </section>
-
-      {/* Achievements */}
-      <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-3xl mx-auto">
-          <AchievementsCard unlocked={achievements.unlocked} />
-        </div>
-      </section>
-
-      {/* Data Management */}
-      <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-3xl mx-auto">
-          <DataManagementCard onExport={handleExport} onImport={handleImport} />
-        </div>
-      </section>
-
       {/* Danger Zone */}
       <section className="px-4 md:px-6 mt-6">
         <div className="max-w-2xl mx-auto">
@@ -198,7 +129,7 @@ export default function SettingsPage() {
               清除所有本地数据后无法恢复，包括历史检测记录和当前设置。
             </p>
             <button
-              onClick={handleClearData}
+              onClick={() => setConfirmClear(true)}
               className="w-full flex items-center justify-center gap-2 bg-danger-light hover:bg-danger/20 text-danger font-medium px-4 py-3 rounded-xl transition-all text-sm"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -211,7 +142,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Preview */}
+      {/* Alert Preview */}
       <AlertNotification
         isVisible={dangerOpen}
         message="这是一条提醒预览。当坐姿持续不良时，屏幕底部会弹出类似提示。"
@@ -221,12 +152,6 @@ export default function SettingsPage() {
         onDismiss={() => setDangerOpen(false)}
       />
 
-      {/* Achievement Toast */}
-      <AchievementToast
-        achievement={achievements.newlyUnlocked}
-        onDismiss={achievements.dismissToast}
-      />
-
       {/* Clear Data Confirmation Dialog */}
       {confirmClear && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/50">
@@ -234,12 +159,8 @@ export default function SettingsPage() {
             <h4 className="text-lg font-bold text-text-primary mb-2">确认清除数据</h4>
             <p className="text-sm text-text-secondary mb-5">将清除所有检测记录、设置和 AI 建议，此操作无法撤销。</p>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmClear(false)} className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-2.5 rounded-xl transition-colors text-sm">
-                取消
-              </button>
-              <button onClick={confirmClearData} className="flex-1 bg-danger hover:bg-danger/90 text-white font-medium py-2.5 rounded-xl transition-colors text-sm">
-                确认清除
-              </button>
+              <button onClick={() => setConfirmClear(false)} className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-2.5 rounded-xl transition-colors text-sm">取消</button>
+              <button onClick={confirmClearData} className="flex-1 bg-danger hover:bg-danger/90 text-white font-medium py-2.5 rounded-xl transition-colors text-sm">确认清除</button>
             </div>
           </div>
         </div>

@@ -122,27 +122,32 @@ export default function HeroSection() {
 
         {/* Today Progress for returning users */}
         {todayProgress && (
-          <div className="bg-white/80 backdrop-blur-sm border border-primary/20 rounded-xl px-5 py-3 flex items-center gap-3 mb-6 shadow-sm">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-              </svg>
+          <Link
+            href="/report"
+            className="block bg-white/80 backdrop-blur-sm border border-primary/20 rounded-xl px-5 py-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all mb-6 group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-text-primary">
+                  今日已检测 {todayProgress.minutes} 分钟 · {todayProgress.sessions} 次会话
+                </p>
+                <p className="text-xs text-text-secondary mt-0.5 group-hover:text-primary transition-colors">
+                  点击查看今日完整报告 →
+                </p>
+              </div>
+              {achievementCount > 0 && (
+                <div className="flex items-center gap-1.5 bg-primary-light px-3 py-1.5 rounded-lg flex-shrink-0">
+                  <span className="text-sm">🏆</span>
+                  <span className="text-xs font-semibold text-primary">{achievementCount} / {ACHIEVEMENTS.length}</span>
+                </div>
+              )}
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-text-primary">
-                今日已检测 {todayProgress.minutes} 分钟 · {todayProgress.sessions} 次会话
-              </p>
-              <p className="text-xs text-text-secondary">
-                继续保持，查看今日完整报告
-              </p>
-            </div>
-            {achievementCount > 0 && (
-              <Link href="/settings" className="flex items-center gap-1.5 bg-primary-light px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary-light/80 transition-colors flex-shrink-0">
-                <span>🏆</span>
-                <span>{achievementCount} / {ACHIEVEMENTS.length}</span>
-              </Link>
-            )}
-          </div>
+          </Link>
         )}
 
         {/* CTA Buttons */}
