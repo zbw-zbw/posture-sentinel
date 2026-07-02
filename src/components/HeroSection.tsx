@@ -124,11 +124,11 @@ export default function HeroSection() {
         {todayProgress && (
           <Link
             href="/report"
-            className="block bg-white/80 backdrop-blur-sm border border-primary/20 rounded-xl px-5 py-4 shadow-sm hover:shadow-md hover:border-primary/40 transition-all mb-6 group"
+            className="block mt-6 max-w-xl mx-auto bg-white border border-border rounded-2xl px-5 py-3.5 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                 </svg>
               </div>
@@ -136,13 +136,13 @@ export default function HeroSection() {
                 <p className="text-sm font-semibold text-text-primary">
                   今日已检测 {todayProgress.minutes} 分钟 · {todayProgress.sessions} 次会话
                 </p>
-                <p className="text-xs text-text-secondary mt-0.5 group-hover:text-primary transition-colors">
+                <p className="text-xs text-text-muted mt-0.5 group-hover:text-primary transition-colors">
                   点击查看今日完整报告 →
                 </p>
               </div>
               {achievementCount > 0 && (
-                <div className="flex items-center gap-1.5 bg-primary-light px-3 py-1.5 rounded-lg flex-shrink-0">
-                  <span className="text-sm">🏆</span>
+                <div className="flex items-center gap-1 bg-primary-light px-2.5 py-1 rounded-lg flex-shrink-0">
+                  <span className="text-xs">🏆</span>
                   <span className="text-xs font-semibold text-primary">{achievementCount} / {ACHIEVEMENTS.length}</span>
                 </div>
               )}
@@ -152,7 +152,7 @@ export default function HeroSection() {
 
         {/* New user quick-start guide */}
         {!todayProgress && (
-          <div className="bg-white/80 backdrop-blur-sm border border-primary/20 rounded-xl px-5 py-4 shadow-sm mb-6 max-w-2xl mx-auto">
+          <div className="mt-6 max-w-xl mx-auto bg-white border border-primary/20 rounded-2xl px-5 py-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 11l3 3L22 4" />

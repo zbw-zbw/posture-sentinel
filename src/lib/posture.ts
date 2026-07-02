@@ -76,8 +76,9 @@ function calculateShoulderTiltAngle(landmarks: NormalizedLandmark[]): number {
 //
 // A) Vertical ratio (weight 60%): (shoulderMidY - noseY) / shoulderWidth
 //    When neck is pushed forward, the head drops toward shoulders, ratio decreases.
-//    Good posture: ratio >= 0.45 | Forward neck: ratio <= 0.30
-//    This is the most reliable indicator for a front-facing camera.
+//    Good posture: ratio >= 0.35 | Forward neck: ratio <= 0.18
+//    Note: thresholds are lenient because webcam height/distance varies widely.
+//    Baseline calibration is the recommended way to get personalized accuracy.
 //
 // B) Head pitch (weight 40%): nose vertical position relative to ear midpoint
 //    Detects looking up (仰头) or looking down (低头) which often accompanies
@@ -85,12 +86,6 @@ function calculateShoulderTiltAngle(landmarks: NormalizedLandmark[]): number {
 //    Normal upright: pitchRatio ≈ 0.5-0.8 (nose below ears)
 //    Looking up: pitchRatio < 0.35 (nose rises toward ear level)
 //    Looking down: pitchRatio > 0.95 (nose drops further)
-//
-// NOTE: Previous version had two additional indicators (face-to-shoulder ratio
-// and back-lean angle) that were unreliable and caused false positives.
-// - Face ratio depends on camera distance and body proportions
-// - Back-lean angle measured lateral nose displacement, not forward lean,
-//   and its scoring was inverted (good posture scored worst)
 function calculateNeckForwardScore(landmarks: NormalizedLandmark[], baseline?: { neckForward: number }): number {
   const nose = landmarks[0];
   const leftShoulder = landmarks[11];
@@ -105,14 +100,13 @@ function calculateNeckForwardScore(landmarks: NormalizedLandmark[], baseline?: {
   if (shoulderWidth < 0.001) return 0;
 
   // ── Indicator A: vertical ratio (60% weight) ──
-  // Ratio of nose-to-shoulder vertical gap to shoulder width.
-  // Lower ratio = head dropped toward shoulders = forward neck.
   const verticalGap = shoulderMid.y - nose.y;
   const verticalRatio = verticalGap / shoulderWidth;
 
   // If baseline exists, center the thresholds around the baseline ratio
-  const goodRatio = baseline ? Math.max(0.30, baseline.neckForward - 0.08) : 0.45;
-  const badRatio = baseline ? Math.max(0.20, baseline.neckForward - 0.18) : 0.30;
+  // Default thresholds are lenient to avoid false positives across camera setups
+  const goodRatio = baseline ? Math.max(0.20, baseline.neckForward - 0.10) : 0.35;
+  const badRatio = baseline ? Math.max(0.12, baseline.neckForward - 0.20) : 0.18;
 
   let verticalScore = 0;
   if (verticalRatio <= badRatio) {
@@ -179,9 +173,9 @@ function scoreFromBadness(value: number, goodThreshold: number, badThreshold: nu
 }
 
 export const DEFAULT_POSTURE_THRESHOLDS: PostureThresholds = {
-  headAngle: { warning: 5, bad: 15 },
-  shoulder: { warning: 3, bad: 8 },
-  spineAngle: { warning: 5, bad: 15 },
+  headAngle: { warning: 8, bad: 20 },
+  shoulder: { warning: 5, bad: 12 },
+  spineAngle: { warning: 8, bad: 20 },
 };
 
 export function analyzePosture(

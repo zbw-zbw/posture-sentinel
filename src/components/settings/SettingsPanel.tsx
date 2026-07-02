@@ -25,7 +25,7 @@ export default function SettingsPanel({
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="mx-auto py-6">
       {/* Auto-save hint */}
       <div className="flex items-center gap-2 text-sm text-text-muted mb-6">
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
