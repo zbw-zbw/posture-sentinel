@@ -150,7 +150,15 @@ export default function DetectPage() {
     // 使用 elapsedTime 作为最终 duration（更可靠）
     const finalStats = { ...stats, totalDuration: currentElapsed };
 
-    const summary = endSession(finalStats);
+    const summary = endSession({
+      ...finalStats,
+      metrics: {
+        avgHeadTilt: finalMetrics.headTiltAngle,
+        avgShoulderTilt: finalMetrics.shoulderTiltAngle,
+        avgNeckForward: finalMetrics.neckForwardScore,
+        avgSpineTilt: finalMetrics.spineTiltAngle,
+      },
+    });
     setSummaryDataLocal(summary);
 
     // Save session to localStorage

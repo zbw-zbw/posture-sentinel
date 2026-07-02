@@ -22,6 +22,7 @@ interface UsePostureMetricsOptions {
   baseline?: {
     headTilt: number;
     shoulderTilt: number;
+    neckForward: number;
     spineTilt: number;
   } | null;
 }
@@ -60,6 +61,6 @@ export function usePostureMetrics(
       };
     }
 
-    return analyzePosture(landmarks[0], thresholds);
+    return analyzePosture(landmarks[0], thresholds, options.baseline);
   }, [landmarks, options.headAngleThreshold, options.shoulderThreshold, options.spineAngleThreshold, options.baseline]);
 }

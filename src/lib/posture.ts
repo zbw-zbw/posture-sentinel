@@ -72,24 +72,26 @@ function calculateShoulderTiltAngle(landmarks: NormalizedLandmark[]): number {
 }
 
 // ── Metric 3: Forward Neck Score (0-100, higher = worse) ──
-// Combines multiple indicators for front-facing webcam:
+// Uses weighted average of two reliable indicators for front-facing webcam:
 //
-// A) Vertical ratio: (shoulderMidY - noseY) / shoulderWidth
+// A) Vertical ratio (weight 60%): (shoulderMidY - noseY) / shoulderWidth
 //    When neck is pushed forward, the head drops toward shoulders, ratio decreases.
-//    Good posture: ratio > 0.50 | Forward neck: ratio < 0.35
+//    Good posture: ratio >= 0.45 | Forward neck: ratio <= 0.30
+//    This is the most reliable indicator for a front-facing camera.
 //
-// B) Face-to-shoulder ratio: earDist / shoulderWidth
-//    When head moves forward (closer to camera), face appears larger.
-//    Good posture: ratio < 0.45 | Forward neck: ratio > 0.55
+// B) Head pitch (weight 40%): nose vertical position relative to ear midpoint
+//    Detects looking up (仰头) or looking down (低头) which often accompanies
+//    forward neck posture.
+//    Normal upright: pitchRatio ≈ 0.5-0.8 (nose below ears)
+//    Looking up: pitchRatio < 0.35 (nose rises toward ear level)
+//    Looking down: pitchRatio > 0.95 (nose drops further)
 //
-// C) Back lean: nose-to-shoulder angle (后仰/过度前倾)
-//
-// D) Head pitch: nose vs forehead vertical position (仰头/低头)
-//    Uses landmark 0 (nose) vs landmark 10 (forehead midpoint area)
-//    Good posture: forehead is above nose (both at similar height)
-//    Looking up (仰头): head tilts back, forehead rises relative to nose
-//    Looking down (低头): head tilts forward, nose drops relative to chin
-function calculateNeckForwardScore(landmarks: NormalizedLandmark[]): number {
+// NOTE: Previous version had two additional indicators (face-to-shoulder ratio
+// and back-lean angle) that were unreliable and caused false positives.
+// - Face ratio depends on camera distance and body proportions
+// - Back-lean angle measured lateral nose displacement, not forward lean,
+//   and its scoring was inverted (good posture scored worst)
+function calculateNeckForwardScore(landmarks: NormalizedLandmark[], baseline?: { neckForward: number }): number {
   const nose = landmarks[0];
   const leftShoulder = landmarks[11];
   const rightShoulder = landmarks[12];
@@ -102,80 +104,54 @@ function calculateNeckForwardScore(landmarks: NormalizedLandmark[]): number {
   const shoulderWidth = distance(leftShoulder, rightShoulder);
   if (shoulderWidth < 0.001) return 0;
 
-  // Indicator A: vertical ratio
+  // ── Indicator A: vertical ratio (60% weight) ──
+  // Ratio of nose-to-shoulder vertical gap to shoulder width.
+  // Lower ratio = head dropped toward shoulders = forward neck.
   const verticalGap = shoulderMid.y - nose.y;
   const verticalRatio = verticalGap / shoulderWidth;
 
+  // If baseline exists, center the thresholds around the baseline ratio
+  const goodRatio = baseline ? Math.max(0.30, baseline.neckForward - 0.08) : 0.45;
+  const badRatio = baseline ? Math.max(0.20, baseline.neckForward - 0.18) : 0.30;
+
   let verticalScore = 0;
-  if (verticalRatio <= 0.35) {
+  if (verticalRatio <= badRatio) {
     verticalScore = 100;
-  } else if (verticalRatio >= 0.50) {
+  } else if (verticalRatio >= goodRatio) {
     verticalScore = 0;
   } else {
-    verticalScore = ((0.50 - verticalRatio) / (0.50 - 0.35)) * 100;
+    verticalScore = ((goodRatio - verticalRatio) / (goodRatio - badRatio)) * 100;
   }
 
-  // Indicator B: face-to-shoulder ratio
-  let faceScore = 0;
-  if (leftEar && rightEar) {
-    const earDist = distance(leftEar, rightEar);
-    const faceRatio = earDist / shoulderWidth;
-    if (faceRatio >= 0.58) {
-      faceScore = 100;
-    } else if (faceRatio <= 0.45) {
-      faceScore = 0;
-    } else {
-      faceScore = ((faceRatio - 0.45) / (0.58 - 0.45)) * 100;
-    }
-  }
-
-  // Indicator C: nose-to-shoulder midpoint angle from vertical
-  let backLeanScore = 0;
-  const noseAngle = Math.abs(Math.atan2(
-    shoulderMid.x - nose.x,
-    nose.y - shoulderMid.y
-  ) * (180 / Math.PI));
-
-  if (noseAngle <= 3) {
-    backLeanScore = 100;
-  } else if (noseAngle >= 10) {
-    backLeanScore = 0;
-  } else {
-    backLeanScore = ((10 - noseAngle) / (10 - 3)) * 100;
-  }
-
-  // Indicator D: Head pitch — detect looking up (仰头) or looking down (低头)
-  // Use the vertical position of the nose relative to the midpoint of both ears
-  // When looking up, the nose drops below the ear midpoint (nose.y > earMid.y increases)
-  // When looking down, the nose rises above the ear midpoint
+  // ── Indicator B: head pitch (40% weight) ──
+  // Uses nose vertical position relative to ear midpoint, normalized by ear distance.
   let headPitchScore = 0;
   if (leftEar && rightEar) {
     const earMid = getMidpoint(leftEar, rightEar);
     const earToNoseDy = nose.y - earMid.y; // positive = nose below ears (normal)
     const earDist = distance(leftEar, rightEar);
-    // Normalize by ear distance for scale-invariance
-    const pitchRatio = earToNoseDy / earDist;
+    if (earDist > 0.001) {
+      const pitchRatio = earToNoseDy / earDist;
 
-    // Normal upright: pitchRatio ≈ 0.6-0.9 (nose below ears)
-    // Looking up (仰头): pitchRatio drops significantly (< 0.4) because nose moves closer to ear level
-    // Looking down (低头): pitchRatio increases (> 1.0) because nose drops further below
-    if (pitchRatio < 0.3) {
-      headPitchScore = 100; // extreme looking up
-    } else if (pitchRatio <= 0.45) {
-      headPitchScore = ((0.45 - pitchRatio) / (0.45 - 0.3)) * 100;
-    } else if (pitchRatio <= 0.55) {
-      headPitchScore = 0; // healthy range
-    } else if (pitchRatio <= 0.75) {
-      headPitchScore = 0; // slightly looking down, still ok
-    } else if (pitchRatio <= 1.0) {
-      headPitchScore = ((pitchRatio - 0.75) / (1.0 - 0.75)) * 100;
-    } else {
-      headPitchScore = 100; // extreme looking down
+      // Normal upright: pitchRatio ≈ 0.5-0.8 (nose below ears)
+      // Looking up (仰头): pitchRatio < 0.35 → head tilts back
+      // Looking down (低头): pitchRatio > 0.95 → head tilts forward
+      if (pitchRatio < 0.25) {
+        headPitchScore = 100; // extreme looking up
+      } else if (pitchRatio < 0.35) {
+        headPitchScore = ((0.35 - pitchRatio) / (0.35 - 0.25)) * 100;
+      } else if (pitchRatio <= 0.85) {
+        headPitchScore = 0; // healthy range
+      } else if (pitchRatio <= 1.1) {
+        headPitchScore = ((pitchRatio - 0.85) / (1.1 - 0.85)) * 100;
+      } else {
+        headPitchScore = 100; // extreme looking down
+      }
     }
   }
 
-  // Take the worse (higher) of the four indicators
-  return Math.max(verticalScore, faceScore, backLeanScore, headPitchScore);
+  // Weighted average: vertical ratio is primary, head pitch is secondary
+  return Math.round(verticalScore * 0.6 + headPitchScore * 0.4);
 }
 
 // ── Metric 4: Spine Tilt ──
@@ -210,7 +186,8 @@ export const DEFAULT_POSTURE_THRESHOLDS: PostureThresholds = {
 
 export function analyzePosture(
   landmarks: NormalizedLandmark[],
-  thresholds: PostureThresholds = DEFAULT_POSTURE_THRESHOLDS
+  thresholds: PostureThresholds = DEFAULT_POSTURE_THRESHOLDS,
+  baseline?: { headTilt: number; shoulderTilt: number; neckForward: number; spineTilt: number } | null
 ): PostureMetrics {
   // Check if essential landmarks exist and have valid coordinates.
   // Note: MediaPipe pose_landmarker_lite often returns visibility=0 or undefined
@@ -253,7 +230,7 @@ export function analyzePosture(
   // Compute metrics, using 0 for unavailable ones
   const headTiltAngle = earsDetected ? calculateHeadTiltAngle(landmarks) : 0;
   const shoulderTiltAngle = calculateShoulderTiltAngle(landmarks);
-  const neckForwardScore = calculateNeckForwardScore(landmarks);
+  const neckForwardScore = calculateNeckForwardScore(landmarks, baseline ?? undefined);
   const spineTiltAngle = hipsDetected ? calculateSpineTiltAngle(landmarks) : 0;
 
   // Individual scores (0-100, higher = better posture)

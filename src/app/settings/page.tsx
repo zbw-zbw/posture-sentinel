@@ -60,36 +60,6 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Quick Links to sub-pages */}
-      <section className="px-4 md:px-6 mt-4">
-        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Link href="/achievements" className="bg-surface rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all group">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-light flex items-center justify-center text-lg">🏆</div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">成就徽章</p>
-                <p className="text-xs text-text-muted">查看已解锁成就和目标</p>
-              </div>
-              <svg viewBox="0 0 24 24" className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </div>
-          </Link>
-          <Link href="/data" className="bg-surface rounded-2xl p-4 border border-border hover:border-primary/30 hover:shadow-md transition-all group">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary-light flex items-center justify-center text-lg">💾</div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">数据管理</p>
-                <p className="text-xs text-text-muted">校准基线、导入导出备份</p>
-              </div>
-              <svg viewBox="0 0 24 24" className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </div>
-          </Link>
-        </div>
-      </section>
-
       {/* Settings Panel */}
       <section className="px-4 md:px-6 mt-6">
         <div className="max-w-3xl mx-auto">
@@ -115,7 +85,7 @@ export default function SettingsPage() {
 
       {/* Danger Zone */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <div className="bg-surface rounded-2xl p-6 border border-danger/20">
             <h3 className="text-lg font-bold text-danger mb-2 flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -10,6 +10,12 @@ export interface SessionSummaryData {
   badPercent: number;
   alertCount: number;
   scoreHistory: { time: number; score: number }[];
+  metrics?: {
+    avgHeadTilt: number;
+    avgShoulderTilt: number;
+    avgNeckForward: number;
+    avgSpineTilt: number;
+  };
 }
 
 interface UseDetectSessionReturn {
@@ -27,6 +33,12 @@ interface UseDetectSessionReturn {
     alertCount: number;
     avgScore: number;
     scoreHistory: { time: number; score: number }[];
+    metrics?: {
+      avgHeadTilt: number;
+      avgShoulderTilt: number;
+      avgNeckForward: number;
+      avgSpineTilt: number;
+    };
   }) => SessionSummaryData;
   getElapsedTime: () => number;
   summaryData: SessionSummaryData | null;
@@ -91,6 +103,12 @@ export function useDetectSession(): UseDetectSessionReturn {
     alertCount: number;
     avgScore: number;
     scoreHistory: { time: number; score: number }[];
+    metrics?: {
+      avgHeadTilt: number;
+      avgShoulderTilt: number;
+      avgNeckForward: number;
+      avgSpineTilt: number;
+    };
   }): SessionSummaryData => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -110,6 +128,7 @@ export function useDetectSession(): UseDetectSessionReturn {
       scoreHistory: stats.scoreHistory.length > 0 ? stats.scoreHistory : [
         { time: Date.now(), score: avgScore },
       ],
+      metrics: stats.metrics,
     };
 
     setSummaryData(summary);

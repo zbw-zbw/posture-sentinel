@@ -7,12 +7,9 @@ import { usePathname } from "next/navigation";
 const navLinks = [
   { href: "/detect", label: "实时检测" },
   { href: "/report", label: "健康日报" },
+  { href: "/achievements", label: "成就" },
+  { href: "/data", label: "数据" },
   { href: "/settings", label: "设置" },
-];
-
-const subLinks = [
-  { href: "/achievements", label: "成就徽章", icon: "🏆" },
-  { href: "/data", label: "数据管理", icon: "💾" },
 ];
 
 export default function Navbar() {
@@ -147,22 +144,6 @@ export default function Navbar() {
                       : "text-text-secondary hover:bg-surface-alt hover:text-text-primary"
                   }`}
                 >
-                  {link.label}
-                </Link>
-              ))}
-              {/* Divider */}
-              <div className="h-px bg-border my-2" />
-              {subLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`flex items-center min-h-12 px-4 rounded-xl text-sm font-medium transition-colors ${
-                    isActive(link.href)
-                      ? "text-primary bg-primary-light"
-                      : "text-text-muted hover:bg-surface-alt hover:text-text-primary"
-                  }`}
-                >
-                  <span className="mr-3 text-base">{link.icon}</span>
                   {link.label}
                 </Link>
               ))}
