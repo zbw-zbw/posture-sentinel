@@ -126,13 +126,12 @@ export default function DetectPage() {
   }, [stopDetection, analyzer, pauseSession]);
 
   const handleResume = useCallback(async () => {
-    if (videoRef.current) {
-      await startDetection(videoRef.current);
-    }
+    // Don't call startDetection here — the effect at line ~196 handles it
+    // when detectState transitions to "detecting"
     analyzer.resume();
     resumeSession();
     setDetectState("detecting");
-  }, [startDetection, videoRef, analyzer, resumeSession]);
+  }, [analyzer, resumeSession]);
 
   const handleStop = useCallback(() => {
     // Capture current metrics BEFORE stopping detection (which clears landmarks)

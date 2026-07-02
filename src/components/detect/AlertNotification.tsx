@@ -29,16 +29,6 @@ export default function AlertNotification({
     }
   }, [isVisible]);
 
-  // Prevent body scroll when alert is visible on mobile
-  useEffect(() => {
-    if (isVisible) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isVisible]);
-
   // Handle dismiss with exit animation
   const handleDismiss = useCallback(() => {
     setVisible(false); // trigger exit animation
@@ -120,9 +110,11 @@ export default function AlertNotification({
           </button>
         </div>
         {/* Countdown progress bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/10">
           <div 
-            className="h-full bg-white/40 transition-all duration-100 ease-linear"
+            className={`h-full transition-all duration-100 ease-linear ${
+              isWarning ? "bg-warning" : "bg-danger"
+            }`}
             style={{ width: `${remaining}%` }}
           />
         </div>

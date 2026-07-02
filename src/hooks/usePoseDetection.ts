@@ -134,11 +134,12 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
             if (maxDiff < 0.003) {
               // skip tiny changes
             } else {
-              prevLandmarksRef.current = structuredClone(results.landmarks[0]);
+              // Shallow copy only x,y for diff comparison (avoids expensive structuredClone)
+              prevLandmarksRef.current = current.map(p => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }));
               setLandmarks(results.landmarks);
             }
           } else {
-            prevLandmarksRef.current = structuredClone(results.landmarks[0]);
+            prevLandmarksRef.current = results.landmarks[0].map(p => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }));
             setLandmarks(results.landmarks);
           }
         }
@@ -166,6 +167,8 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
       videoRef.current = video;
       await loadModel();
       if (!landmarkerRef.current) return;
+      // Idempotent guard: prevent duplicate RAF chains if called twice
+      if (detectingRef.current) return;
       detectingRef.current = true;
       setIsDetecting(true);
       lastFpsUpdateRef.current = performance.now();

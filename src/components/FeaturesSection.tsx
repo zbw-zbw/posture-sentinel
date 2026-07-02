@@ -211,13 +211,6 @@ export default function FeaturesSection() {
             {/* Left: Notification mockup */}
             <div className="h-full flex items-end p-4">
               <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 w-full text-white relative">
-                {/* Close button */}
-                <button className="absolute top-3 right-3 text-white/60 hover:text-white transition-colors">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
                 {/* Body */}
                 <p className="text-base pr-4">
                   你已经驼背 2 分钟了，试试挺直腰背深呼吸？
@@ -332,7 +325,7 @@ export default function FeaturesSection() {
                         提醒次数：8次
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-surface-alt overflow-hidden">
+                    <div className="h-2 rounded-full bg-text-muted/10 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-text-muted"
                         style={{ width: "30%" }}

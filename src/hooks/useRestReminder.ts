@@ -18,6 +18,16 @@ export interface RestReminderState {
 export function useRestReminder(isDetecting: boolean, isPaused: boolean) {
   const [settings, setSettings] = useState<RestReminderSettings>(() => getRestSettings());
   const [phase, setPhase] = useState<RestPhase>("idle");
+  const snoozeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up snooze timer on unmount
+  useEffect(() => {
+    return () => {
+      if (snoozeTimerRef.current) {
+        clearTimeout(snoozeTimerRef.current);
+      }
+    };
+  }, []);
   const [elapsedSinceLastRest, setElapsedSinceLastRest] = useState(0);
   const [restRemaining, setRestRemaining] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -90,10 +100,14 @@ export function useRestReminder(isDetecting: boolean, isPaused: boolean) {
   }, [settings.restDurationMinutes]);
 
   const snooze = useCallback(() => {
+    if (snoozeTimerRef.current) {
+      clearTimeout(snoozeTimerRef.current);
+    }
     setPhase("snoozed");
     setElapsedSinceLastRest(0);
     // After 5 minutes, go back to counting
-    setTimeout(() => {
+    snoozeTimerRef.current = setTimeout(() => {
+      snoozeTimerRef.current = null;
       setPhase("counting");
     }, 5 * 60 * 1000);
   }, []);

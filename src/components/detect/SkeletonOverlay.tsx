@@ -100,29 +100,9 @@ export default function SkeletonOverlay({ landmarks, status, width, height, vide
         ctx.stroke();
       }
 
-      // Draw head tilt angle annotation near ears
+      // Draw ear-to-ear reference line (shows head tilt visually)
       const leftEar = lms[7];
       const rightEar = lms[8];
-      if (leftEar && rightEar) {
-        const earMidX = ((leftEar.x + rightEar.x) / 2) * width;
-        const earMidY = ((leftEar.y + rightEar.y) / 2) * height;
-        const angleText = `${Math.round(headTiltAngle)}°`;
-        const angleColor = headTiltAngle <= 5 ? "#10b981" : headTiltAngle <= 10 ? "#f59e0b" : "#ef4444";
-
-        // Background pill
-        const textWidth = ctx.measureText(angleText).width;
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.beginPath();
-        ctx.roundRect(earMidX - textWidth / 2 - 8, earMidY - 28, textWidth + 16, 20, 10);
-        ctx.fill();
-
-        ctx.fillStyle = angleColor;
-        ctx.font = "bold 13px Inter, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(angleText, earMidX, earMidY - 14);
-      }
-
-      // Draw ear-to-ear reference line (shows head tilt visually)
       if (leftEar && rightEar) {
         ctx.globalAlpha = 0.5;
         ctx.strokeStyle = headTiltAngle <= 5 ? "#10b981" : headTiltAngle <= 10 ? "#f59e0b" : "#ef4444";
@@ -138,6 +118,31 @@ export default function SkeletonOverlay({ landmarks, status, width, height, vide
     }
 
     ctx.restore();
+
+    // Draw angle text AFTER restoring mirror transform (so text renders normally)
+    if (landmarks && landmarks.length > 0) {
+      const lms = landmarks[0];
+      const leftEar = lms[7];
+      const rightEar = lms[8];
+      if (leftEar && rightEar) {
+        // Un-mirror the x coordinate since canvas was mirrored during drawing
+        const earMidX = (1 - (leftEar.x + rightEar.x) / 2) * width;
+        const earMidY = ((leftEar.y + rightEar.y) / 2) * height;
+        const angleText = `${Math.round(headTiltAngle)}°`;
+        const angleColor = headTiltAngle <= 8 ? "#10b981" : headTiltAngle <= 15 ? "#f59e0b" : "#ef4444";
+
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        const textWidth = ctx.measureText(angleText).width;
+        ctx.beginPath();
+        ctx.roundRect(earMidX - textWidth / 2 - 8, earMidY - 28, textWidth + 16, 20, 10);
+        ctx.fill();
+
+        ctx.fillStyle = angleColor;
+        ctx.font = "bold 13px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(angleText, earMidX, earMidY - 14);
+      }
+    }
   }, [landmarks, status, width, height, videoRef, headTiltAngle]);
 
   return (

@@ -16,8 +16,8 @@ export default function ModelPreloader() {
 
     // Non-blocking preload — don't await, just fire in background
     import("@/lib/model-loader").then(({ preloadModel }) => {
-      preloadModel().then((url) => {
-        console.log("[ModelPreloader] Model ready:", url);
+      preloadModel().then(() => {
+        // Model ready — silently succeed
       }).catch(() => {
         // Silently fail — the detect page will retry
       });

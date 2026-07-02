@@ -14,6 +14,8 @@ export default function PainPointsSection() {
       description:
         "大部分人根本意识不到自己坐歪了。等你发现脖子酸、肩膀疼的时候，已经保持错误姿势数小时。驼背不是故意的，而是不知不觉的。",
       barColor: "bg-danger",
+      iconBg: "bg-danger-light",
+      iconColor: "text-danger",
     },
     {
       icon: (
@@ -27,6 +29,8 @@ export default function PainPointsSection() {
       description:
         "人体工学椅动辄几千，矫正器穿着难受坚持不了3天，可穿戴设备还得额外花钱买。",
       barColor: "bg-warning",
+      iconBg: "bg-warning-light",
+      iconColor: "text-warning",
     },
     {
       icon: (
@@ -39,6 +43,8 @@ export default function PainPointsSection() {
       description:
         "手机App只能每30分钟弹通知，但你可能5分钟内就从坐直滑到驼背。没有任何检测能力。",
       barColor: "bg-info",
+      iconBg: "bg-info-light",
+      iconColor: "text-info",
     },
   ];
 
@@ -62,12 +68,8 @@ export default function PainPointsSection() {
             >
               {/* Card Content */}
               <div className="px-6 py-8 flex-1">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
-                  index === 0 ? "bg-danger-light" : index === 1 ? "bg-warning-light" : "bg-info-light"
-                }`}>
-                  <span className={`text-2xl ${
-                    index === 0 ? "text-danger" : index === 1 ? "text-warning" : "text-info"
-                  }`}>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${card.iconBg}`}>
+                  <span className={card.iconColor}>
                     {card.icon}
                   </span>
                 </div>
