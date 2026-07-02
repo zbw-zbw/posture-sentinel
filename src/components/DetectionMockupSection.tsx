@@ -187,17 +187,19 @@ export default function DetectionMockupSection() {
       </p>
 
       {/* Demo hint banner */}
-      <div className="bg-primary-light text-primary-dark text-sm font-medium px-4 py-2 rounded-full inline-flex items-center gap-2 mx-auto mb-4">
-        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
-        </svg> 这是演示效果，点击体验
-        <Link href="/detect" className="underline hover:no-underline inline-flex items-center gap-1">真实检测
+      <div className="flex justify-center mb-4">
+        <div className="bg-primary-light text-primary-dark text-sm font-medium px-4 py-2 rounded-full inline-flex items-center gap-2">
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
-          </svg>
-        </Link>
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg> 这是演示效果，点击体验
+          <Link href="/detect" className="underline hover:no-underline inline-flex items-center gap-1">真实检测
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </Link>
+        </div>
       </div>
 
       {/* Main Mockup Card */}

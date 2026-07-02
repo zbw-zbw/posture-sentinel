@@ -8,9 +8,10 @@ interface DetectControlsProps {
   onPause: () => void;
   onResume: () => void;
   onStop: () => void;
+  isLoading?: boolean;
 }
 
-export default function DetectControls({ state, onStart, onPause, onResume, onStop }: DetectControlsProps) {
+export default function DetectControls({ state, onStart, onPause, onResume, onStop, isLoading = false }: DetectControlsProps) {
   useEffect(() => {
     if (state === "idle") return;
 
@@ -31,55 +32,83 @@ export default function DetectControls({ state, onStart, onPause, onResume, onSt
 
   if (state === "idle") {
     return (
-      <button
-        onClick={onStart}
-        className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 mx-auto"
-      >
-        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-          <circle cx="12" cy="13" r="4" />
-        </svg>
-        开始检测
-      </button>
+      <div className="flex flex-col items-center gap-3">
+        <button
+          onClick={onStart}
+          disabled={isLoading}
+          className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <>
+              <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              正在启动...
+            </>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              开始检测
+            </>
+          )}
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md mx-auto">
-      {state === "detecting" ? (
+    <div className="flex flex-col items-center gap-3 w-full max-w-md mx-auto">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
+        {state === "detecting" ? (
+          <button
+            onClick={onPause}
+            title="暂停 (Space)"
+            className="flex items-center gap-2 bg-warning hover:bg-warning/90 text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+            暂停
+          </button>
+        ) : (
+          <button
+            onClick={onResume}
+            title="继续 (Space)"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            继续
+          </button>
+        )}
         <button
-          onClick={onPause}
-          title="暂停 (Space)"
-          className="flex items-center gap-2 bg-warning hover:bg-warning/90 text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
+          onClick={onStop}
+          title="结束检测 (Esc)"
+          className="flex items-center gap-2 bg-danger/10 hover:bg-danger/20 text-danger font-semibold px-6 py-3 rounded-full border border-danger/20 transition-all w-full sm:w-auto justify-center"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-            <rect x="6" y="4" width="4" height="16" rx="1" />
-            <rect x="14" y="4" width="4" height="16" rx="1" />
+            <rect x="4" y="4" width="16" height="16" rx="2" />
           </svg>
-          暂停
+          结束
         </button>
-      ) : (
-        <button
-          onClick={onResume}
-          title="继续 (Space)"
-          className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
-        >
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg>
-          继续
-        </button>
-      )}
-      <button
-        onClick={onStop}
-        title="结束检测 (Esc)"
-        className="flex items-center gap-2 bg-danger/10 hover:bg-danger/20 text-danger font-semibold px-6 py-3 rounded-full border border-danger/20 transition-all w-full sm:w-auto justify-center"
-      >
-        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-        </svg>
-        结束
-      </button>
+      </div>
+      {/* Keyboard shortcut hints */}
+      <div className="flex items-center gap-4 text-xs text-text-muted">
+        <span className="flex items-center gap-1">
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">Space</kbd>
+          暂停/继续
+        </span>
+        <span className="flex items-center gap-1">
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">Esc</kbd>
+          结束检测
+        </span>
+      </div>
     </div>
   );
 }

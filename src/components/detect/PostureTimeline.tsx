@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 interface PostureTimelineProps {
   scoreHistory: { time: number; score: number }[];
@@ -31,7 +31,20 @@ function formatTime(ts: number): string {
 export default function PostureTimeline({ scoreHistory, duration }: PostureTimelineProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  if (scoreHistory.length < 2 || duration < 5) return null;
+  const handleSegmentClick = useCallback((i: number) => {
+    setHoveredIndex(hoveredIndex === i ? null : i);
+  }, [hoveredIndex]);
+
+  if (scoreHistory.length < 2 || duration < 5) {
+    return (
+      <div className="mb-4">
+        <p className="text-sm text-text-secondary mb-2">姿态时间线</p>
+        <div className="h-4 rounded-full bg-surface-alt flex items-center justify-center">
+          <span className="text-xs text-text-muted">检测 5 秒后显示时间线</span>
+        </div>
+      </div>
+    );
+  }
 
   // Compute proportions based on actual time spans
   const segments = scoreHistory.map((entry, i) => {
@@ -60,13 +73,18 @@ export default function PostureTimeline({ scoreHistory, duration }: PostureTimel
           {segments.map((entry, i) => (
             <div
               key={entry.time}
+              role="button"
+              tabIndex={0}
+              aria-label={`${formatTime(entry.time)} 评分 ${entry.score} 分 ${getScoreLabel(entry.score)}`}
               className={`rounded-full transition-all duration-300 cursor-pointer ${
                 hoveredIndex === i ? "ring-2 ring-white/80 ring-offset-1 scale-y-125 origin-center" : ""
               } ${getScoreColor(entry.score)}`}
               style={{ width: `${entry.width}%`, minWidth: 4 }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              title={`${formatTime(entry.time)} · ${entry.score}分 · ${getScoreLabel(entry.score)}`}
+              onClick={() => handleSegmentClick(i)}
+              onFocus={() => setHoveredIndex(i)}
+              onBlur={() => setHoveredIndex(null)}
             />
           ))}
         </div>
@@ -74,6 +92,18 @@ export default function PostureTimeline({ scoreHistory, duration }: PostureTimel
       <div className="flex justify-between mt-1 text-xs text-text-muted">
         <span>{formatTime(segments[0].time - 30000)}</span>
         <span>{formatTime(segments[segments.length - 1].time + 30000)}</span>
+      </div>
+      {/* Color legend */}
+      <div className="flex items-center justify-center gap-4 mt-2">
+        <span className="flex items-center gap-1 text-xs text-text-muted">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-primary" />良好
+        </span>
+        <span className="flex items-center gap-1 text-xs text-text-muted">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-warning" />注意
+        </span>
+        <span className="flex items-center gap-1 text-xs text-text-muted">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-danger" />不良
+        </span>
       </div>
     </div>
   );

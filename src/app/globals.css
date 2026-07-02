@@ -32,6 +32,15 @@ body {
   color: var(--color-text-primary);
 }
 
+/* ── Hide All Scrollbars ── */
+* {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+*::-webkit-scrollbar {
+  display: none !important; /* Chrome/Safari/Opera */
+}
+
 /* ── Keyframes ── */
 @keyframes pulse-green {
   0%, 100% { transform: scale(1); opacity: 1; }

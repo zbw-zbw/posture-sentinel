@@ -157,7 +157,13 @@ export default function CameraView({
                 </svg>
               </div>
               <p className="text-white font-medium mb-2">摄像头无法启动</p>
-              <p className="text-white/60 text-sm">{error}</p>
+              <p className="text-white/60 text-sm mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-primary hover:bg-primary-dark text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
+              >
+                重试
+              </button>
             </div>
           </div>
         )}
@@ -190,6 +196,18 @@ export default function CameraView({
               <p className="text-white text-lg font-semibold">检测已暂停</p>
               <p className="text-white/60 text-sm mt-1">点击「继续」恢复检测</p>
             </div>
+          </div>
+        )}
+
+        {/* No person detected overlay */}
+        {isDetecting && (!landmarks || landmarks.length === 0) && !isPaused && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-warning/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-2 whitespace-nowrap">
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            未检测到人体，请坐到镜头前
           </div>
         )}
 

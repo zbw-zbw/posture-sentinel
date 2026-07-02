@@ -113,12 +113,12 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
   ] : [];
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-label="本次检测摘要">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="本次检测摘要">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-md my-8 p-6 md:p-8 animate-slide-up max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-md p-6 md:p-8 animate-slide-up">
         {/* Close */}
         <button
           onClick={onClose}
