@@ -35,13 +35,42 @@ interface MetricCardProps {
   color: string;
 }
 
+/** Animated value that smoothly counts up from previous to new value */
+function AnimatedValue({ value, unit, color }: { value: number; unit: string; color: string }) {
+  const [display, setDisplay] = useState(value);
+  const rafRef = useRef(0);
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    const from = prevRef.current;
+    const to = value;
+    if (from === to) return;
+    const duration = 400;
+    const start = performance.now();
+    const diff = to - from;
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 2);
+      setDisplay(Math.round(from + diff * ease));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+      else prevRef.current = to;
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [value]);
+
+  return (
+    <p className="text-2xl font-bold mt-1 tabular-nums" style={{ transition: "color 0.3s ease", color }}>
+      {display}<span className="text-sm font-normal text-text-muted ml-1">{unit}</span>
+    </p>
+  );
+}
+
 function MetricCard({ name, value, unit, threshold, progress, color }: MetricCardProps) {
   return (
     <div className="bg-surface-alt rounded-xl p-5">
       <p className="text-text-muted text-xs">{name}</p>
-      <p className="text-2xl font-bold mt-1 tabular-nums" style={{ transition: "all 0.3s ease", color }}>
-        {value}<span className="text-sm font-normal text-text-muted ml-1">{unit}</span>
-      </p>
+      <AnimatedValue value={value} unit={unit} color={color} />
       <p className="text-xs text-text-muted mt-2">{threshold}</p>
       <div className="mt-2 bg-border rounded-full h-2 overflow-hidden">
         <div
@@ -109,19 +138,14 @@ export default function MetricsPanel({
     },
   ];
 
-  const formatStatusDuration = (seconds: number, status: PostureStatus): string => {
-    if (status === "good") {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      if (m > 0) {
-        return `已持续 ${m}分${s.toString().padStart(2, "0")}秒`;
-      }
-      return `已持续 ${s}秒`;
-    }
-    return `已持续 ${seconds}秒`;
+  const formatStatusDuration = (seconds: number): string => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    if (m > 0) return `已持续 ${m}分${s.toString().padStart(2, "0")}秒`;
+    return `已持续 ${s}秒`;
   };
 
-  const statusDurationText = formatStatusDuration(statusDuration, currentStatus);
+  const statusDurationText = formatStatusDuration(statusDuration);
 
   if (!isDetecting) {
     return (
@@ -140,6 +164,7 @@ export default function MetricsPanel({
     <div className="flex flex-col gap-4">
       {/* Status */}
       <div
+        aria-live="polite"
         className={`${
           isUnknown
             ? "bg-surface-alt text-text-muted"

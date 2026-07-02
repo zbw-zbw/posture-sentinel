@@ -1,15 +1,23 @@
 "use client";
+
 import { useBaseline } from "@/hooks/useBaseline";
 import BaselineCard from "@/components/settings/BaselineCard";
 import DataManagementCard from "@/components/settings/DataManagementCard";
-import { exportAllData, importAllData } from "@/lib/storage";
-import { useCallback } from "react";
+import { exportAllData, importAllData, getSessions } from "@/lib/storage";
+import { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function DataPage() {
   const { baseline, removeBaseline } = useBaseline();
   const router = useRouter();
+  const [stats, setStats] = useState({ sessions: 0, totalMinutes: 0 });
+
+  useEffect(() => {
+    const sessions = getSessions();
+    const totalSec = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+    setStats({ sessions: sessions.length, totalMinutes: Math.round(totalSec / 60) });
+  }, []);
 
   const handleExport = useCallback(() => {
     const data = exportAllData();
@@ -24,22 +32,31 @@ export default function DataPage() {
     URL.revokeObjectURL(url);
   }, []);
 
-  const handleImport = useCallback((file: File, mode: "overwrite" | "merge") => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = JSON.parse(e.target?.result as string);
-        if (!data.version || !data.sessions) {
-          alert("文件格式不正确");
-          return;
-        }
-        importAllData(data, mode);
-        window.location.reload();
-      } catch {
-        alert("文件解析失败");
-      }
-    };
-    reader.readAsText(file);
+  const handleImport = useCallback((file: File, mode: "overwrite" | "merge"): boolean => {
+    try {
+      // Synchronous file read via XMLHttpRequest on blob URL
+      const blobUrl = URL.createObjectURL(file);
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", blobUrl, false);
+      xhr.send();
+      URL.revokeObjectURL(blobUrl);
+
+      if (xhr.status !== 200) return false;
+
+      const data = JSON.parse(xhr.responseText);
+      if (!data.version || !Array.isArray(data.sessions)) return false;
+
+      importAllData(data, mode);
+
+      // Refresh stats after import
+      const sessions = getSessions();
+      const totalSec = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+      setStats({ sessions: sessions.length, totalMinutes: Math.round(totalSec / 60) });
+
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
 
   return (
@@ -59,6 +76,23 @@ export default function DataPage() {
           </div>
         </div>
       </section>
+
+      {/* Data Overview */}
+      <section className="px-4 md:px-6 mt-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-surface rounded-2xl p-5 text-center border border-border">
+              <p className="text-2xl font-bold text-primary tabular-nums">{stats.sessions}</p>
+              <p className="text-sm text-text-muted mt-1">检测记录</p>
+            </div>
+            <div className="bg-surface rounded-2xl p-5 text-center border border-border">
+              <p className="text-2xl font-bold text-primary tabular-nums">{stats.totalMinutes}</p>
+              <p className="text-sm text-text-muted mt-1">累计分钟</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="px-4 md:px-6 mt-6">
         <div className="max-w-3xl mx-auto">
           <BaselineCard baseline={baseline} onRecalibrate={() => router.push("/detect")} onClear={removeBaseline} />

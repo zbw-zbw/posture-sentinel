@@ -150,6 +150,33 @@ export default function HeroSection() {
           </Link>
         )}
 
+        {/* New user quick-start guide */}
+        {!todayProgress && (
+          <div className="bg-white/80 backdrop-blur-sm border border-primary/20 rounded-xl px-5 py-4 shadow-sm mb-6 max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 mb-3">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 11l3 3L22 4" />
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+              </svg>
+              <p className="text-sm font-semibold text-text-primary">快速上手 3 步</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-left">
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">1</span>
+                <p className="text-xs text-text-secondary leading-snug">点击&ldquo;开始检测&rdquo;打开摄像头</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">2</span>
+                <p className="text-xs text-text-secondary leading-snug">保持坐姿，AI 实时分析体态</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">3</span>
+                <p className="text-xs text-text-secondary leading-snug">查看报告，持续改善坐姿</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row justify-center gap-3 mt-8">
           <Link
