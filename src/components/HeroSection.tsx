@@ -205,27 +205,21 @@ export default function HeroSection() {
         {/* Stat Cards Row */}
         <div id="hero-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-4xl mx-auto">
           {/* Card 1 - Green */}
-          <div className="bg-surface rounded-xl p-4 flex gap-3 items-center border-l-4 border-primary">
-            <span className="w-3 h-3 rounded-full inline-block bg-primary shrink-0" />
-            <div className="text-left">
-              <p className="text-text-primary font-semibold">{counts.a}亿 — 中国颈椎病患者</p>
-            </div>
+          <div className="bg-surface rounded-2xl p-5 border border-border card-hover">
+            <p className="text-3xl font-bold text-primary tabular-nums">{counts.a}<span className="text-lg font-semibold ml-1">亿</span></p>
+            <p className="text-sm text-text-secondary mt-1">中国颈椎病患者</p>
           </div>
 
           {/* Card 2 - Orange */}
-          <div className="bg-surface rounded-xl p-4 flex gap-3 items-center border-l-4 border-warning">
-            <span className="w-3 h-3 rounded-full inline-block bg-warning shrink-0" />
-            <div className="text-left">
-              <p className="text-text-primary font-semibold">{counts.b}% — 不到30岁的年轻人</p>
-            </div>
+          <div className="bg-surface rounded-2xl p-5 border border-border card-hover">
+            <p className="text-3xl font-bold text-warning tabular-nums">{counts.b}<span className="text-lg font-semibold ml-1">%</span></p>
+            <p className="text-sm text-text-secondary mt-1">不到30岁的年轻人</p>
           </div>
 
           {/* Card 3 - Red */}
-          <div className="bg-surface rounded-xl p-4 flex gap-3 items-center border-l-4 border-danger">
-            <span className="w-3 h-3 rounded-full inline-block bg-danger shrink-0" />
-            <div className="text-left">
-              <p className="text-text-primary font-semibold">{counts.c}小时 — 日均久坐时长</p>
-            </div>
+          <div className="bg-surface rounded-2xl p-5 border border-border card-hover">
+            <p className="text-3xl font-bold text-danger tabular-nums">{counts.c}<span className="text-lg font-semibold ml-1">小时</span></p>
+            <p className="text-sm text-text-secondary mt-1">日均久坐时长</p>
           </div>
         </div>
 

@@ -64,7 +64,7 @@ export default function CameraView({
     <div className="relative w-full">
       <div
         ref={containerRef}
-        className="relative w-full rounded-xl overflow-hidden bg-dark"
+        className="relative w-full rounded-2xl overflow-hidden bg-dark"
         style={{ aspectRatio: "4/3" }}
       >
         {/* Hidden video element */}
@@ -98,7 +98,7 @@ export default function CameraView({
 
         {/* AI detecting label */}
         {isDetecting && (
-          <div className="absolute bottom-4 left-4 flex items-center gap-2">
+          <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse-green" />
             <span className="text-white text-sm">AI 检测中...</span>
           </div>
@@ -201,7 +201,7 @@ export default function CameraView({
 
         {/* No person detected overlay */}
         {isDetecting && (!landmarks || landmarks.length === 0) && !isPaused && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-warning/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-2 whitespace-nowrap">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-dark/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-2 whitespace-nowrap">
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />

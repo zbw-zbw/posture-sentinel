@@ -14,8 +14,8 @@ export default function Home() {
       <ModelPreloader />
       <HeroSection />
       <PainPointsSection />
-      <DetectionMockupSection />
       <FeaturesSection />
+      <DetectionMockupSection />
       <TestimonialsSection />
       <TechPrivacySection />
       <DataPanelSection />

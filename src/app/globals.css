@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── Design System Colors ── */
+/* ── Design System ── */
 @theme inline {
   --color-primary: #10b981;
   --color-primary-light: #d1fae5;
@@ -21,30 +21,38 @@
   --color-dark: #1e293b;
   --color-dark-surface: #334155;
 
-  --font-sans: 'Inter Variable', 'Noto Sans SC Variable', 'system-ui', 'sans-serif';
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'monospace';
+  --font-sans: var(--font-inter), var(--font-noto-sans-sc), system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
+  --shadow-card-hover: 0 8px 25px -5px rgb(0 0 0 / 0.1), 0 4px 10px -6px rgb(0 0 0 / 0.05);
 }
 
 /* ── Base Styles ── */
 body {
-  background: linear-gradient(180deg, var(--color-bg) 0%, #f0f4f8 100%);
+  background: linear-gradient(180deg, var(--color-bg) 0%, #eef2f7 100%);
   background-attachment: fixed;
   color: var(--color-text-primary);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-/* ── Hide All Scrollbars ── */
-* {
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important; /* IE/Edge */
+/* ── Hide Scrollbars only on decorative/modal containers ── */
+.modal-scroll,
+.dropdown-scroll,
+.timeline-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-*::-webkit-scrollbar {
-  display: none !important; /* Chrome/Safari/Opera */
+.modal-scroll::-webkit-scrollbar,
+.dropdown-scroll::-webkit-scrollbar,
+.timeline-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 /* ── Keyframes ── */
 @keyframes pulse-green {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.6; }
+  50% { transform: scale(1.15); opacity: 0.7; }
 }
 
 @keyframes slide-up {
@@ -107,9 +115,15 @@ body {
   animation: slide-in-right 0.3s ease-out;
 }
 
-/* ── Entrance Animation (CSS-only, no JS dependency) ── */
+/* ── Entrance Animation (scroll-triggered via IntersectionObserver) ── */
 .fade-in {
-  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-in.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── prefers-reduced-motion ── */
@@ -142,18 +156,18 @@ textarea:focus-visible {
 
 /* ── Card Hover Effect ── */
 .card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-card);
 }
 
 .card-hover:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* ── Surface Card Subtle Border ── */
 .bg-surface {
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--color-border);
 }
 
 /* ── Global Cursor Pointer for Interactive Elements ── */

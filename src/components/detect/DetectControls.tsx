@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface DetectControlsProps {
   state: "idle" | "detecting" | "paused";
@@ -9,9 +9,28 @@ interface DetectControlsProps {
   onResume: () => void;
   onStop: () => void;
   isLoading?: boolean;
+  onToggleFullscreen?: () => void;
+  onToggleHelp?: () => void;
 }
 
-export default function DetectControls({ state, onStart, onPause, onResume, onStop, isLoading = false }: DetectControlsProps) {
+export default function DetectControls({
+  state,
+  onStart,
+  onPause,
+  onResume,
+  onStop,
+  isLoading = false,
+  onToggleFullscreen,
+  onToggleHelp,
+}: DetectControlsProps) {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
   useEffect(() => {
     if (state === "idle") return;
 
@@ -21,14 +40,36 @@ export default function DetectControls({ state, onStart, onPause, onResume, onSt
         if (state === "detecting") onPause();
         else if (state === "paused") onResume();
       } else if (e.code === "Escape") {
+        // Only handle Esc as "stop" when NOT in fullscreen (browser uses Esc to exit fullscreen)
+        if (!document.fullscreenElement) {
+          e.preventDefault();
+          onStop();
+        }
+      } else if (e.code === "KeyF") {
         e.preventDefault();
-        onStop();
+        onToggleFullscreen?.();
+      } else if (e.key === "?" || (e.shiftKey && e.code === "Slash")) {
+        e.preventDefault();
+        onToggleHelp?.();
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state, onPause, onResume, onStop]);
+  }, [state, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp]);
+
+  const handleFullscreen = useCallback(() => {
+    if (!onToggleFullscreen) {
+      // Default behavior: toggle document fullscreen
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      } else {
+        document.exitFullscreen?.();
+      }
+    } else {
+      onToggleFullscreen();
+    }
+  }, [onToggleFullscreen]);
 
   if (state === "idle") {
     return (
@@ -97,17 +138,50 @@ export default function DetectControls({ state, onStart, onPause, onResume, onSt
           </svg>
           结束
         </button>
+        {/* Fullscreen toggle */}
+        <button
+          onClick={handleFullscreen}
+          title={isFullscreen ? "退出全屏 (F)" : "全屏 (F)"}
+          className="flex items-center justify-center w-11 h-11 bg-surface-alt hover:bg-border text-text-secondary rounded-full transition-all flex-shrink-0"
+        >
+          {isFullscreen ? (
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3" />
+              <path d="M21 8h-3a2 2 0 0 1-2-2V3" />
+              <path d="M3 16h3a2 2 0 0 1 2 2v3" />
+              <path d="M16 21v-3a2 2 0 0 1 2-2h3" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+              <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+            </svg>
+          )}
+        </button>
       </div>
       {/* Keyboard shortcut hints */}
-      <div className="flex items-center gap-4 text-xs text-text-muted">
+      <div className="flex items-center gap-3 text-xs text-text-muted flex-wrap justify-center">
         <span className="flex items-center gap-1">
           <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">Space</kbd>
           暂停/继续
         </span>
         <span className="flex items-center gap-1">
           <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">Esc</kbd>
-          结束检测
+          结束
         </span>
+        <span className="flex items-center gap-1">
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">F</kbd>
+          全屏
+        </span>
+        <button
+          onClick={onToggleHelp}
+          className="flex items-center gap-1 hover:text-primary transition-colors"
+        >
+          <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">?</kbd>
+          快捷键
+        </button>
       </div>
     </div>
   );

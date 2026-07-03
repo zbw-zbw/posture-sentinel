@@ -210,7 +210,7 @@ export default function FeaturesSection() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Left: Notification mockup */}
             <div className="h-full flex items-end p-4">
-              <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 w-full text-white relative">
+              <div className="bg-gradient-to-r from-warning to-amber-600 rounded-2xl p-6 w-full text-white relative">
                 {/* Body */}
                 <p className="text-base pr-4">
                   你已经驼背 2 分钟了，试试挺直腰背深呼吸？

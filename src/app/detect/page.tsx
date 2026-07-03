@@ -22,6 +22,7 @@ import PostureTimeline from "@/components/detect/PostureTimeline";
 import SessionSummary from "@/components/detect/SessionSummary";
 import CalibrationWizard from "@/components/detect/CalibrationWizard";
 import RestReminderBanner, { RestTriggerPrompt } from "@/components/detect/RestReminderBanner";
+import KeyboardHelpOverlay from "@/components/detect/KeyboardHelpOverlay";
 import AchievementToast from "@/components/detect/AchievementToast";
 import BaselineSampling from "@/components/detect/BaselineSampling";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
@@ -247,6 +248,7 @@ export default function DetectPage() {
 
   // Map detectState for DetectControls
   const controlState: DetectState = detectState;
+  const [helpOpen, setHelpOpen] = useState(false);
 
   // Handle baseline capture
   const handleBaselineCapture = useCallback((data: { headTilt: number; shoulderTilt: number; neckForward: number; spineTilt: number }) => {
@@ -332,6 +334,7 @@ export default function DetectPage() {
                 onResume={handleResume}
                 onStop={handleStop}
                 isLoading={isLoading}
+                onToggleHelp={() => setHelpOpen((v) => !v)}
               />
               <p className="text-center text-xs text-text-muted mt-3">
                 提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒
@@ -367,7 +370,7 @@ export default function DetectPage() {
 
           {/* Metrics panel */}
           <div className="lg:col-span-2">
-            <div className="bg-surface rounded-2xl p-5 md:p-6 h-full card-hover">
+            <div className="bg-surface rounded-2xl p-5 md:p-6 h-full border border-border">
               <MetricsPanel
                 metrics={metrics}
                 fps={fps}
@@ -474,6 +477,9 @@ export default function DetectPage() {
       achievement={achievements.newlyUnlocked}
       onDismiss={achievements.dismissToast}
     />
+
+    {/* Keyboard shortcuts help overlay */}
+    <KeyboardHelpOverlay open={helpOpen} onClose={() => setHelpOpen(false)} />
 
     {/* Baseline sampling overlay */}
     {showBaselineSampling && (

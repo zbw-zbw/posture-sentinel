@@ -48,6 +48,10 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
   const detectingRef = useRef<boolean>(false);
   const detectFrameRef = useRef<() => void>(() => {});
   const targetFpsRef = useRef<number>(targetFps);
+  // Display throttle: update landmarks state at most ~8Hz to reduce React re-renders
+  // Detection still runs at full targetFps; only the state update is throttled
+  const lastStateUpdateRef = useRef<number>(0);
+  const STATE_UPDATE_INTERVAL_MS = 120; // ~8Hz display refresh
 
   useEffect(() => {
     targetFpsRef.current = targetFps;
@@ -123,23 +127,26 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
         const results = landmarkerRef.current.detectForVideo(video, now);
         if (results.landmarks && results.landmarks.length > 0) {
           const prevLandmarks = prevLandmarksRef.current;
+          const current = results.landmarks[0];
+          // Always update diff ref so movement is tracked at full FPS
+          prevLandmarksRef.current = current.map(p => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }));
+
+          // Determine if enough movement occurred to warrant a display update
+          let hasMovement = true; // default true for first frame
           if (prevLandmarks) {
-            const current = results.landmarks[0];
             let maxDiff = 0;
             for (let i = 0; i < Math.min(current.length, prevLandmarks.length); i++) {
               const dx = Math.abs(current[i].x - prevLandmarks[i].x);
               const dy = Math.abs(current[i].y - prevLandmarks[i].y);
               maxDiff = Math.max(maxDiff, dx, dy);
             }
-            if (maxDiff < 0.003) {
-              // skip tiny changes
-            } else {
-              // Shallow copy only x,y for diff comparison (avoids expensive structuredClone)
-              prevLandmarksRef.current = current.map(p => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }));
-              setLandmarks(results.landmarks);
-            }
-          } else {
-            prevLandmarksRef.current = results.landmarks[0].map(p => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }));
+            hasMovement = maxDiff >= 0.003;
+          }
+
+          // Throttle state updates to ~8Hz to reduce React re-render cascade
+          // Detection & diffing still run at full targetFps
+          if (hasMovement && now - lastStateUpdateRef.current >= STATE_UPDATE_INTERVAL_MS) {
+            lastStateUpdateRef.current = now;
             setLandmarks(results.landmarks);
           }
         }
@@ -173,6 +180,7 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
       setIsDetecting(true);
       lastFpsUpdateRef.current = performance.now();
       lastDetectTimeRef.current = performance.now();
+      lastStateUpdateRef.current = 0; // Allow immediate first frame render
       frameCountRef.current = 0;
       animFrameRef.current = requestAnimationFrame(() => detectFrameRef.current());
     },
