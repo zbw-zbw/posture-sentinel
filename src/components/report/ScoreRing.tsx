@@ -34,7 +34,7 @@ export default function ScoreRing({ score, yesterdayScore }: ScoreRingProps) {
   const scoreColorClass =
     safeScore >= 80
       ? "text-primary"
-      : safeScore >= 50
+      : safeScore >= 60
         ? "text-warning"
         : "text-danger";
 

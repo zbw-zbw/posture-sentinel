@@ -8,7 +8,7 @@ import { ACHIEVEMENTS } from "@/lib/achievements";
 export default function HeroSection() {
   const [counts, setCounts] = useState({ a: 0, b: 0, c: 0 });
   const countedRef = useRef(false);
-  const [todayProgress, setTodayProgress] = useState<{ minutes: number; sessions: number } | null>(null);
+  const [todayProgress, setTodayProgress] = useState<{ minutes: number; sessions: number } | null | undefined>(undefined);
   const [achievementCount, setAchievementCount] = useState(0);
 
   useEffect(() => {
@@ -19,6 +19,8 @@ export default function HeroSection() {
       const todayMinutes = Math.round(todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
       if (todayMinutes > 0) {
         setTodayProgress({ minutes: todayMinutes, sessions: todaySessions.length });
+      } else {
+        setTodayProgress(null);
       }
       // Load achievement count
       const unlocked = getUnlockedAchievements();
@@ -151,7 +153,7 @@ export default function HeroSection() {
         )}
 
         {/* New user quick-start guide */}
-        {!todayProgress && (
+        {todayProgress === null && (
           <div className="mt-6 max-w-xl mx-auto bg-white border border-primary/20 rounded-2xl px-5 py-4 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

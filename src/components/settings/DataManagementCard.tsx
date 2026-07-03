@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 
 interface DataManagementCardProps {
   onExport: () => void;
-  onImport: (file: File, mode: "overwrite" | "merge") => boolean;
+  onImport: (file: File, mode: "overwrite" | "merge") => Promise<boolean>;
 }
 
 type ImportMode = "overwrite" | "merge";
@@ -20,6 +20,7 @@ export default function DataManagementCard({
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -62,14 +63,19 @@ export default function DataManagementCard({
     setPendingFile(file);
   };
 
-  const handleConfirmImport = () => {
-    if (!pendingFile) return;
-    const success = onImport(pendingFile, importMode);
-    setPendingFile(null);
-    if (success) {
-      showToast(importMode === "overwrite" ? "数据已覆盖导入" : "数据已合并导入");
-    } else {
-      showToast("导入失败，请检查文件格式", "error");
+  const handleConfirmImport = async () => {
+    if (!pendingFile || importing) return;
+    setImporting(true);
+    try {
+      const success = await onImport(pendingFile, importMode);
+      setPendingFile(null);
+      if (success) {
+        showToast(importMode === "overwrite" ? "数据已覆盖导入" : "数据已合并导入");
+      } else {
+        showToast("导入失败，请检查文件格式", "error");
+      }
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -194,15 +200,17 @@ export default function DataManagementCard({
             <div className="flex gap-3">
               <button
                 onClick={handleCancelImport}
-                className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-2.5 rounded-xl transition-colors text-sm"
+                disabled={importing}
+                className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 取消
               </button>
               <button
                 onClick={handleConfirmImport}
-                className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm"
+                disabled={importing}
+                className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                确认导入
+                {importing ? "导入中..." : "确认导入"}
               </button>
             </div>
           </div>

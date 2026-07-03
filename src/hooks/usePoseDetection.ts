@@ -147,7 +147,10 @@ export function usePoseDetection(targetFps: number = 15): UsePoseDetectionReturn
           // Detection & diffing still run at full targetFps
           if (hasMovement && now - lastStateUpdateRef.current >= STATE_UPDATE_INTERVAL_MS) {
             lastStateUpdateRef.current = now;
-            setLandmarks(results.landmarks);
+            // Deep copy landmarks: MediaPipe reuses internal buffers, so storing
+            // the raw reference can cause React to skip re-renders (Object.is)
+            // or downstream useMemo to read stale/mutated data
+            setLandmarks(results.landmarks.map(arr => arr.map(p => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility }))));
           }
         }
       } catch {

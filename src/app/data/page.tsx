@@ -32,18 +32,11 @@ export default function DataPage() {
     URL.revokeObjectURL(url);
   }, []);
 
-  const handleImport = useCallback((file: File, mode: "overwrite" | "merge"): boolean => {
+  const handleImport = useCallback(async (file: File, mode: "overwrite" | "merge"): Promise<boolean> => {
     try {
-      // Synchronous file read via XMLHttpRequest on blob URL
-      const blobUrl = URL.createObjectURL(file);
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", blobUrl, false);
-      xhr.send();
-      URL.revokeObjectURL(blobUrl);
-
-      if (xhr.status !== 200) return false;
-
-      const data = JSON.parse(xhr.responseText);
+      // Async file read via File.text() — avoids blocking the main thread
+      const text = await file.text();
+      const data = JSON.parse(text);
       if (!data.version || !Array.isArray(data.sessions)) return false;
 
       importAllData(data, mode);
@@ -62,7 +55,7 @@ export default function DataPage() {
   return (
     <div className="min-h-screen pb-10">
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <div className="flex items-center gap-3">
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +72,7 @@ export default function DataPage() {
 
       {/* Data Overview */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-surface rounded-2xl p-5 text-center border border-border">
               <p className="text-2xl font-bold text-primary tabular-nums">{stats.sessions}</p>
@@ -94,12 +87,12 @@ export default function DataPage() {
       </section>
 
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <BaselineCard baseline={baseline} onRecalibrate={() => router.push("/detect")} onClear={removeBaseline} />
         </div>
       </section>
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <DataManagementCard onExport={handleExport} onImport={handleImport} />
         </div>
       </section>

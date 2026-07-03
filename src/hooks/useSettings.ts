@@ -75,25 +75,22 @@ function migrateSettings(saved: any): Settings {
 }
 
 export function useSettings() {
-  const [settings, setSettingsState] = useState<Settings>(() => {
-    if (typeof window === "undefined") return DEFAULT_SETTINGS;
-    try {
-      const saved = loadSettings<Settings>(DEFAULT_SETTINGS);
-      return migrateSettings(saved);
-    } catch {
-      return DEFAULT_SETTINGS;
-    }
-  });
-  const [isLoaded, setIsLoaded] = useState(typeof window !== "undefined");
+  // Always start with DEFAULT_SETTINGS to avoid SSR hydration mismatch.
+  // User settings are loaded in useEffect after mount.
+  const [settings, setSettingsState] = useState<Settings>(DEFAULT_SETTINGS);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (isLoaded) return; // Already initialized from useState
-    const saved = loadSettings<Settings>(DEFAULT_SETTINGS);
-    const migrated = migrateSettings(saved);
-    if ((saved as Settings | undefined)?.version !== SETTINGS_VERSION) {
-      saveSettings(migrated);
+    try {
+      const saved = loadSettings<Settings>(DEFAULT_SETTINGS);
+      const migrated = migrateSettings(saved);
+      if ((saved as Settings | undefined)?.version !== SETTINGS_VERSION) {
+        saveSettings(migrated);
+      }
+      setSettingsState(migrated);
+    } catch {
+      // keep defaults
     }
-    setSettingsState(migrated);
     setIsLoaded(true);
   }, []);
 

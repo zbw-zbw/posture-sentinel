@@ -1,7 +1,7 @@
 "use client";
 
 import { PostureMetrics, PostureStatus } from "@/lib/posture";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, memo, ReactNode } from "react";
 
 interface MetricsPanelProps {
   metrics: PostureMetrics;
@@ -11,6 +11,7 @@ interface MetricsPanelProps {
   statusDuration?: number;
   currentStatus?: PostureStatus;
   alertCount?: number;
+  scoreGauge?: ReactNode;
 }
 
 function formatDuration(seconds: number): string {
@@ -21,9 +22,9 @@ function formatDuration(seconds: number): string {
 }
 
 const statusConfig: Record<PostureStatus, { label: string; color: string; bg: string }> = {
-  good: { label: "坐姿良好", color: "text-primary", bg: "bg-primary-light" },
-  warning: { label: "请注意坐姿", color: "text-warning", bg: "bg-warning-light" },
-  bad: { label: "坐姿不良", color: "text-danger", bg: "bg-danger-light" },
+  good: { label: "坐姿良好", color: "text-primary-text", bg: "bg-primary-light" },
+  warning: { label: "请注意坐姿", color: "text-warning-text", bg: "bg-warning-light" },
+  bad: { label: "坐姿不良", color: "text-danger-text", bg: "bg-danger-light" },
 };
 
 interface MetricCardProps {
@@ -89,7 +90,7 @@ function MetricCard({ name, value, unit, threshold, progress, color, animate = t
   );
 }
 
-export default function MetricsPanel({
+function MetricsPanelImpl({
   metrics,
   fps,
   sessionDuration,
@@ -97,6 +98,7 @@ export default function MetricsPanel({
   statusDuration = 0,
   currentStatus = "good",
   alertCount = 0,
+  scoreGauge,
 }: MetricsPanelProps) {
   const config = statusConfig[currentStatus];
   const isUnknown = isDetecting && !metrics.isDetected;
@@ -230,19 +232,16 @@ export default function MetricsPanel({
           </p>
         )}
 
-        <div className="mt-3">
-          <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-text-secondary">当前评分</span>
-            <span className="font-semibold text-text-primary">{metrics.overallScore}/100</span>
+        {/* Real-time posture score gauge (replaces inline progress bar) */}
+        {scoreGauge && (
+          <div className="mt-3 flex justify-center">
+            {scoreGauge}
           </div>
-          <div className="bg-border rounded-full h-2 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-primary to-primary-dark"
-              style={{ width: `${metrics.overallScore}%` }}
-            />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
+
+const MetricsPanel = memo(MetricsPanelImpl);
+export default MetricsPanel;

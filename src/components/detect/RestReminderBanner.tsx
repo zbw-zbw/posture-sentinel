@@ -38,9 +38,9 @@ export default function RestReminderBanner({
 
   // === Resting mode: full-screen overlay with countdown ===
   if (phase === "resting") {
-    const totalSec = intervalMinutes * 60; // approx, use restDurationMinutes instead
-    const restMinutes = Math.ceil(restRemaining / 60);
-    const ringProgress = totalSec > 0 ? 1 - restRemaining / (restMinutes * 60) : 0;
+    // Use the `progress` prop (0-1) directly instead of recalculating
+    // with wrong denominator (intervalMinutes instead of restDurationMinutes)
+    const ringProgress = Math.max(0, Math.min(1, progress));
     const circumference = 2 * Math.PI * 52;
     const dashOffset = circumference * (1 - ringProgress);
 

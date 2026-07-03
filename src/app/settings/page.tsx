@@ -45,7 +45,7 @@ export default function SettingsPage() {
     <div className="min-h-screen pb-10">
       {/* Header */}
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <div className="flex items-center gap-3">
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -62,7 +62,7 @@ export default function SettingsPage() {
 
       {/* Settings Panel */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <SettingsPanel
             settings={settings}
             onUpdate={updateSettings}
@@ -75,7 +75,7 @@ export default function SettingsPage() {
 
       {/* Rest Reminder Settings */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <RestSettingsCard
             settings={restReminder.settings}
             onUpdate={restReminder.updateSettings}
@@ -85,7 +85,7 @@ export default function SettingsPage() {
 
       {/* Danger Zone */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <div className="bg-surface rounded-2xl p-6 border border-danger/20">
             <h3 className="text-lg font-bold text-danger mb-2 flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

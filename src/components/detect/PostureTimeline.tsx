@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, memo } from "react";
 
 interface PostureTimelineProps {
   scoreHistory: { time: number; score: number }[];
@@ -28,12 +28,12 @@ function formatTime(ts: number): string {
   return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
 }
 
-export default function PostureTimeline({ scoreHistory, duration }: PostureTimelineProps) {
+function PostureTimelineImpl({ scoreHistory, duration }: PostureTimelineProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleSegmentClick = useCallback((i: number) => {
-    setHoveredIndex(hoveredIndex === i ? null : i);
-  }, [hoveredIndex]);
+    setHoveredIndex(prev => prev === i ? null : i);
+  }, []);
 
   if (scoreHistory.length < 2 || duration < 5) {
     return (
@@ -108,3 +108,6 @@ export default function PostureTimeline({ scoreHistory, duration }: PostureTimel
     </div>
   );
 }
+
+const PostureTimeline = memo(PostureTimelineImpl);
+export default PostureTimeline;

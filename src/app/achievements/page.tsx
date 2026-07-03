@@ -51,7 +51,7 @@ export default function AchievementsPage() {
   return (
     <div className="min-h-screen pb-10">
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <div className="flex items-center gap-3">
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -69,7 +69,7 @@ export default function AchievementsPage() {
       {/* Stats Overview */}
       {stats && (
         <section className="px-4 md:px-6 mt-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[1100px] mx-auto px-4 md:px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-surface rounded-2xl p-4 text-center border border-border">
                 <p className="text-xl font-bold text-primary tabular-nums">{stats.totalSessions}</p>
@@ -95,7 +95,7 @@ export default function AchievementsPage() {
       {/* Progress bar */}
       {stats && !isNewUser && (
         <section className="px-4 md:px-6 mt-4">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[1100px] mx-auto px-4 md:px-6">
             <div className="bg-surface rounded-2xl p-5 border border-border">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-text-secondary">成就完成度</span>
@@ -115,7 +115,7 @@ export default function AchievementsPage() {
       {/* New user guidance */}
       {isNewUser && (
         <section className="px-4 md:px-6 mt-6">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[1100px] mx-auto px-4 md:px-6">
             <div className="bg-primary-light rounded-2xl p-6 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/60 flex items-center justify-center">
                 <span className="text-3xl">🏆</span>
@@ -141,7 +141,7 @@ export default function AchievementsPage() {
 
       {/* Achievements Grid */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
           <AchievementsCard unlocked={achievements.unlocked} />
         </div>
       </section>

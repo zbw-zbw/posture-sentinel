@@ -5,19 +5,24 @@
   --color-primary: #10b981;
   --color-primary-light: #d1fae5;
   --color-primary-dark: #059669;
+  --color-primary-text: #047857;  /* emerald-700: WCAG AA on light backgrounds */
   --color-warning: #f59e0b;
   --color-warning-light: #fef3c7;
+  --color-warning-dark: #d97706;
+  --color-warning-text: #b45309;  /* amber-700: WCAG AA on light backgrounds */
   --color-danger: #ef4444;
   --color-danger-light: #fee2e2;
+  --color-danger-text: #b91c1c;   /* red-700: WCAG AA on light backgrounds */
   --color-info: #3b82f6;
   --color-info-light: #dbeafe;
+  --color-info-text: #1d4ed8;     /* blue-700: WCAG AA on light backgrounds */
   --color-bg: #f8fafb;
   --color-surface: #ffffff;
   --color-surface-alt: #f1f5f9;
   --color-border: #e2e8f0;
   --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  --color-text-muted: #64748b;    /* slate-500: 4.6:1 on white (was #94a3b8 ~2.5:1) */
   --color-dark: #1e293b;
   --color-dark-surface: #334155;
 
@@ -31,7 +36,6 @@
 /* ── Base Styles ── */
 body {
   background: linear-gradient(180deg, var(--color-bg) 0%, #eef2f7 100%);
-  background-attachment: fixed;
   color: var(--color-text-primary);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
@@ -88,6 +92,19 @@ body {
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes alert-progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out;
 }
 
 /* ── Animation Utility Classes ── */

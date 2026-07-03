@@ -32,21 +32,22 @@ const ALERT_MESSAGES = [
 ];
 
 export function usePostureAnalyzer(settings: Settings) {
-  const [state, setState] = useState<PostureAnalyzerState>({
-    currentStatus: "good",
+  // High-frequency UI state (updates every ~1s for live status display)
+  const [uiState, setUiState] = useState({
+    currentStatus: "good" as PostureStatus,
     statusDuration: 0,
-    badPostureStart: null,
     shouldAlert: false,
     alertMessage: "",
-    sessionStats: {
-      totalDuration: 0,
-      goodDuration: 0,
-      warningDuration: 0,
-      badDuration: 0,
-      alertCount: 0,
-      avgScore: 0,
-      scoreHistory: [],
-    },
+  });
+  // Low-frequency stats state (updates every 30s when scoreHistory changes)
+  const [sessionStats, setSessionStats] = useState<SessionStats>({
+    totalDuration: 0,
+    goodDuration: 0,
+    warningDuration: 0,
+    badDuration: 0,
+    alertCount: 0,
+    avgScore: 0,
+    scoreHistory: [],
   });
 
   const [isRunning, setIsRunning] = useState(false);
@@ -120,10 +121,7 @@ export function usePostureAnalyzer(settings: Settings) {
             : 0;
           const newHistory = [...scoreHistoryRef.current, { time: now, score: intervalAvgScore }];
           scoreHistoryRef.current = newHistory;
-          setState((prev) => ({
-            ...prev,
-            sessionStats: { ...prev.sessionStats, scoreHistory: newHistory },
-          }));
+          setSessionStats(prev => ({ ...prev, scoreHistory: newHistory }));
         }
 
         // Track bad posture start
@@ -158,13 +156,17 @@ export function usePostureAnalyzer(settings: Settings) {
         ? Math.round(scoreAccumRef.current / scoreCountRef.current)
         : 0;
 
-      setState({
+      // Only update UI state (high-frequency, ~1s) — sessionStats stays in refs
+      // and is pushed to state only when scoreHistory changes (every 30s)
+      setUiState({
         currentStatus: currentStatusRef.current,
         statusDuration: statusDurationRef.current,
-        badPostureStart: badPostureStartRef.current,
         shouldAlert,
         alertMessage,
-        sessionStats: {
+      });
+      // Sync low-frequency stats every 5s (not every 1s) to reduce re-renders
+      if (totalDurationRef.current % 5 === 0) {
+        setSessionStats({
           totalDuration: totalDurationRef.current,
           goodDuration: goodDurationRef.current,
           warningDuration: warningDurationRef.current,
@@ -172,8 +174,8 @@ export function usePostureAnalyzer(settings: Settings) {
           alertCount: alertCountRef.current,
           avgScore,
           scoreHistory: scoreHistoryRef.current,
-        },
-      });
+        });
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -213,21 +215,20 @@ export function usePostureAnalyzer(settings: Settings) {
     badDurationRef.current = 0;
     alertCountRef.current = 0;
     metricsRef.current = null;
-    setState({
+    setUiState({
       currentStatus: "good",
       statusDuration: 0,
-      badPostureStart: null,
       shouldAlert: false,
       alertMessage: "",
-      sessionStats: {
-        totalDuration: 0,
-        goodDuration: 0,
-        warningDuration: 0,
-        badDuration: 0,
-        alertCount: 0,
-        avgScore: 0,
-        scoreHistory: [],
-      },
+    });
+    setSessionStats({
+      totalDuration: 0,
+      goodDuration: 0,
+      warningDuration: 0,
+      badDuration: 0,
+      alertCount: 0,
+      avgScore: 0,
+      scoreHistory: [],
     });
   }, []);
 
@@ -265,7 +266,8 @@ export function usePostureAnalyzer(settings: Settings) {
   }, []);
 
   return {
-    ...state,
+    ...uiState,
+    sessionStats,
     updateMetrics,
     start,
     pause,

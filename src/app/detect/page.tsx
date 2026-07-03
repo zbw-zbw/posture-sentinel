@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useCamera } from "@/hooks/useCamera";
 import { usePoseDetection } from "@/hooks/usePoseDetection";
@@ -16,6 +16,7 @@ import { initAudio } from "@/lib/sound";
 import { saveSession, generateId, getTodayDate } from "@/lib/storage";
 import CameraView from "@/components/detect/CameraView";
 import MetricsPanel from "@/components/detect/MetricsPanel";
+import PostureGauge from "@/components/detect/PostureGauge";
 import DetectControls from "@/components/detect/DetectControls";
 import AlertNotification from "@/components/detect/AlertNotification";
 import PostureTimeline from "@/components/detect/PostureTimeline";
@@ -52,6 +53,10 @@ export default function DetectPage() {
     spineAngleThreshold: settings.spineAngleThreshold,
     baseline: baseline,
   });
+
+  // Keep a ref to latest metrics so handleStop doesn't need metrics in its deps
+  const metricsRef = useRef(metrics);
+  metricsRef.current = metrics;
 
   const analyzer = usePostureAnalyzer(settings);
   const {
@@ -97,11 +102,13 @@ export default function DetectPage() {
 
   // Feed metrics to analyzer - ALWAYS feed when detecting, even if score is 0
   // This ensures the analyzer's timer tracks duration correctly
+  // Note: analyzer.updateMetrics is a stable useCallback, so we only depend on metrics + detectState
   useEffect(() => {
     if (detectState === "detecting") {
       analyzer.updateMetrics(metrics);
     }
-  }, [metrics, detectState, analyzer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [metrics, detectState]);
 
   // Handle alert triggers from analyzer
   useEffect(() => {
@@ -135,8 +142,8 @@ export default function DetectPage() {
   }, [analyzer, resumeSession]);
 
   const handleStop = useCallback(() => {
-    // Capture current metrics BEFORE stopping detection (which clears landmarks)
-    const finalMetrics = { ...metrics };
+    // Capture current metrics from ref BEFORE stopping detection (which clears landmarks)
+    const finalMetrics = { ...metricsRef.current };
     // 使用 getElapsedTime 读取当前真实经过时间，而不是可能过期的 elapsedTime state
     const currentElapsed = getElapsedTime();
 
@@ -190,7 +197,7 @@ export default function DetectPage() {
     setTimeout(() => {
       achievements.checkAndUnlock();
     }, 500);
-  }, [stopDetection, stopCamera, analyzer, endSession, metrics, getElapsedTime, achievements]);
+  }, [stopDetection, stopCamera, analyzer, endSession, getElapsedTime, achievements]);
 
   // Start detection when camera becomes active
   useEffect(() => {
@@ -272,7 +279,7 @@ export default function DetectPage() {
   return (
     <ErrorBoundary>
     <div className="min-h-screen bg-bg pt-20 pb-12">
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6">
+      <div className="max-w-[1100px] mx-auto px-4 md:px-6">
         {/* Header */}
         <section className="bg-gradient-to-b from-primary-light/10 to-transparent -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-4 mb-6">
           <div>
@@ -379,6 +386,13 @@ export default function DetectPage() {
                 statusDuration={analyzer.statusDuration}
                 currentStatus={analyzer.currentStatus}
                 alertCount={analyzer.sessionStats.alertCount}
+                scoreGauge={
+                  <PostureGauge
+                    score={metrics.overallScore}
+                    isDetecting={isDetecting}
+                    isDetected={metrics.isDetected}
+                  />
+                }
               />
             </div>
           </div>

@@ -40,7 +40,7 @@ export default function Navbar() {
             : "bg-transparent"
         }`}
       >
-        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
+        <nav className="mx-auto flex h-16 max-w-[1100px] items-center justify-between px-4 md:px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-text-primary">
             <svg viewBox="0 0 100 100" className="w-7 h-7">
