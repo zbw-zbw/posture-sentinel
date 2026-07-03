@@ -35,13 +35,20 @@ interface MetricCardProps {
   color: string;
 }
 
-/** Animated value that smoothly counts up from previous to new value */
-function AnimatedValue({ value, unit, color }: { value: number; unit: string; color: string }) {
+/** Animated value that smoothly counts up from previous to new value.
+ *  When `animate` is false (e.g. during live detection), displays value directly without animation. */
+function AnimatedValue({ value, unit, color, animate = true }: { value: number; unit: string; color: string; animate?: boolean }) {
   const [display, setDisplay] = useState(value);
   const rafRef = useRef(0);
   const prevRef = useRef(value);
 
   useEffect(() => {
+    if (!animate) {
+      // During live detection, skip animation — just show the value directly
+      setDisplay(value);
+      prevRef.current = value;
+      return;
+    }
     const from = prevRef.current;
     const to = value;
     if (from === to) return;
@@ -57,7 +64,7 @@ function AnimatedValue({ value, unit, color }: { value: number; unit: string; co
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [value]);
+  }, [value, animate]);
 
   return (
     <p className="text-2xl font-bold mt-1 tabular-nums" style={{ transition: "color 0.3s ease", color }}>
@@ -66,11 +73,11 @@ function AnimatedValue({ value, unit, color }: { value: number; unit: string; co
   );
 }
 
-function MetricCard({ name, value, unit, threshold, progress, color }: MetricCardProps) {
+function MetricCard({ name, value, unit, threshold, progress, color, animate = true }: MetricCardProps & { animate?: boolean }) {
   return (
     <div className="bg-surface-alt rounded-xl p-5">
       <p className="text-text-muted text-xs">{name}</p>
-      <AnimatedValue value={value} unit={unit} color={color} />
+      <AnimatedValue value={value} unit={unit} color={color} animate={animate} />
       <p className="text-xs text-text-muted mt-2">{threshold}</p>
       <div className="mt-2 bg-border rounded-full h-2 overflow-hidden">
         <div
@@ -197,9 +204,9 @@ export default function MetricsPanel({
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4">
         {metricCards.map((card) => (
-          <MetricCard key={card.name} {...card} />
+          <MetricCard key={card.name} {...card} animate={!isDetecting} />
         ))}
       </div>
 

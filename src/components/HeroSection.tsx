@@ -160,7 +160,7 @@ export default function HeroSection() {
               </svg>
               <p className="text-sm font-semibold text-text-primary">快速上手 3 步</p>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
               <div className="flex items-start gap-2">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">1</span>
                 <p className="text-xs text-text-secondary leading-snug">点击&ldquo;开始检测&rdquo;打开摄像头</p>

@@ -144,7 +144,12 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
                   groups[groups.length - 1].days.push(d);
                 }
               }
-              return groups.map((group) => (
+              return groups.map((group) => {
+                // Calculate leading empty cells for the first day of this group
+                const firstDay = new Date(group.days[0] + "T00:00:00");
+                const firstDayOfWeek = firstDay.getDay();
+                const leadingBlanks = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // Mon=0, Sun=6
+                return (
                 <div key={group.month}>
                   {groups.length > 1 && (
                     <div className="text-xs text-text-muted font-medium mb-1 mt-2 first:mt-0">
@@ -152,11 +157,11 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
                     </div>
                   )}
                   <div className="grid grid-cols-7 gap-1">
+                    {/* Leading empty cells for weekday alignment */}
+                    {Array.from({ length: leadingBlanks }).map((_, i) => (
+                      <div key={`blank-${i}`} className="h-9" />
+                    ))}
                     {group.days.map((d) => {
-                      // Pad leading empty cells for correct day-of-week alignment
-                      const dayOfWeek = new Date(d + "T00:00:00").getDay();
-                      const colIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Mon=0, Sun=6
-                      // Only render cells for this month's days
                       const dayNum = new Date(d + "T00:00:00").getDate();
                       const selected = d === date;
                       const hasData = isAvailable(d);
@@ -182,7 +187,8 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
                     })}
                   </div>
                 </div>
-              ));
+                );
+              });
             })()}
           </div>
         </>

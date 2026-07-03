@@ -14,9 +14,9 @@ const inter = Inter({
 
 const notoSansSC = Noto_Sans_SC({
   variable: "--font-noto-sans-sc",
-  subsets: ["latin"],
   weight: ["400", "500", "700"],
   display: "swap",
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -30,6 +30,7 @@ export const metadata: Metadata = {
   description:
     "基于Web摄像头的AI实时坐姿检测工具。零成本、零穿戴、零门槛，打开网页即用。检测驼背、头前倾等不良坐姿，实时提醒纠正，生成每日脊椎健康报告。",
   keywords: ["坐姿检测", "AI", "脊椎健康", "驼背矫正", "姿态检测", "体态哨兵"],
+  metadataBase: new URL("https://posture-sentinel.vercel.app"),
   icons: {
     icon: "/favicon.svg",
   },
@@ -43,6 +44,17 @@ export const metadata: Metadata = {
     title: "体态哨兵 - AI实时坐姿检测",
     description: "打开摄像头，AI守护你的每一寸脊椎",
     type: "website",
+    locale: "zh_CN",
+    siteName: "体态哨兵",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "体态哨兵 - AI实时坐姿检测",
+    description: "打开摄像头，AI守护你的每一寸脊椎",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

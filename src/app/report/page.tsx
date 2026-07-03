@@ -13,14 +13,26 @@ function ReportContent() {
 
 function ReportFallback() {
   return (
-    <div className="animate-pulse space-y-6">
-      <div className="h-10 bg-surface-alt rounded-xl w-64" />
-      <div className="h-64 bg-surface-alt rounded-2xl" />
-      <div className="grid grid-cols-3 gap-4">
-        <div className="h-32 bg-surface-alt rounded-2xl" />
-        <div className="h-32 bg-surface-alt rounded-2xl" />
-        <div className="h-32 bg-surface-alt rounded-2xl" />
+    <div className="animate-pulse space-y-4">
+      {/* Header bar */}
+      <div className="flex items-center justify-between">
+        <div className="h-8 bg-surface-alt rounded-xl w-48" />
+        <div className="h-8 bg-surface-alt rounded-xl w-24" />
       </div>
+      {/* Score + goals row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="h-40 bg-surface-alt rounded-2xl" />
+        <div className="h-40 bg-surface-alt rounded-2xl" />
+        <div className="h-40 bg-surface-alt rounded-2xl" />
+      </div>
+      {/* Distribution bar */}
+      <div className="h-24 bg-surface-alt rounded-2xl" />
+      {/* AI advice */}
+      <div className="h-32 bg-surface-alt rounded-2xl" />
+      {/* Trend chart */}
+      <div className="h-48 bg-surface-alt rounded-2xl" />
+      {/* Session list */}
+      <div className="h-32 bg-surface-alt rounded-2xl" />
     </div>
   );
 }
