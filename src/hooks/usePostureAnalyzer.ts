@@ -156,13 +156,21 @@ export function usePostureAnalyzer(settings: Settings) {
         ? Math.round(scoreAccumRef.current / scoreCountRef.current)
         : 0;
 
-      // Only update UI state (high-frequency, ~1s) — sessionStats stays in refs
-      // and is pushed to state only when scoreHistory changes (every 30s)
-      setUiState({
+      // Only update UI state if values actually changed (skip no-op re-renders)
+      const newUi = {
         currentStatus: currentStatusRef.current,
         statusDuration: statusDurationRef.current,
         shouldAlert,
         alertMessage,
+      };
+      setUiState(prev => {
+        if (prev.currentStatus === newUi.currentStatus &&
+            prev.statusDuration === newUi.statusDuration &&
+            prev.shouldAlert === newUi.shouldAlert &&
+            prev.alertMessage === newUi.alertMessage) {
+          return prev; // no change, skip re-render
+        }
+        return newUi;
       });
       // Sync low-frequency stats every 5s (not every 1s) to reduce re-renders
       if (totalDurationRef.current % 5 === 0) {

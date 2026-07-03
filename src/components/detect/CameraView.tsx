@@ -43,9 +43,18 @@ export default function CameraView({
         setDims({ width: Math.round(rect.width), height: h });
       }
     };
+
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const onResize = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(updateDims, 150);
+    };
     updateDims();
-    window.addEventListener("resize", updateDims);
-    return () => window.removeEventListener("resize", updateDims);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   const statusLabel = {
@@ -85,6 +94,7 @@ export default function CameraView({
             height={dims.height}
             videoRef={videoRef}
             headTiltAngle={headTiltAngle}
+            isActive={isActive && !isPaused}
           />
         )}
 

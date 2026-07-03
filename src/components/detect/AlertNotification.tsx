@@ -68,13 +68,13 @@ export default function AlertNotification({
           {/* Icon */}
           <span className="flex-shrink-0 mt-0.5">
             {isWarning ? (
-              <svg viewBox="0 0 24 24" className="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-warning-text" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
             ) : (
-              <svg viewBox="0 0 24 24" className="w-6 h-6 text-red-700" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 24 24" className="w-6 h-6 text-danger-text" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
                 <line x1="9" y1="9" x2="15" y2="15" />
@@ -87,7 +87,7 @@ export default function AlertNotification({
             <p className="text-text-primary font-medium text-base leading-relaxed">
               {message}
             </p>
-            <p className="text-slate-500 text-xs mt-2">
+            <p className="text-text-muted text-xs mt-2">
               持续不良坐姿 {statusDuration}秒 | 本次第{alertCount}次提醒
             </p>
           </div>
@@ -95,7 +95,7 @@ export default function AlertNotification({
           {/* Close button */}
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-slate-500 hover:text-text-primary transition-colors"
+            className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-text-muted hover:text-text-primary transition-colors"
             aria-label="关闭提醒"
           >
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

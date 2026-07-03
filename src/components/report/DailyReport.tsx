@@ -134,7 +134,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           )}
 
           {/* Row 1: Score Ring + Daily Goal + Distribution */}
-          <section className="fade-in">
+          <section className="fade-in" style={{ transitionDelay: "0ms" }}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-surface rounded-2xl p-6 flex flex-col items-center justify-center card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-4 self-start flex items-center gap-2">
@@ -166,14 +166,14 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           </section>
 
           {/* Row 2: AI Advice */}
-          <section className="fade-in">
+          <section className="fade-in" style={{ transitionDelay: "80ms" }}>
             {aiRequestData && (
               <AIAdvice data={aiRequestData} date={date} />
             )}
           </section>
 
           {/* Row 3: Score Trend Line Chart */}
-          <section className="fade-in">
+          <section className="fade-in" style={{ transitionDelay: "160ms" }}>
             <div className="bg-surface rounded-2xl p-6 card-hover">
               <h3 className="text-lg font-bold text-text-primary mb-4">今日评分变化趋势</h3>
               <PostureChart scoreTimeline={report.scoreTimeline} />
@@ -181,7 +181,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           </section>
 
           {/* Row 4: Metrics Summary + Weekly Trend */}
-          <section className="fade-in">
+          <section className="fade-in" style={{ transitionDelay: "240ms" }}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-surface rounded-2xl p-6 card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-4">关键指标</h3>
@@ -203,12 +203,12 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           </section>
 
           {/* Row 5: Monthly Heatmap */}
-          <section className="fade-in">
+          <section className="fade-in" style={{ transitionDelay: "320ms" }}>
             <MonthlyHeatmap year={heatmapYear} month={heatmapMonth} onDateSelect={setDate} />
           </section>
 
           {/* Row 6: Session Records */}
-          <section className="fade-in">
+          <section className="fade-in" style={{ transitionDelay: "400ms" }}>
             <div className="bg-surface rounded-2xl p-6 card-hover">
               <h3 className="text-lg font-bold text-text-primary mb-4">今日检测记录</h3>
               <div className="space-y-3">

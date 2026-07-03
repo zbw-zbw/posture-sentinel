@@ -111,7 +111,7 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      <div className="relative z-10 max-w-[1100px] mx-auto fade-in">
+      <div className="relative z-10 max-w-[1100px] mx-auto">
         {/* Main Title */}
         <h1 className="text-[clamp(2rem,5vw,4rem)] font-bold text-text-primary mt-6">
           体态哨兵

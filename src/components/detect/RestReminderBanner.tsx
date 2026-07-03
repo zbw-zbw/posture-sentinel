@@ -101,20 +101,6 @@ export default function RestReminderBanner({
     );
   }
 
-  // === Triggered mode: inline banner at top of detect area ===
-  // This shows when the rest timer just hit zero but user hasn't acted yet
-  // We detect this: phase === "counting" but elapsedSinceLastRest is 0 and progress is 1
-  // Actually we need a separate "triggered" state. Let's use: phase === "snoozed" shows snoozed banner,
-  // and we add a triggered pseudo-state via the parent.
-
-  // For now, the "triggered" banner shows when phase transitions to resting with full remaining time
-  // But since resting is handled above, let's use a different approach:
-  // The parent will pass a special phase. Let's check if we need to show the "trigger" prompt.
-  // Actually, looking at the hook, when threshold is reached it goes straight to "resting".
-  // So we need the parent to intercept and show a "trigger" prompt first.
-  // For simplicity, let's add the trigger as a mode when phase is "counting" but we just hit the threshold.
-  // The parent component can manage this. For now, return the progress bar for "counting" mode.
-
   // === Counting mode: thin progress bar at bottom ===
   if (phase === "counting") {
     const remaining = intervalMinutes * 60 - elapsedSinceLastRest;

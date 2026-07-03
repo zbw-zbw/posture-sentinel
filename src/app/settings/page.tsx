@@ -6,7 +6,7 @@ import SettingsPanel from "@/components/settings/SettingsPanel";
 import RestSettingsCard from "@/components/settings/RestSettingsCard";
 import AlertNotification from "@/components/detect/AlertNotification";
 import { playAlertSound, initAudio } from "@/lib/sound";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -15,6 +15,13 @@ export default function SettingsPage() {
   const [dangerOpen, setDangerOpen] = useState(false);
   const [cleared, setCleared] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+
+  useEffect(() => {
+    if (!confirmClear) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setConfirmClear(false); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [confirmClear]);
 
   const confirmClearData = () => {
     if (typeof window !== "undefined") {
@@ -42,10 +49,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen pb-10">
+    <div className="min-h-screen pb-12">
       {/* Header */}
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
+        <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-3">
             <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -62,7 +69,7 @@ export default function SettingsPage() {
 
       {/* Settings Panel */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
+        <div className="max-w-[1100px] mx-auto">
           <SettingsPanel
             settings={settings}
             onUpdate={updateSettings}
@@ -75,7 +82,7 @@ export default function SettingsPage() {
 
       {/* Rest Reminder Settings */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
+        <div className="max-w-[1100px] mx-auto">
           <RestSettingsCard
             settings={restReminder.settings}
             onUpdate={restReminder.updateSettings}
@@ -85,7 +92,7 @@ export default function SettingsPage() {
 
       {/* Danger Zone */}
       <section className="px-4 md:px-6 mt-6">
-        <div className="max-w-[1100px] mx-auto px-4 md:px-6">
+        <div className="max-w-[1100px] mx-auto">
           <div className="bg-surface rounded-2xl p-6 border border-danger/20">
             <h3 className="text-lg font-bold text-danger mb-2 flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -124,8 +131,8 @@ export default function SettingsPage() {
 
       {/* Clear Data Confirmation Dialog */}
       {confirmClear && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/50">
-          <div className="bg-surface rounded-2xl p-6 max-w-sm mx-4 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/50" onClick={() => setConfirmClear(false)}>
+          <div className="bg-surface rounded-2xl p-6 max-w-sm mx-4 shadow-xl animate-fade-in" onClick={(e) => e.stopPropagation()}>
             <h4 className="text-lg font-bold text-text-primary mb-2">确认清除数据</h4>
             <p className="text-sm text-text-secondary mb-5">将清除所有检测记录、设置和 AI 建议，此操作无法撤销。</p>
             <div className="flex gap-3">

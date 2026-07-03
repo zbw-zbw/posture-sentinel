@@ -59,7 +59,7 @@ export default function FooterCTASection() {
           <div className="flex flex-col items-center gap-2">
             <div className="flex items-center gap-2">
               <svg viewBox="0 0 100 100" className="w-5 h-5">
-                <rect width="100" height="100" rx="24" fill="#10b981"/>
+                <rect width="100" height="100" rx="24" fill="var(--color-primary, #10b981)"/>
                 <line x1="50" y1="18" x2="50" y2="84" stroke="white" strokeWidth="5" strokeLinecap="round"/>
                 <line x1="38" y1="42" x2="62" y2="42" stroke="white" strokeWidth="4" strokeLinecap="round"/>
                 <line x1="38" y1="62" x2="62" y2="62" stroke="white" strokeWidth="4" strokeLinecap="round"/>

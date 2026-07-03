@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { CHART_COLORS } from "./LineChart";
 
@@ -12,7 +12,7 @@ interface RingChartProps {
   color?: string;
   bgColor?: string;
   animate?: boolean;
-  label?: string;
+  label?: ReactNode;
   sublabel?: string;
   labelColor?: string;
 }

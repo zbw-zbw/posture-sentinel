@@ -12,6 +12,7 @@ import { useSettings } from "@/hooks/useSettings";
 import { useRestReminder } from "@/hooks/useRestReminder";
 import { useBaseline } from "@/hooks/useBaseline";
 import { useAchievements } from "@/hooks/useAchievements";
+import { useVoiceCommands } from "@/hooks/useVoiceCommands";
 import { initAudio } from "@/lib/sound";
 import { saveSession, generateId, getTodayDate } from "@/lib/storage";
 import CameraView from "@/components/detect/CameraView";
@@ -25,6 +26,7 @@ import CalibrationWizard from "@/components/detect/CalibrationWizard";
 import RestReminderBanner, { RestTriggerPrompt } from "@/components/detect/RestReminderBanner";
 import KeyboardHelpOverlay from "@/components/detect/KeyboardHelpOverlay";
 import AchievementToast from "@/components/detect/AchievementToast";
+import VoiceIndicator from "@/components/detect/VoiceIndicator";
 import BaselineSampling from "@/components/detect/BaselineSampling";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -257,6 +259,16 @@ export default function DetectPage() {
   const controlState: DetectState = detectState;
   const [helpOpen, setHelpOpen] = useState(false);
 
+  // Voice commands (暂停/继续/结束/开始) — must be after handleStart/Stop etc.
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const voice = useVoiceCommands({
+    enabled: voiceEnabled,
+    onStart: handleStart,
+    onPause: handlePause,
+    onResume: handleResume,
+    onStop: handleStop,
+  });
+
   // Handle baseline capture
   const handleBaselineCapture = useCallback((data: { headTilt: number; shoulderTilt: number; neckForward: number; spineTilt: number }) => {
     captureBaseline(data);
@@ -282,13 +294,21 @@ export default function DetectPage() {
       <div className="max-w-[1100px] mx-auto px-4 md:px-6">
         {/* Header */}
         <section className="bg-gradient-to-b from-primary-light/10 to-transparent -mx-4 md:-mx-6 px-4 md:px-6 pt-4 pb-4 mb-6">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
-              实时坐姿检测
-            </h1>
-            <p className="text-text-secondary mt-1 text-sm">
-              打开摄像头，AI 实时分析你的坐姿状态
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
+                实时坐姿检测
+              </h1>
+              <p className="text-text-secondary mt-1 text-sm">
+                打开摄像头，AI 实时分析你的坐姿状态
+              </p>
+            </div>
+            <VoiceIndicator
+              isListening={voice.isListening}
+              isSupported={voice.isSupported}
+              lastCommand={voice.lastCommand}
+              onToggle={() => setVoiceEnabled(v => !v)}
+            />
           </div>
         </section>
 

@@ -1,6 +1,33 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import RingChart from "@/components/charts/RingChart";
+
+interface AnimatedLabelProps {
+  value: number;
+}
+
+function AnimatedLabel({ value }: AnimatedLabelProps) {
+  const [display, setDisplay] = useState(0);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const duration = 1000;
+    const start = performance.now();
+    const from = display;
+    const tick = (now: number) => {
+      const p = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(from + (value - from) * ease));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return <>{display}</>;
+}
 
 interface ScoreRingProps {
   score: number;
@@ -40,7 +67,7 @@ export default function ScoreRing({ score, yesterdayScore }: ScoreRingProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <RingChart value={safeScore} max={100} size={180} strokeWidth={12} animate={true} label={String(safeScore)} sublabel="/100 分" labelColor={scoreColorClass} />
+      <RingChart value={safeScore} max={100} size={180} strokeWidth={12} animate={true} label={<AnimatedLabel value={safeScore} />} sublabel="/100 分" labelColor={scoreColorClass} />
       {diff !== undefined && (
         <div className={`flex items-center gap-1 mt-3 text-sm font-medium ${diff >= 0 ? "text-primary" : "text-danger"}`}>
           <ArrowIcon up={diff >= 0} />
