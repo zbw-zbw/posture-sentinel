@@ -65,16 +65,8 @@ export default function SkeletonOverlay({
         return;
       }
 
-      // Draw mirrored video frame at display refresh rate (smooth video)
-      if (isActiveRef.current && video.readyState >= 2) {
-        ctx.save();
-        ctx.scale(-1, 1);
-        ctx.translate(-width, 0);
-        ctx.drawImage(video, 0, 0, width, height);
-        ctx.restore();
-      }
-
-      // Draw skeleton overlay on top (at landmark update rate ~8Hz)
+      // Skeleton overlay only — video element underneath handles the mirrored video display.
+      // Canvas stays transparent so the <video> shows through, saving a drawImage per frame.
       const lms = landmarksRef.current;
       const color = STATUS_COLORS[statusRef.current];
 
@@ -180,7 +172,7 @@ export default function SkeletonOverlay({
           ctx.fill();
 
           ctx.fillStyle = angleColor;
-          ctx.font = "bold 13px var(--font-sans, system-ui, sans-serif)";
+          ctx.font = "bold 13px Inter, system-ui, sans-serif";
           ctx.textAlign = "center";
           ctx.fillText(angleText, earMidX, earMidY - 14);
         }

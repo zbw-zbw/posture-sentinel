@@ -1,31 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import RingChart from "@/components/charts/RingChart";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface AnimatedLabelProps {
   value: number;
 }
 
 function AnimatedLabel({ value }: AnimatedLabelProps) {
-  const [display, setDisplay] = useState(0);
-  const rafRef = useRef<number>(0);
-
-  useEffect(() => {
-    const duration = 1000;
-    const start = performance.now();
-    const from = display;
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      setDisplay(Math.round(from + (value - from) * ease));
-      if (p < 1) rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
+  const { value: display } = useCountUp({ target: value, duration: 1000 });
   return <>{display}</>;
 }
 

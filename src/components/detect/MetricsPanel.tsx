@@ -171,6 +171,13 @@ function MetricsPanelImpl({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Real-time posture score gauge (moved to top) */}
+      {scoreGauge && (
+        <div className="flex justify-center">
+          {scoreGauge}
+        </div>
+      )}
+
       {/* Status */}
       <div
         aria-live="polite"
@@ -230,13 +237,6 @@ function MetricsPanelImpl({
           <p className="text-sm text-text-muted mt-1">
             本次提醒次数：{alertCount}次
           </p>
-        )}
-
-        {/* Real-time posture score gauge (replaces inline progress bar) */}
-        {scoreGauge && (
-          <div className="mt-3 flex justify-center">
-            {scoreGauge}
-          </div>
         )}
       </div>
     </div>

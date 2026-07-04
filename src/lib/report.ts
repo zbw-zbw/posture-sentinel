@@ -149,3 +149,102 @@ export function getAvailableDates(): string[] {
   const dates = new Set(sessions.map((s) => s.date));
   return Array.from(dates).sort().reverse();
 }
+
+// Hourly posture distribution: aggregate all sessions by hour-of-day
+export interface HourlyScore {
+  hour: number;
+  avgScore: number;
+  sessionCount: number;
+  label: string;
+}
+
+export function getHourlyScores(): HourlyScore[] {
+  const sessions = getSessions();
+  const buckets: Record<number, { totalScore: number; count: number }> = {};
+
+  for (const s of sessions) {
+    if (!s.startTime || !s.avgScore) continue;
+    const hour = new Date(s.startTime).getHours();
+    if (!buckets[hour]) buckets[hour] = { totalScore: 0, count: 0 };
+    buckets[hour].totalScore += s.avgScore;
+    buckets[hour].count += 1;
+  }
+
+  const result: HourlyScore[] = [];
+  for (let h = 0; h < 24; h++) {
+    if (buckets[h]) {
+      result.push({
+        hour: h,
+        avgScore: Math.round(buckets[h].totalScore / buckets[h].count),
+        sessionCount: buckets[h].count,
+        label: `${String(h).padStart(2, "0")}:00`,
+      });
+    }
+  }
+  return result;
+}
+
+// Week-over-week comparison
+export interface WeekComparison {
+  thisWeekAvg: number;
+  lastWeekAvg: number;
+  scoreDelta: number;
+  thisWeekSessions: number;
+  lastWeekSessions: number;
+  sessionDelta: number;
+  thisWeekMinutes: number;
+  lastWeekMinutes: number;
+  minutesDelta: number;
+}
+
+export function getWeekComparison(): WeekComparison {
+  const allSessions = getSessions();
+  const now = new Date();
+
+  // This week: last 7 days
+  const thisWeekStart = new Date(now);
+  thisWeekStart.setDate(now.getDate() - 6);
+  thisWeekStart.setHours(0, 0, 0, 0);
+
+  // Last week: 7-14 days ago
+  const lastWeekStart = new Date(now);
+  lastWeekStart.setDate(now.getDate() - 13);
+  lastWeekStart.setHours(0, 0, 0, 0);
+  const lastWeekEnd = new Date(now);
+  lastWeekEnd.setDate(now.getDate() - 7);
+  lastWeekEnd.setHours(23, 59, 59, 999);
+
+  const thisWeekSessions = allSessions.filter(s => {
+    const d = new Date(s.date + "T00:00:00");
+    return d >= thisWeekStart;
+  });
+  const lastWeekSessions = allSessions.filter(s => {
+    const d = new Date(s.date + "T00:00:00");
+    return d >= lastWeekStart && d <= lastWeekEnd;
+  });
+
+  const calcAvg = (sessions: SessionRecord[]) => {
+    const valid = sessions.filter(s => s.avgScore > 0);
+    if (valid.length === 0) return 0;
+    return Math.round(valid.reduce((sum, s) => sum + s.avgScore, 0) / valid.length);
+  };
+  const calcMinutes = (sessions: SessionRecord[]) =>
+    Math.round(sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
+
+  const thisWeekAvg = calcAvg(thisWeekSessions);
+  const lastWeekAvg = calcAvg(lastWeekSessions);
+  const thisWeekMinutes = calcMinutes(thisWeekSessions);
+  const lastWeekMinutes = calcMinutes(lastWeekSessions);
+
+  return {
+    thisWeekAvg,
+    lastWeekAvg,
+    scoreDelta: thisWeekAvg - lastWeekAvg,
+    thisWeekSessions: thisWeekSessions.length,
+    lastWeekSessions: lastWeekSessions.length,
+    sessionDelta: thisWeekSessions.length - lastWeekSessions.length,
+    thisWeekMinutes,
+    lastWeekMinutes,
+    minutesDelta: thisWeekMinutes - lastWeekMinutes,
+  };
+}

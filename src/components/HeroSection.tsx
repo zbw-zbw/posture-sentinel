@@ -45,7 +45,7 @@ export default function HeroSection() {
               const p = Math.min((now - start) / duration, 1);
               const ease = 1 - Math.pow(1 - p, 3);
               setCounts({
-                a: Math.round(ease * targets.a * 10) / 10,
+                a: Math.round(ease * targets.a),
                 b: Math.round(ease * targets.b),
                 c: Math.round(ease * targets.c),
               });

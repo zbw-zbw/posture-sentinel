@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useCountUp } from "@/hooks/useCountUp";
 
 /* ── Animated Counter ── */
 function AnimatedValue({
@@ -13,24 +14,7 @@ function AnimatedValue({
   suffix?: string;
   decimals?: number;
 }) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (target === 0) return;
-    let raf = 0;
-    const startTime = performance.now();
-    const duration = 1000;
-
-    const tick = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - (1 - progress) * (1 - progress);
-      setValue(parseFloat((eased * target).toFixed(decimals)));
-      if (progress < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target]);
+  const { value } = useCountUp({ target, duration: 1000, decimals });
 
   return (
     <>{decimals > 0 ? value.toFixed(decimals) : Math.round(value)}{suffix}</>

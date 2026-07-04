@@ -37,21 +37,48 @@ export default function HeroDemo() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // HiDPI
+    // Responsive sizing: use container width, maintain 280x320 base aspect
+    const container = canvas.parentElement;
+    let w = 280;
+    let h = 320;
     const dpr = window.devicePixelRatio || 1;
-    const w = 280;
-    const h = 320;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-    ctx.scale(dpr, dpr);
+
+    const resize = () => {
+      if (!container) return;
+      const containerW = container.clientWidth;
+      w = Math.min(containerW, 300);
+      h = Math.round(w * (320 / 280));
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+
+    const ro = new ResizeObserver(resize);
+    if (container) ro.observe(container);
 
     let running = true;
+    let paused = false;
     let startTime = performance.now();
+
+    // Pause RAF when offscreen to save battery
+    const io = new IntersectionObserver(
+      (entries) => {
+        paused = !entries[0]?.isIntersecting;
+        if (!paused) startTime = performance.now() - (paused ? 0 : 0); // reset to avoid jump
+      },
+      { threshold: 0.1 }
+    );
+    io.observe(canvas);
 
     const draw = (now: number) => {
       if (!running) return;
+      if (paused) {
+        requestAnimationFrame(draw);
+        return;
+      }
 
       const elapsed = now - startTime;
       const totalCycle = POSTURE_STATES.length * FRAME_DURATION;
@@ -188,13 +215,13 @@ export default function HeroDemo() {
       ctx.fill();
 
       ctx.fillStyle = curState.color;
-      ctx.font = "bold 16px var(--font-sans, system-ui, sans-serif)";
+      ctx.font = "bold 16px Inter, system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(`${score}`, cx, badgeY);
 
       ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.font = "10px var(--font-sans, system-ui, sans-serif)";
+      ctx.font = "10px Inter, system-ui, sans-serif";
       ctx.fillText("/100", cx + 22, badgeY);
 
       // Update React state for label display (throttled)
@@ -207,7 +234,11 @@ export default function HeroDemo() {
     };
 
     requestAnimationFrame(draw);
-    return () => { running = false; };
+    return () => {
+      running = false;
+      io.disconnect();
+      ro.disconnect();
+    };
   }, []);
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 interface DetectControlsProps {
   state: "idle" | "detecting" | "paused";
@@ -24,6 +24,11 @@ export default function DetectControls({
   onToggleHelp,
 }: DetectControlsProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Esc double-press confirmation: first Esc shows a toast, second Esc within
+  // 3s actually stops the session.
+  const lastEscRef = useRef(0);
+  const escConfirmTimerRef = useRef<number | null>(null);
+  const [showEscConfirm, setShowEscConfirm] = useState(false);
 
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -32,31 +37,63 @@ export default function DetectControls({
   }, []);
 
   useEffect(() => {
-    if (state === "idle") return;
-
     function handleKeyDown(e: KeyboardEvent) {
       if (e.code === "Space") {
         e.preventDefault();
-        if (state === "detecting") onPause();
-        else if (state === "paused") onResume();
+        if (state === "idle") {
+          if (!isLoading) onStart();
+        } else if (state === "detecting") {
+          onPause();
+        } else if (state === "paused") {
+          onResume();
+        }
       } else if (e.code === "Escape") {
-        // Only handle Esc as "stop" when NOT in fullscreen (browser uses Esc to exit fullscreen)
-        if (!document.fullscreenElement) {
-          e.preventDefault();
+        // Only handle Esc as "stop" when NOT in fullscreen (browser uses Esc
+        // to exit fullscreen) and not in idle (nothing to stop).
+        if (state === "idle" || document.fullscreenElement) return;
+        e.preventDefault();
+        const now = performance.now();
+        if (now - lastEscRef.current < 3000) {
+          // Second press within 3s → confirm stop
+          lastEscRef.current = 0;
+          setShowEscConfirm(false);
+          if (escConfirmTimerRef.current) {
+            window.clearTimeout(escConfirmTimerRef.current);
+            escConfirmTimerRef.current = null;
+          }
           onStop();
+        } else {
+          // First press → show confirmation toast, arm the 3s window
+          lastEscRef.current = now;
+          setShowEscConfirm(true);
+          if (escConfirmTimerRef.current) {
+            window.clearTimeout(escConfirmTimerRef.current);
+          }
+          escConfirmTimerRef.current = window.setTimeout(() => {
+            setShowEscConfirm(false);
+            escConfirmTimerRef.current = null;
+          }, 3000);
         }
       } else if (e.code === "KeyF") {
+        if (state === "idle") return;
         e.preventDefault();
         onToggleFullscreen?.();
       } else if (e.key === "?" || (e.shiftKey && e.code === "Slash")) {
+        if (state === "idle") return;
         e.preventDefault();
         onToggleHelp?.();
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [state, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      if (escConfirmTimerRef.current) {
+        window.clearTimeout(escConfirmTimerRef.current);
+        escConfirmTimerRef.current = null;
+      }
+    };
+  }, [state, isLoading, onStart, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp]);
 
   const handleFullscreen = useCallback(() => {
     if (!onToggleFullscreen) {
@@ -102,6 +139,7 @@ export default function DetectControls({
   }
 
   return (
+    <>
     <div className="flex flex-col items-center gap-3 w-full max-w-md mx-auto">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full">
         {state === "detecting" ? (
@@ -184,5 +222,14 @@ export default function DetectControls({
         </button>
       </div>
     </div>
+    {/* Esc double-press confirmation toast */}
+    {showEscConfirm && (
+      <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center pointer-events-none px-4">
+        <div className="bg-dark/90 text-white text-sm px-4 py-2 rounded-lg backdrop-blur-sm shadow-lg animate-fade-in">
+          再按一次 Esc 确认结束
+        </div>
+      </div>
+    )}
+    </>
   );
 }

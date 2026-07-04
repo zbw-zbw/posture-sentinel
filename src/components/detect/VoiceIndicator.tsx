@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 
 interface VoiceIndicatorProps {
   isListening: boolean;
@@ -10,6 +10,18 @@ interface VoiceIndicatorProps {
 }
 
 function VoiceIndicatorImpl({ isListening, isSupported, lastCommand, onToggle }: VoiceIndicatorProps) {
+  // Tooltip visibility — auto-dismisses 3s after the last command changes.
+  const [showTip, setShowTip] = useState(false);
+
+  useEffect(() => {
+    if (!lastCommand) return;
+    setShowTip(true);
+    const timer = window.setTimeout(() => {
+      setShowTip(false);
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [lastCommand]);
+
   if (!isSupported) return null;
 
   return (
@@ -37,7 +49,7 @@ function VoiceIndicatorImpl({ isListening, isSupported, lastCommand, onToggle }:
         )}
       </button>
       {/* Last command tooltip */}
-      {lastCommand && (
+      {showTip && lastCommand && (
         <div className="animate-fade-in bg-dark/90 text-white text-xs px-3 py-1.5 rounded-lg backdrop-blur-sm">
           <span className="opacity-60 mr-1">语音:</span> {lastCommand}
         </div>

@@ -6,6 +6,8 @@ import {
   getWeeklyScores,
   getYesterdayReport,
   getAvailableDates,
+  getHourlyScores,
+  getWeekComparison,
   type DailyReportData,
 } from "@/lib/report";
 import { getTodayDate, getDailyGoalProgress, type DailyGoalProgress } from "@/lib/storage";
@@ -18,6 +20,7 @@ import MetricsSummary from "./MetricsSummary";
 import WeeklyTrend from "./WeeklyTrend";
 import AIAdvice from "./AIAdvice";
 import MonthlyHeatmap from "./MonthlyHeatmap";
+import HourlyHeatmap from "./HourlyHeatmap";
 import EmptyState from "./EmptyState";
 import DailyGoalCard from "./DailyGoalCard";
 import ExportButton from "./ExportButton";
@@ -46,6 +49,12 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
   const [weeklyScores, setWeeklyScores] = useState(getWeeklyScores());
   const [yesterdayReport, setYesterdayReport] = useState<DailyReportData | null>(null);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [hourlyData, setHourlyData] = useState<ReturnType<typeof getHourlyScores>>([]);
+  const [weekComp, setWeekComp] = useState<ReturnType<typeof getWeekComparison>>({
+    thisWeekAvg: 0, lastWeekAvg: 0, scoreDelta: 0,
+    thisWeekSessions: 0, lastWeekSessions: 0, sessionDelta: 0,
+    thisWeekMinutes: 0, lastWeekMinutes: 0, minutesDelta: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   const goalProgress: DailyGoalProgress = useMemo(
@@ -65,6 +74,8 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
       setWeeklyScores(getWeeklyScores());
       setYesterdayReport(getYesterdayReport());
       setAvailableDates(getAvailableDates());
+      setHourlyData(getHourlyScores());
+      setWeekComp(getWeekComparison());
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -202,13 +213,53 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           </section>
 
-          {/* Row 5: Monthly Heatmap */}
+          {/* Row 5: Hourly Heatmap + Week Comparison */}
           <section className="fade-in" style={{ transitionDelay: "320ms" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Hourly heatmap */}
+              <div className="bg-surface rounded-2xl p-6 card-hover">
+                <h3 className="text-lg font-bold text-text-primary mb-1">时段分析</h3>
+                <p className="text-xs text-text-muted mb-4">你一天中哪些时段坐姿最好/最差</p>
+                <HourlyHeatmap data={hourlyData} />
+              </div>
+              {/* Week comparison */}
+              <div className="bg-surface rounded-2xl p-6 card-hover">
+                <h3 className="text-lg font-bold text-text-primary mb-1">周环比</h3>
+                <p className="text-xs text-text-muted mb-4">本周 vs 上周坐姿改善情况</p>
+                <div className="space-y-3">
+                  <ComparisonRow
+                    label="平均评分"
+                    thisValue={`${weekComp.thisWeekAvg}分`}
+                    lastValue={`${weekComp.lastWeekAvg}分`}
+                    delta={weekComp.scoreDelta}
+                    unit="分"
+                  />
+                  <ComparisonRow
+                    label="检测时长"
+                    thisValue={`${weekComp.thisWeekMinutes}分钟`}
+                    lastValue={`${weekComp.lastWeekMinutes}分钟`}
+                    delta={weekComp.minutesDelta}
+                    unit="分钟"
+                  />
+                  <ComparisonRow
+                    label="检测次数"
+                    thisValue={`${weekComp.thisWeekSessions}次`}
+                    lastValue={`${weekComp.lastWeekSessions}次`}
+                    delta={weekComp.sessionDelta}
+                    unit="次"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Row 6: Monthly Heatmap */}
+          <section className="fade-in" style={{ transitionDelay: "400ms" }}>
             <MonthlyHeatmap year={heatmapYear} month={heatmapMonth} onDateSelect={setDate} />
           </section>
 
-          {/* Row 6: Session Records */}
-          <section className="fade-in" style={{ transitionDelay: "400ms" }}>
+          {/* Row 7: Session Records */}
+          <section className="fade-in" style={{ transitionDelay: "480ms" }}>
             <div className="bg-surface rounded-2xl p-6 card-hover">
               <h3 className="text-lg font-bold text-text-primary mb-4">今日检测记录</h3>
               <div className="space-y-3">
@@ -250,6 +301,44 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
           </section>
         </div>
       )}
+    </div>
+  );
+}
+
+function ComparisonRow({
+  label,
+  thisValue,
+  lastValue,
+  delta,
+}: {
+  label: string;
+  thisValue: string;
+  lastValue: string;
+  delta: number;
+  unit: string;
+}) {
+  const isPositive = delta > 0;
+  const isNegative = delta < 0;
+  const isScore = label.includes("评分");
+
+  // For score, positive delta = improvement (green). For duration/count, neutral.
+  const deltaColor = isScore
+    ? isPositive ? "text-primary" : isNegative ? "text-danger" : "text-text-muted"
+    : isPositive ? "text-primary" : isNegative ? "text-warning-text" : "text-text-muted";
+  const deltaIcon = isPositive ? "↑" : isNegative ? "↓" : "—";
+
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-border last:border-0">
+      <span className="text-sm text-text-secondary">{label}</span>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <span className="text-sm font-semibold text-text-primary">{thisValue}</span>
+          <span className="text-xs text-text-muted ml-1.5">上周 {lastValue}</span>
+        </div>
+        <span className={`text-sm font-medium tabular-nums w-12 text-right ${deltaColor}`}>
+          {deltaIcon} {Math.abs(delta)}
+        </span>
+      </div>
     </div>
   );
 }

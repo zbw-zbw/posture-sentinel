@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import type { RefObject } from "react";
+import { useCountUp } from "@/hooks/useCountUp";
 
 export default function DataPanelSection() {
   const metrics = [
@@ -24,45 +25,14 @@ export default function DataPanelSection() {
 }
 
 function AnimatedMetric({ value, unit, label }: { value: number; unit: string; label: string }) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const [animated, setAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !animated) {
-          setAnimated(true);
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [animated]);
-
-  useEffect(() => {
-    if (!animated) return;
-
-    const duration = 1000; // 1 second animation
-    const startTime = performance.now();
-
-    const step = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayValue(Math.round(eased * value));
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      }
-    };
-
-    requestAnimationFrame(step);
-  }, [animated, value]);
+  const { value: displayValue, elementRef } = useCountUp({
+    target: value,
+    duration: 1000,
+    triggerOnVisible: true,
+  });
 
   return (
-    <div ref={ref}>
+    <div ref={elementRef as RefObject<HTMLDivElement>}>
       <p className="text-3xl md:text-4xl font-bold text-white">
         {displayValue}{unit}
       </p>
