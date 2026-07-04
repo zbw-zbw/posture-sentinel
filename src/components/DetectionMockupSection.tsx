@@ -173,8 +173,22 @@ function SkeletonSVG() {
   );
 }
 
+/* ── Timer Hook ── */
+function useDemoTimer() {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
 /* ── Main Component ── */
 export default function DetectionMockupSection() {
+  const elapsed = useDemoTimer();
   return (
     <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-24 fade-in">
       {/* Title */}
@@ -223,7 +237,7 @@ export default function DetectionMockupSection() {
                 <span className="text-white text-sm">AI 检测中...</span>
                 <span className="w-2 h-2 rounded-full bg-primary inline-block animate-pulse-green" />
               </div>
-              <span className="text-text-muted text-xs">00:23:15</span>
+              <span className="text-text-muted text-xs">{elapsed}</span>
             </div>
           </div>
 

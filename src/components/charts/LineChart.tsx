@@ -10,7 +10,7 @@ export const CHART_COLORS = {
   warningLight: "#fef3c7",
   dangerLight: "#fee2e2",
   grid: "#e2e8f0",
-  text: "#94a3b8",
+  text: "#64748b",
 } as const;
 
 interface LineChartProps {

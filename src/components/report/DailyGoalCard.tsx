@@ -8,7 +8,7 @@ interface DailyGoalCardProps {
 }
 
 export default function DailyGoalCard({ progress }: DailyGoalCardProps) {
-  const ringColor = progress.isCompleted ? "#10b981" : progress.percent > 50 ? "#f59e0b" : "#94a3b8";
+  const ringColor = progress.isCompleted ? "#10b981" : progress.percent > 50 ? "#f59e0b" : "#64748b";
 
   return (
     <div className="bg-surface rounded-2xl p-5 card-hover">

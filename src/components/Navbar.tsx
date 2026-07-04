@@ -108,7 +108,7 @@ export default function Navbar() {
       {mobileOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden animate-[fadeIn_0.2s_ease]" onClick={() => setMobileOpen(false)} />
-          <div className="fixed top-0 right-0 bottom-0 z-50 w-[280px] bg-white shadow-2xl md:hidden animate-slide-in-right">
+          <div className="fixed top-0 right-0 bottom-0 z-50 w-[280px] bg-surface shadow-2xl md:hidden animate-slide-in-right">
             <div className="flex items-center justify-between h-16 px-4">
               <span className="font-bold text-text-primary">导航</span>
               <button onClick={() => setMobileOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-lg text-text-secondary">

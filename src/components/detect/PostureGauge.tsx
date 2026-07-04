@@ -25,7 +25,8 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
   const rafRef = useRef(0);
   const prevRef = useRef(0);
 
-  // Smooth score transition
+  // Smooth score transition: only animate on non-detecting → detecting switch.
+  // During live detection, set displayScore directly (score updates every ~120ms, animation causes jank).
   useEffect(() => {
     if (!isDetecting) {
       setDisplayScore(0);
@@ -33,23 +34,28 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
       return;
     }
 
-    const from = prevRef.current;
-    const to = score;
-    if (from === to) return;
+    // First frame after becoming detecting: animate from 0 to score
+    if (prevRef.current === 0 && score !== 0) {
+      const duration = 300;
+      const start = performance.now();
+      const from = 0;
+      const to = score;
+      const diff = to - from;
 
-    const duration = 300;
-    const start = performance.now();
-    const diff = to - from;
+      const tick = (now: number) => {
+        const p = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 2);
+        setDisplayScore(Math.round(from + diff * ease));
+        if (p < 1) rafRef.current = requestAnimationFrame(tick);
+        else prevRef.current = to;
+      };
+      rafRef.current = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(rafRef.current);
+    }
 
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 2);
-      setDisplayScore(Math.round(from + diff * ease));
-      if (p < 1) rafRef.current = requestAnimationFrame(tick);
-      else prevRef.current = to;
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    // Already detecting: set directly, no animation
+    prevRef.current = score;
+    setDisplayScore(score);
   }, [score, isDetecting]);
 
   if (!isDetecting) {
@@ -64,17 +70,27 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
   }
 
   const color = getScoreColor(displayScore);
-  const size = 100;
-  const strokeWidth = 8;
+  const size = 120;
+  const strokeWidth = 10;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = (displayScore / 100) * circumference;
   const dashOffset = circumference - progress;
 
   return (
-    <div className="bg-surface-alt rounded-2xl p-5 flex flex-col items-center justify-center">
+    <div className="bg-surface-alt rounded-2xl p-4 flex flex-col items-center justify-center">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+          <defs>
+            <filter id="gauge-glow">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          {/* Background ring */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -83,6 +99,7 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
             stroke="var(--color-border)"
             strokeWidth={strokeWidth}
           />
+          {/* Progress ring with glow */}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -94,10 +111,11 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
             strokeDasharray={circumference}
             strokeDashoffset={dashOffset}
             style={{ transition: "stroke 0.3s ease" }}
+            filter="url(#gauge-glow)"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold tabular-nums" style={{ color }}>
+          <span className="text-3xl font-bold tabular-nums" style={{ color }}>
             {isDetected ? displayScore : "--"}
           </span>
           <span className="text-[10px] text-text-muted -mt-0.5">/100</span>

@@ -35,6 +35,7 @@ export default function SkeletonOverlay({
   const landmarksRef = useRef(landmarks);
   const statusRef = useRef(status);
   const headTiltRef = useRef(headTiltAngle);
+  const isActiveRef = useRef(isActive);
 
   // Keep refs in sync with props (avoiding effect dependency on fast-changing data)
   landmarksRef.current = landmarks;
@@ -50,13 +51,22 @@ export default function SkeletonOverlay({
 
     let running = true;
 
+    // Keep isActive ref in sync for draw loop to check
+    isActiveRef.current = isActive;
+
     const draw = () => {
       if (!running) return;
 
       ctx.clearRect(0, 0, width, height);
 
+      // Stop RAF loop when inactive and no landmarks — perform clearRect once then stop.
+      // The loop will restart when isActive or landmarks change via the effect deps.
+      if (!isActiveRef.current && !landmarksRef.current) {
+        return;
+      }
+
       // Draw mirrored video frame at display refresh rate (smooth video)
-      if (isActive && video.readyState >= 2) {
+      if (isActiveRef.current && video.readyState >= 2) {
         ctx.save();
         ctx.scale(-1, 1);
         ctx.translate(-width, 0);
@@ -185,7 +195,7 @@ export default function SkeletonOverlay({
       running = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, videoRef, isActive]);
+  }, [width, height, videoRef, isActive, landmarks]);
 
   return (
     <canvas

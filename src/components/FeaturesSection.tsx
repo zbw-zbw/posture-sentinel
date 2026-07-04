@@ -125,7 +125,7 @@ function MiniLineChart() {
           x={x}
           y={y}
           textAnchor="middle"
-          fill="#94a3b8"
+          fill="#64748b"
           fontSize="8"
         >
           {label}
@@ -144,6 +144,7 @@ function MiniLineChart() {
 
 /* ── Main Component ── */
 export default function FeaturesSection() {
+  const today = new Date().toLocaleDateString("zh-CN", { month: "long", day: "numeric" });
   return (
     <div className="max-w-[1100px] mx-auto px-4 md:px-6 py-24 fade-in">
       {/* Section Title */}
@@ -276,7 +277,7 @@ export default function FeaturesSection() {
               <div className="bg-surface-alt rounded-2xl p-6 w-full">
                 {/* Report title */}
                 <p className="font-semibold text-base text-text-primary">
-                  今日脊椎健康报告 &middot; 6月25日
+                  今日脊椎健康报告 &middot; {today}
                 </p>
 
                 {/* Score circle */}

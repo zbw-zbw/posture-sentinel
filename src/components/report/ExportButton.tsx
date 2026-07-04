@@ -36,7 +36,7 @@ function prepareCloneForCapture(clonedDoc: Document, targetId: string) {
     "#fecaca": "#fecaca", // danger-light
     "#0f172a": "#0f172a", // text-primary
     "#475569": "#475569", // text-secondary
-    "#94a3b8": "#94a3b8", // text-muted
+    "#94a3b8": "#64748b", // text-muted
     "#1e293b": "#1e293b",
     "#64748b": "#64748b",
     "#99f6e4": "#99f6e4",
