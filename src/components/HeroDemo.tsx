@@ -62,12 +62,20 @@ export default function HeroDemo() {
     let running = true;
     let paused = false;
     let startTime = performance.now();
+    let pausedElapsed = 0; // elapsed time at pause moment
 
     // Pause RAF when offscreen to save battery
     const io = new IntersectionObserver(
       (entries) => {
+        const wasPaused = paused;
         paused = !entries[0]?.isIntersecting;
-        if (!paused) startTime = performance.now() - (paused ? 0 : 0); // reset to avoid jump
+        if (wasPaused && !paused) {
+          // Resuming: adjust startTime to account for paused duration
+          startTime = performance.now() - pausedElapsed;
+        } else if (!wasPaused && paused) {
+          // Pausing: capture current elapsed
+          pausedElapsed = performance.now() - startTime;
+        }
       },
       { threshold: 0.1 }
     );

@@ -1,11 +1,28 @@
 "use client";
 
 export default function TechPrivacySection() {
+  const metrics = [
+    { value: "3秒", label: "AI 模型加载" },
+    { value: "33个", label: "关键点检测" },
+    { value: "0元", label: "完全免费" },
+    { value: "100%", label: "本地处理" },
+  ];
+
   return (
     <section
       id="about"
       className="mx-auto max-w-[1100px] px-4 md:px-6 py-24 fade-in"
     >
+      {/* Data Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {metrics.map((metric) => (
+          <div key={metric.label} className="text-center">
+            <p className="text-2xl font-bold text-primary">{metric.value}</p>
+            <p className="text-xs text-text-muted mt-1">{metric.label}</p>
+          </div>
+        ))}
+      </div>
+
       {/* Title */}
       <h2 className="text-center text-3xl font-bold text-text-primary md:text-4xl">
         技术实现 · 你的隐私最重要

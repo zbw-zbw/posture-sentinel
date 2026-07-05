@@ -187,7 +187,9 @@ export default function SkeletonOverlay({
       running = false;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [width, height, videoRef, isActive, landmarks]);
+    // landmarks is read via landmarksRef inside draw — NOT a dependency.
+    // Including it would tear down & rebuild the RAF loop every ~120ms.
+  }, [width, height, videoRef, isActive]);
 
   return (
     <canvas

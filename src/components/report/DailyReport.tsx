@@ -67,7 +67,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    // Use requestAnimationFrame instead of setTimeout for smoother UX
+    // Use requestAnimationFrame for smoother UX (avoids blocking main thread)
     requestAnimationFrame(() => {
       if (cancelled) return;
       setReport(generateDailyReport(date));
@@ -79,6 +79,21 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
       setLoading(false);
     });
     return () => { cancelled = true; };
+  }, [date]);
+
+  // Listen for session-saved events (e.g. when navigating from detect page
+  // after stopping a session — the date hasn't changed but data has)
+  useEffect(() => {
+    const handler = () => {
+      setReport(generateDailyReport(date));
+      setWeeklyScores(getWeeklyScores());
+      setYesterdayReport(getYesterdayReport());
+      setAvailableDates(getAvailableDates());
+      setHourlyData(getHourlyScores());
+      setWeekComp(getWeekComparison());
+    };
+    window.addEventListener("posture-sentinel:session-saved", handler);
+    return () => window.removeEventListener("posture-sentinel:session-saved", handler);
   }, [date]);
 
   const aiRequestData = useMemo(() => {
@@ -226,29 +241,35 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
               <div className="bg-surface rounded-2xl p-6 card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-1">周环比</h3>
                 <p className="text-xs text-text-muted mb-4">本周 vs 上周坐姿改善情况</p>
-                <div className="space-y-3">
-                  <ComparisonRow
-                    label="平均评分"
-                    thisValue={`${weekComp.thisWeekAvg}分`}
-                    lastValue={`${weekComp.lastWeekAvg}分`}
-                    delta={weekComp.scoreDelta}
-                    unit="分"
-                  />
-                  <ComparisonRow
-                    label="检测时长"
-                    thisValue={`${weekComp.thisWeekMinutes}分钟`}
-                    lastValue={`${weekComp.lastWeekMinutes}分钟`}
-                    delta={weekComp.minutesDelta}
-                    unit="分钟"
-                  />
-                  <ComparisonRow
-                    label="检测次数"
-                    thisValue={`${weekComp.thisWeekSessions}次`}
-                    lastValue={`${weekComp.lastWeekSessions}次`}
-                    delta={weekComp.sessionDelta}
-                    unit="次"
-                  />
-                </div>
+                {weekComp.thisWeekAvg === 0 && weekComp.lastWeekAvg === 0 ? (
+                  <p className="py-6 text-sm text-text-muted text-center">
+                    暂无上周数据，继续使用即可看到周环比分析
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    <ComparisonRow
+                      label="平均评分"
+                      thisValue={`${weekComp.thisWeekAvg}分`}
+                      lastValue={`${weekComp.lastWeekAvg}分`}
+                      delta={weekComp.scoreDelta}
+                      unit="分"
+                    />
+                    <ComparisonRow
+                      label="检测时长"
+                      thisValue={`${weekComp.thisWeekMinutes}分钟`}
+                      lastValue={`${weekComp.lastWeekMinutes}分钟`}
+                      delta={weekComp.minutesDelta}
+                      unit="分钟"
+                    />
+                    <ComparisonRow
+                      label="检测次数"
+                      thisValue={`${weekComp.thisWeekSessions}次`}
+                      lastValue={`${weekComp.lastWeekSessions}次`}
+                      delta={weekComp.sessionDelta}
+                      unit="次"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </section>

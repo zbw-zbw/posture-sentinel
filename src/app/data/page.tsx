@@ -11,7 +11,7 @@ import Link from "next/link";
 export default function DataPage() {
   const { baseline, removeBaseline } = useBaseline();
   const router = useRouter();
-  const [stats, setStats] = useState({ sessions: 0, totalMinutes: 0 });
+  const [stats, setStats] = useState<{ sessions: number; totalMinutes: number } | null>(null);
 
   useEffect(() => {
     const sessions = getSessions();
@@ -75,11 +75,11 @@ export default function DataPage() {
         <div className="max-w-[1100px] mx-auto">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-surface rounded-2xl p-5 text-center border border-border">
-              <p className="text-2xl font-bold text-primary tabular-nums">{stats.sessions}</p>
+              <p className="text-2xl font-bold text-primary tabular-nums">{stats?.sessions ?? "—"}</p>
               <p className="text-sm text-text-muted mt-1">检测记录</p>
             </div>
             <div className="bg-surface rounded-2xl p-5 text-center border border-border">
-              <p className="text-2xl font-bold text-primary tabular-nums">{stats.totalMinutes}</p>
+              <p className="text-2xl font-bold text-primary tabular-nums">{stats?.totalMinutes ?? "—"}</p>
               <p className="text-sm text-text-muted mt-1">累计分钟</p>
             </div>
           </div>

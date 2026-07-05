@@ -19,9 +19,14 @@ export function useCountUp({
   const [value, setValue] = useState(triggerOnVisible ? 0 : (animate ? 0 : target));
   const startedRef = useRef(!triggerOnVisible);
   const elementRef = useRef<HTMLElement | null>(null);
+  const rafRef = useRef(0);
 
   useEffect(() => {
-    if (!animate) {
+    // Respect prefers-reduced-motion
+    const prefersReducedMotion = typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+    if (!animate || prefersReducedMotion) {
       setValue(target);
       return;
     }
@@ -50,11 +55,16 @@ export function useCountUp({
         const ease = 1 - Math.pow(1 - p, 3);
         const v = from + (target - from) * ease;
         setValue(decimals > 0 ? Math.round(v * Math.pow(10, decimals)) / Math.pow(10, decimals) : Math.round(v));
-        if (p < 1) requestAnimationFrame(tick);
+        if (p < 1) rafRef.current = requestAnimationFrame(tick);
       };
-      requestAnimationFrame(tick);
+      rafRef.current = requestAnimationFrame(tick);
     }
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [target, duration, decimals, animate, triggerOnVisible]);
 
   return { value, elementRef };
 }
+

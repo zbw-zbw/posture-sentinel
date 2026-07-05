@@ -21,6 +21,14 @@ export interface SessionRecord {
 const STORAGE_KEY = "posture-sentinel-sessions";
 const SETTINGS_KEY = "posture-sentinel-settings";
 
+// Module-level cache for parsed sessions.
+// A single DailyReport render may call getSessions() up to 7 times
+// (weekly scores, yesterday report, hourly scores, week comparison, etc.).
+// This cache ensures localStorage is parsed only once per cache lifetime;
+// it is invalidated by any write (saveSession / importAllData / clearAllSessions /
+// cleanupOldSessions) so stale reads are impossible.
+let sessionsCache: SessionRecord[] | null = null;
+
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
@@ -58,6 +66,8 @@ export function saveSession(record: SessionRecord): void {
     const trimmed = sessions.slice(-50);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
   }
+  // Invalidate cache so subsequent reads pick up the new session
+  sessionsCache = null;
 }
 
 export function cleanupOldSessions(days = 30): void {
@@ -69,23 +79,41 @@ export function cleanupOldSessions(days = 30): void {
     const filtered = sessions.filter((s) => s.startTime > cutoff);
     if (filtered.length < sessions.length) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      // Storage changed — invalidate cache
+      sessionsCache = null;
     }
   } catch {
     // ignore
   }
 }
 
-export function getSessions(): SessionRecord[] {
-  if (typeof window === "undefined") return [];
+// Parse sessions directly from localStorage (bypassing the cache) and
+// populate the cache. Returns a shallow copy so callers can mutate freely.
+function parseFromStorage(): SessionRecord[] {
+  if (typeof window === "undefined") {
+    sessionsCache = [];
+    return [...sessionsCache];
+  }
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return [];
+    if (!data) {
+      sessionsCache = [];
+      return [...sessionsCache];
+    }
     const raw: SessionRecord[] = JSON.parse(data);
     // Migrate old session records that use pre-rename metric field names
-    return raw.map(migrateSessionRecord);
+    sessionsCache = raw.map(migrateSessionRecord);
+    return [...sessionsCache];
   } catch {
-    return [];
+    sessionsCache = [];
+    return [...sessionsCache];
   }
+}
+
+export function getSessions(): SessionRecord[] {
+  // Cache hit — return a copy so callers cannot mutate the cached array
+  if (sessionsCache) return [...sessionsCache];
+  return parseFromStorage();
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -113,6 +141,8 @@ export function getTodaySessions(): SessionRecord[] {
 
 export function clearAllSessions(): void {
   localStorage.removeItem(STORAGE_KEY);
+  // Storage cleared — invalidate cache
+  sessionsCache = null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -265,6 +295,9 @@ export function exportAllData(): ExportData {
 }
 
 export function importAllData(data: ExportData, mode: "overwrite" | "merge" = "overwrite"): { sessions: number; achievements: number } {
+  // Invalidate cache so merge-mode reads fresh data, and so post-import
+  // reads reflect the newly written storage (invalidated again below).
+  sessionsCache = null;
   if (mode === "overwrite") {
     // Clear and replace all
     if (data.sessions) {
@@ -284,6 +317,8 @@ export function importAllData(data: ExportData, mode: "overwrite" | "merge" = "o
     if (data.restSettings) {
       localStorage.setItem(REST_SETTINGS_KEY, JSON.stringify(data.restSettings));
     }
+    // Storage changed — invalidate cache
+    sessionsCache = null;
     return {
       sessions: data.sessions?.length || 0,
       achievements: data.achievements?.length || 0,
@@ -327,6 +362,8 @@ export function importAllData(data: ExportData, mode: "overwrite" | "merge" = "o
     localStorage.setItem(REST_SETTINGS_KEY, JSON.stringify(data.restSettings));
   }
 
+  // Storage changed — invalidate cache
+  sessionsCache = null;
   return { sessions: newSessionCount, achievements: newAchCount };
 }
 

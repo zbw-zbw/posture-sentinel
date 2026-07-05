@@ -13,6 +13,7 @@ import { useRestReminder } from "@/hooks/useRestReminder";
 import { useBaseline } from "@/hooks/useBaseline";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useVoiceCommands } from "@/hooks/useVoiceCommands";
+import { usePomodoro } from "@/hooks/usePomodoro";
 import { initAudio } from "@/lib/sound";
 import { saveSession, generateId, getTodayDate } from "@/lib/storage";
 import CameraView from "@/components/detect/CameraView";
@@ -27,6 +28,7 @@ import RestReminderBanner, { RestTriggerPrompt } from "@/components/detect/RestR
 import KeyboardHelpOverlay from "@/components/detect/KeyboardHelpOverlay";
 import AchievementToast from "@/components/detect/AchievementToast";
 import VoiceIndicator from "@/components/detect/VoiceIndicator";
+import PomodoroTimer from "@/components/detect/PomodoroTimer";
 import BaselineSampling from "@/components/detect/BaselineSampling";
 import type { SessionSummaryData } from "@/hooks/useDetectSession";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -102,15 +104,14 @@ export default function DetectPage() {
     setShowWizard(false);
   };
 
-  // Feed metrics to analyzer - ALWAYS feed when detecting, even if score is 0
-  // This ensures the analyzer's timer tracks duration correctly
-  // Note: analyzer.updateMetrics is a stable useCallback, so we only depend on metrics + detectState
+  // Feed metrics to analyzer - skip during rest periods to avoid recording
+  // "bad posture" while the user is away from the desk stretching
   useEffect(() => {
-    if (detectState === "detecting") {
+    if (detectState === "detecting" && restReminder.phase !== "resting" && restReminder.phase !== "triggered") {
       analyzer.updateMetrics(metrics);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [metrics, detectState]);
+  }, [metrics, detectState, restReminder.phase]);
 
   // Handle alert triggers from analyzer
   useEffect(() => {
@@ -191,6 +192,11 @@ export default function DetectPage() {
       },
     });
 
+    // Dispatch event so report page (if open or navigated to) refreshes data
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("posture-sentinel:session-saved"));
+    }
+
     setDetectState("idle");
     setShowSummary(true);
     setShowCompletionBanner(true);
@@ -259,6 +265,9 @@ export default function DetectPage() {
   const controlState: DetectState = detectState;
   const [helpOpen, setHelpOpen] = useState(false);
 
+  // Pomodoro focus timer
+  const pomodoro = usePomodoro({ focusMinutes: 25, breakMinutes: 5 });
+
   // Voice commands (暂停/继续/结束/开始) — must be after handleStart/Stop etc.
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const voice = useVoiceCommands({
@@ -308,6 +317,20 @@ export default function DetectPage() {
               isSupported={voice.isSupported}
               lastCommand={voice.lastCommand}
               onToggle={() => setVoiceEnabled(v => !v)}
+            />
+          </div>
+          {/* Pomodoro focus timer */}
+          <div className="mt-3">
+            <PomodoroTimer
+              phase={pomodoro.phase}
+              remaining={pomodoro.remaining}
+              completedFocus={pomodoro.completedFocus}
+              isRunning={pomodoro.isRunning}
+              onStart={pomodoro.start}
+              onPause={pomodoro.pause}
+              onResume={pomodoro.resume}
+              onSkip={pomodoro.skip}
+              onStop={pomodoro.stop}
             />
           </div>
         </section>

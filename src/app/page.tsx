@@ -4,7 +4,6 @@ import DetectionMockupSection from "@/components/DetectionMockupSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import TechPrivacySection from "@/components/TechPrivacySection";
-import DataPanelSection from "@/components/DataPanelSection";
 import FooterCTASection from "@/components/FooterCTASection";
 import ModelPreloader from "@/components/ModelPreloader";
 
@@ -18,7 +17,6 @@ export default function Home() {
       <DetectionMockupSection />
       <TestimonialsSection />
       <TechPrivacySection />
-      <DataPanelSection />
       <FooterCTASection />
     </>
   );
