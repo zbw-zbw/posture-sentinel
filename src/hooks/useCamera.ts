@@ -7,7 +7,7 @@ export interface UseCameraReturn {
   isLoading: boolean;
   isActive: boolean;
   error: string | null;
-  startCamera: () => Promise<void>;
+  startCamera: () => Promise<boolean>;
   stopCamera: () => void;
 }
 
@@ -30,7 +30,7 @@ export function useCamera(): UseCameraReturn {
     setError(null);
   }, []);
 
-  const startCamera = useCallback(async () => {
+  const startCamera = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
     try {
@@ -47,6 +47,7 @@ export function useCamera(): UseCameraReturn {
         await videoRef.current.play();
       }
       setIsActive(true);
+      return true;
     } catch (err) {
       const e = err as Error;
       if (e.name === "NotAllowedError" || e.name === "PermissionDeniedError") {
@@ -57,6 +58,7 @@ export function useCamera(): UseCameraReturn {
         setError(e.message || "摄像头启动失败，请重试。");
       }
       setIsActive(false);
+      return false;
     } finally {
       setIsLoading(false);
     }

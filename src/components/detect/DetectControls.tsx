@@ -11,6 +11,7 @@ interface DetectControlsProps {
   isLoading?: boolean;
   onToggleFullscreen?: () => void;
   onToggleHelp?: () => void;
+  onTogglePomodoro?: () => void;
 }
 
 export default function DetectControls({
@@ -22,6 +23,7 @@ export default function DetectControls({
   isLoading = false,
   onToggleFullscreen,
   onToggleHelp,
+  onTogglePomodoro,
 }: DetectControlsProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Esc double-press confirmation: first Esc shows a toast, second Esc within
@@ -82,6 +84,9 @@ export default function DetectControls({
         if (state === "idle") return;
         e.preventDefault();
         onToggleHelp?.();
+      } else if (e.code === "KeyP") {
+        e.preventDefault();
+        onTogglePomodoro?.();
       }
     }
 
@@ -93,7 +98,7 @@ export default function DetectControls({
         escConfirmTimerRef.current = null;
       }
     };
-  }, [state, isLoading, onStart, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp]);
+  }, [state, isLoading, onStart, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp, onTogglePomodoro]);
 
   const handleFullscreen = useCallback(() => {
     if (!onToggleFullscreen) {

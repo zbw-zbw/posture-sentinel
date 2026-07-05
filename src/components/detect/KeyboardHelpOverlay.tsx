@@ -7,7 +7,8 @@ interface KeyboardHelpOverlayProps {
 
 const shortcuts = [
   { key: "Space", desc: "暂停 / 继续检测" },
-  { key: "Esc", desc: "结束检测" },
+  { key: "Esc", desc: "结束检测（按两次确认）" },
+  { key: "P", desc: "开启 / 暂停 番茄钟" },
   { key: "F", desc: "全屏 / 退出全屏" },
   { key: "?", desc: "显示/隐藏快捷键帮助" },
 ];

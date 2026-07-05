@@ -63,7 +63,7 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
   }, [data.avgScore]);
 
   // Fetch AI advice when summary shows
-  const fetchAdvice = useCallback(async () => {
+  const fetchAdvice = useCallback(async (signal?: AbortSignal) => {
     if (!data.metrics || data.duration === 0) return;
     setAdviceLoading(true);
     try {
@@ -83,6 +83,7 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
           totalDuration: Math.round(data.duration / 60),
           sessionCount: 1,
         }),
+        signal,
       });
       const result = await res.json();
       if (result.advice && Array.isArray(result.advice)) {
@@ -96,10 +97,13 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
   }, [data]);
 
   useEffect(() => {
-    if (data.duration > 0 && data.metrics) {
-      const t = setTimeout(() => fetchAdvice(), 500);
-      return () => clearTimeout(t);
-    }
+    if (data.duration === 0 || !data.metrics) return;
+    const abortController = new AbortController();
+    const t = setTimeout(() => fetchAdvice(abortController.signal), 500);
+    return () => {
+      clearTimeout(t);
+      abortController.abort();
+    };
   }, [data, fetchAdvice]);
 
   const scoreColor = data.avgScore >= 80 ? "#10b981" : data.avgScore >= 60 ? "#f59e0b" : "#ef4444";

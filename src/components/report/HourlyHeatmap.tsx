@@ -55,7 +55,8 @@ function HourlyHeatmapImpl({ data }: HourlyHeatmapProps) {
       {/* Hourly bars */}
       <div className="flex items-end gap-1 h-32 mb-2">
         {data.map(d => {
-          const heightPct = Math.max(15, (d.avgScore / 100) * 100);
+          // Only apply min height for non-zero scores; score=0 shows a 2px sliver
+          const heightPct = d.avgScore > 0 ? Math.max(8, (d.avgScore / 100) * 100) : 0;
           return (
             <div
               key={d.hour}
@@ -65,7 +66,7 @@ function HourlyHeatmapImpl({ data }: HourlyHeatmapProps) {
               {/* Bar */}
               <div
                 className={`w-full rounded-t-md transition-all group-hover:opacity-80 ${getScoreBg(d.avgScore)}`}
-                style={{ height: `${heightPct}%` }}
+                style={{ height: heightPct > 0 ? `${heightPct}%` : "3px", minHeight: "3px" }}
               >
                 <div
                   className="w-full h-1 rounded-t-md"

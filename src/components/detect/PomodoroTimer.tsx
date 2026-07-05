@@ -31,9 +31,11 @@ function PomodoroTimerImpl({
   onSkip,
   onStop,
 }: PomodoroTimerProps) {
-  const isFocus = phase === "focusing" || (phase === "paused" && remaining > 300);
+  // When paused, we don't know if it was focus or break — show neutral state
+  const isFocus = phase === "focusing";
   const isBreak = phase === "break";
-  const isActive = isRunning || phase === "paused";
+  const isPaused = phase === "paused";
+  const isActive = isRunning || isPaused;
 
   // Don't render anything in idle state — the start button is in DetectControls
   if (phase === "idle") {
@@ -55,7 +57,7 @@ function PomodoroTimerImpl({
   }
 
   const ringColor = isBreak ? "var(--color-info)" : isFocus ? "var(--color-primary)" : "var(--color-text-muted)";
-  const bgTint = isBreak ? "bg-info-light" : "bg-primary-light";
+  const bgTint = isPaused ? "bg-surface-alt" : isBreak ? "bg-info-light" : "bg-primary-light";
   const label = isBreak ? "休息中" : isFocus ? "专注中" : "已暂停";
   const labelColor = isBreak ? "text-info-text" : isFocus ? "text-primary-text" : "text-text-muted";
 

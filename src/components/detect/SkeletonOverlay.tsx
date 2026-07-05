@@ -49,6 +49,15 @@ export default function SkeletonOverlay({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // High-DPI rendering: scale the canvas backing store by devicePixelRatio
+    // so skeleton lines and keypoints stay crisp on retina / 4K displays.
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.scale(dpr, dpr);
+
     let running = true;
 
     // Keep isActive ref in sync for draw loop to check

@@ -63,28 +63,15 @@ export default function HeroDemo() {
     let paused = false;
     let startTime = performance.now();
     let pausedElapsed = 0; // elapsed time at pause moment
+    let rafId = 0;
 
-    // Pause RAF when offscreen to save battery
-    const io = new IntersectionObserver(
-      (entries) => {
-        const wasPaused = paused;
-        paused = !entries[0]?.isIntersecting;
-        if (wasPaused && !paused) {
-          // Resuming: adjust startTime to account for paused duration
-          startTime = performance.now() - pausedElapsed;
-        } else if (!wasPaused && paused) {
-          // Pausing: capture current elapsed
-          pausedElapsed = performance.now() - startTime;
-        }
-      },
-      { threshold: 0.1 }
-    );
-    io.observe(canvas);
-
+    // draw is declared before the IntersectionObserver so the IO callback
+    // can (re)start the loop on resume.
     const draw = (now: number) => {
       if (!running) return;
       if (paused) {
-        requestAnimationFrame(draw);
+        // Paused: do NOT schedule another frame. The loop stops here and is
+        // restarted by the IntersectionObserver resume branch below.
         return;
       }
 
@@ -238,12 +225,35 @@ export default function HeroDemo() {
         setCurrentLabel({ name: curState.name, score: curState.score, color: curState.color });
       }
 
-      requestAnimationFrame(draw);
+      rafId = requestAnimationFrame(draw);
     };
 
-    requestAnimationFrame(draw);
+    // Pause RAF when offscreen to save battery
+    const io = new IntersectionObserver(
+      (entries) => {
+        const wasPaused = paused;
+        paused = !entries[0]?.isIntersecting;
+        if (wasPaused && !paused) {
+          // Resuming: adjust startTime to account for paused duration, then
+          // restart the RAF loop (it was stopped when we paused).
+          startTime = performance.now() - pausedElapsed;
+          rafId = requestAnimationFrame(draw);
+        } else if (!wasPaused && paused) {
+          // Pausing: capture current elapsed and cancel the pending frame so
+          // the loop doesn't keep running (and doesn't double-schedule on resume).
+          pausedElapsed = performance.now() - startTime;
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = 0;
+        }
+      },
+      { threshold: 0.1 }
+    );
+    io.observe(canvas);
+
+    rafId = requestAnimationFrame(draw);
     return () => {
       running = false;
+      if (rafId) cancelAnimationFrame(rafId);
       io.disconnect();
       ro.disconnect();
     };

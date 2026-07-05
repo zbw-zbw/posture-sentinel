@@ -14,7 +14,7 @@ import { useBaseline } from "@/hooks/useBaseline";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useVoiceCommands } from "@/hooks/useVoiceCommands";
 import { usePomodoro } from "@/hooks/usePomodoro";
-import { initAudio } from "@/lib/sound";
+import { initAudio, playPhaseChangeSound } from "@/lib/sound";
 import { saveSession, generateId, getTodayDate } from "@/lib/storage";
 import CameraView from "@/components/detect/CameraView";
 import MetricsPanel from "@/components/detect/MetricsPanel";
@@ -123,7 +123,8 @@ export default function DetectPage() {
   const handleStart = useCallback(async () => {
     initAudio();
     setShowCompletionBanner(false);
-    await startCamera();
+    const success = await startCamera();
+    if (!success) return; // Camera failed, error displayed by CameraView
     setDetectState("detecting");
     startSession();
     analyzer.start();
@@ -265,8 +266,30 @@ export default function DetectPage() {
   const controlState: DetectState = detectState;
   const [helpOpen, setHelpOpen] = useState(false);
 
-  // Pomodoro focus timer
-  const pomodoro = usePomodoro({ focusMinutes: 25, breakMinutes: 5 });
+  // Pomodoro focus timer — linked with detection:
+  // break phase auto-pauses detection, focus phase auto-resumes
+  const pomodoroAutoPausedRef = useRef(false);
+  const pomodoro = usePomodoro({
+    focusMinutes: 25,
+    breakMinutes: 5,
+    onPhaseChange: (phase) => {
+      if (phase === "break") {
+        playPhaseChangeSound("break");
+        // Auto-pause detection during break
+        if (detectState === "detecting") {
+          pomodoroAutoPausedRef.current = true;
+          handlePause();
+        }
+      } else if (phase === "focusing") {
+        playPhaseChangeSound("focus");
+        // Auto-resume detection if we paused it
+        if (pomodoroAutoPausedRef.current && detectState === "paused") {
+          pomodoroAutoPausedRef.current = false;
+          handleResume();
+        }
+      }
+    },
+  });
 
   // Voice commands (暂停/继续/结束/开始) — must be after handleStart/Stop etc.
   const [voiceEnabled, setVoiceEnabled] = useState(false);
@@ -385,6 +408,11 @@ export default function DetectPage() {
                 onStop={handleStop}
                 isLoading={isLoading}
                 onToggleHelp={() => setHelpOpen((v) => !v)}
+                onTogglePomodoro={() => {
+                  if (pomodoro.phase === "idle") pomodoro.start();
+                  else if (pomodoro.isRunning) pomodoro.pause();
+                  else if (pomodoro.phase === "paused") pomodoro.resume();
+                }}
               />
               <p className="text-center text-xs text-text-muted mt-3">
                 提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒

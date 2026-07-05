@@ -71,3 +71,32 @@ export function playAlertSound(type: "warning" | "bad", volume: number = 0.5): v
     }
   }
 }
+
+/**
+ * Play a gentle notification chime for pomodoro phase transitions.
+ * - focus: ascending C5→E5→G5 (let's go)
+ * - break: descending G5→E5→C5 (time to rest)
+ */
+export function playPhaseChangeSound(phase: "focus" | "break"): void {
+  const ctx = getAudioContext();
+  if (ctx.state === "suspended") ctx.resume();
+
+  const notes = phase === "focus"
+    ? [{ freq: 523, t: 0 }, { freq: 659, t: 0.15 }, { freq: 784, t: 0.30 }] // C5→E5→G5
+    : [{ freq: 784, t: 0 }, { freq: 659, t: 0.15 }, { freq: 523, t: 0.30 }]; // G5→E5→C5
+
+  for (const n of notes) {
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(n.freq, ctx.currentTime + n.t);
+    const gain = ctx.createGain();
+    const s = ctx.currentTime + n.t;
+    gain.gain.setValueAtTime(0, s);
+    gain.gain.linearRampToValueAtTime(0.15, s + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, s + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(s);
+    osc.stop(s + 0.27);
+  }
+}

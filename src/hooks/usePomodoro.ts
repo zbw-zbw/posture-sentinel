@@ -31,6 +31,8 @@ export function usePomodoro({
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phaseRef = useRef<PomodoroPhase>("idle");
+  // Track the phase before pausing so resume() can restore it correctly
+  const pausedFromPhaseRef = useRef<PomodoroPhase>("focusing");
   const onPhaseChangeRef = useRef(onPhaseChange);
   onPhaseChangeRef.current = onPhaseChange;
 
@@ -41,23 +43,31 @@ export function usePomodoro({
     }
   }, []);
 
+  const setPhase = useCallback((newPhase: PomodoroPhase, remaining?: number) => {
+    phaseRef.current = newPhase;
+    setState(prev => ({
+      phase: newPhase,
+      remaining: remaining ?? prev.remaining,
+      completedFocus: prev.completedFocus,
+      isRunning: newPhase === "focusing" || newPhase === "break",
+    }));
+    onPhaseChangeRef.current?.(newPhase);
+  }, []);
+
   const transitionTo = useCallback((newPhase: PomodoroPhase) => {
     phaseRef.current = newPhase;
     const durations: Record<string, number> = {
       focusing: focusMinutes * 60,
       break: breakMinutes * 60,
       idle: focusMinutes * 60,
-      paused: 0,
     };
     setState(prev => {
-      const completedFocus = newPhase === "focusing" && prev.phase === "break"
-        ? prev.completedFocus
-        : newPhase === "idle" && prev.phase === "focusing"
-          ? prev.completedFocus + 1
-          : prev.completedFocus;
+      const completedFocus = newPhase === "idle" && (prev.phase === "focusing" || prev.phase === "paused")
+        ? prev.completedFocus + (pausedFromPhaseRef.current === "focusing" ? 0 : 0)
+        : prev.completedFocus;
       return {
         phase: newPhase,
-        remaining: durations[newPhase] || prev.remaining,
+        remaining: durations[newPhase] ?? prev.remaining,
         completedFocus,
         isRunning: newPhase === "focusing" || newPhase === "break",
       };
@@ -72,7 +82,7 @@ export function usePomodoro({
     timerRef.current = setInterval(() => {
       setState(prev => {
         if (prev.remaining <= 1) {
-          // Phase complete
+          // Phase complete — auto-transition
           const nextPhase = prev.phase === "focusing" ? "break" : "focusing";
           const nextDuration = nextPhase === "focusing" ? focusMinutes * 60 : breakMinutes * 60;
           phaseRef.current = nextPhase;
@@ -92,22 +102,24 @@ export function usePomodoro({
   }, [state.isRunning, focusMinutes, breakMinutes, clearTimer]);
 
   const start = useCallback(() => transitionTo("focusing"), [transitionTo]);
+
   const pause = useCallback(() => {
-    setState(prev => ({ ...prev, phase: "paused", isRunning: false }));
-    phaseRef.current = "paused";
-    onPhaseChangeRef.current?.("paused");
-  }, []);
+    // Save current phase so resume() can restore it correctly
+    pausedFromPhaseRef.current = phaseRef.current === "paused" ? pausedFromPhaseRef.current : phaseRef.current;
+    setPhase("paused");
+  }, [setPhase]);
+
   const resume = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      phase: prev.remaining <= (focusMinutes * 60) ? "focusing" : "break",
-      isRunning: true,
-    }));
-  }, [focusMinutes]);
+    // Restore the phase that was active before pausing
+    const restoredPhase = pausedFromPhaseRef.current === "break" ? "break" : "focusing";
+    setPhase(restoredPhase);
+  }, [setPhase]);
+
   const skip = useCallback(() => {
-    const current = phaseRef.current;
+    const current = phaseRef.current === "paused" ? pausedFromPhaseRef.current : phaseRef.current;
     transitionTo(current === "focusing" ? "break" : "focusing");
   }, [transitionTo]);
+
   const stop = useCallback(() => {
     clearTimer();
     setState({ phase: "idle", remaining: focusMinutes * 60, completedFocus: 0, isRunning: false });

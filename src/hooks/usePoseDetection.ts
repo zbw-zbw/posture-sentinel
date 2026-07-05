@@ -18,7 +18,7 @@ export interface UsePoseDetectionReturn {
 const WASM_CDN_URL = MEDIAPIPE_CONFIG.wasmPath;
 const MODEL_CDN_URLS = [
   MEDIAPIPE_CONFIG.modelAssetPath,
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm/pose_landmarker_lite.task",
+  MEDIAPIPE_CONFIG.modelAssetPathCdn,
 ];
 const LOAD_TIMEOUT_MS = 45_000;
 

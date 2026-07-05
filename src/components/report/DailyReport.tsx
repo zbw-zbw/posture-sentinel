@@ -234,7 +234,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
               {/* Hourly heatmap */}
               <div className="bg-surface rounded-2xl p-6 card-hover">
                 <h3 className="text-lg font-bold text-text-primary mb-1">时段分析</h3>
-                <p className="text-xs text-text-muted mb-4">你一天中哪些时段坐姿最好/最差</p>
+                <p className="text-xs text-text-muted mb-4">基于全部历史数据，展示你的坐姿时段规律</p>
                 <HourlyHeatmap data={hourlyData} />
               </div>
               {/* Week comparison */}
