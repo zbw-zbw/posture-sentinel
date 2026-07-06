@@ -1,5 +1,3 @@
-"use client";
-
 /* ── Small skeleton SVG used in Feature 1 preview ── */
 function SmallSkeletonSVG() {
   return (
@@ -186,7 +184,7 @@ export default function FeaturesSection() {
                   (label) => (
                     <span
                       key={label}
-                      className="rounded-full border border-primary/20 text-primary text-xs px-3 py-1"
+                      className="rounded-full border border-primary/20 text-primary-text text-xs px-3 py-1"
                     >
                       {label}
                     </span>
@@ -231,7 +229,7 @@ export default function FeaturesSection() {
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
                 </div>
-                <span className="inline-block bg-warning-light text-warning text-xs font-medium px-3 py-1 rounded-full">
+                <span className="inline-block bg-warning-light text-warning-text text-xs font-medium px-3 py-1 rounded-full">
                   贴心提醒
                 </span>
               </div>
@@ -283,7 +281,7 @@ export default function FeaturesSection() {
                 {/* Score circle */}
                 <div className="flex justify-center mt-5">
                   <div className="w-24 h-24 rounded-full border-4 border-primary flex items-center justify-center">
-                    <span className="text-3xl font-bold text-primary">87</span>
+                    <span className="text-3xl font-bold text-primary-text">87</span>
                   </div>
                 </div>
 

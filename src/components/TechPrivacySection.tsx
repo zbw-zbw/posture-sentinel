@@ -1,5 +1,3 @@
-"use client";
-
 export default function TechPrivacySection() {
   const metrics = [
     { value: "3秒", label: "AI 模型加载" },
@@ -17,7 +15,7 @@ export default function TechPrivacySection() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {metrics.map((metric) => (
           <div key={metric.label} className="text-center">
-            <p className="text-2xl font-bold text-primary">{metric.value}</p>
+            <p className="text-2xl font-bold text-primary-text">{metric.value}</p>
             <p className="text-xs text-text-muted mt-1">{metric.label}</p>
           </div>
         ))}

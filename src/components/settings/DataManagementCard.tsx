@@ -98,7 +98,7 @@ export default function DataManagementCard({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <button
             onClick={handleExport}
-            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-4 py-3 rounded-xl transition-all text-sm"
+            className="flex items-center justify-center gap-2 bg-primary-dark hover:bg-primary text-white font-medium px-4 py-3 rounded-xl transition-all text-sm"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -208,7 +208,7 @@ export default function DataManagementCard({
               <button
                 onClick={handleConfirmImport}
                 disabled={importing}
-                className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-primary-dark hover:bg-primary text-white font-medium py-2.5 rounded-xl transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {importing ? "导入中..." : "确认导入"}
               </button>

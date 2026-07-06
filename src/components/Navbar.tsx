@@ -55,7 +55,7 @@ export default function Navbar() {
                 href={link.href}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   isActive(link.href)
-                    ? "text-primary bg-primary-light"
+                    ? "text-primary-text bg-primary-light"
                     : "text-text-secondary hover:bg-surface-alt hover:text-text-primary"
                 }`}
               >
@@ -92,10 +92,10 @@ export default function Navbar() {
       {mobileOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden animate-[fadeIn_0.2s_ease]" onClick={() => setMobileOpen(false)} />
-          <div className="fixed top-0 right-0 bottom-0 z-50 w-[280px] bg-surface shadow-2xl md:hidden animate-slide-in-right">
+          <div className="fixed top-0 right-0 bottom-0 z-50 w-[280px] max-w-[85vw] bg-surface shadow-2xl md:hidden animate-slide-in-right">
             <div className="flex items-center justify-between h-16 px-4">
               <span className="font-bold text-text-primary">导航</span>
-              <button onClick={() => setMobileOpen(false)} className="w-10 h-10 flex items-center justify-center rounded-lg text-text-secondary">
+              <button onClick={() => setMobileOpen(false)} className="w-11 h-11 flex items-center justify-center rounded-lg text-text-secondary" aria-label="关闭菜单">
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
@@ -108,7 +108,7 @@ export default function Navbar() {
                 href="/"
                 className={`flex items-center min-h-12 px-4 rounded-xl text-base font-medium transition-colors ${
                   isActive("/")
-                    ? "text-primary bg-primary-light"
+                    ? "text-primary-text bg-primary-light"
                     : "text-text-secondary hover:bg-surface-alt hover:text-text-primary"
                 }`}
               >
@@ -124,7 +124,7 @@ export default function Navbar() {
                   href={link.href}
                   className={`flex items-center min-h-12 px-4 rounded-xl text-base font-medium transition-colors ${
                     isActive(link.href)
-                      ? "text-primary bg-primary-light"
+                      ? "text-primary-text bg-primary-light"
                       : "text-text-secondary hover:bg-surface-alt hover:text-text-primary"
                   }`}
                 >

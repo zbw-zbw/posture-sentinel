@@ -1,6 +1,7 @@
 "use client";
 
 import { PostureMetrics, PostureStatus } from "@/lib/posture";
+import { COLORS } from "@/lib/colors";
 import { useEffect, useState, useRef, memo, ReactNode } from "react";
 
 interface MetricsPanelProps {
@@ -119,7 +120,7 @@ function MetricsPanelImpl({
       unit: "°",
       threshold: "正常 < 8°",
       progress: Math.min((metrics.headTiltAngle / 20) * 100, 100),
-      color: metrics.headTiltAngle > 15 ? "#ef4444" : metrics.headTiltAngle > 8 ? "#f59e0b" : "#10b981",
+      color: metrics.headTiltAngle > 15 ? COLORS.danger : metrics.headTiltAngle > 8 ? COLORS.warning : COLORS.primary,
     },
     {
       name: "肩膀倾斜",
@@ -127,7 +128,7 @@ function MetricsPanelImpl({
       unit: "°",
       threshold: "正常 < 5°",
       progress: Math.min((metrics.shoulderTiltAngle / 12) * 100, 100),
-      color: metrics.shoulderTiltAngle > 10 ? "#ef4444" : metrics.shoulderTiltAngle > 5 ? "#f59e0b" : "#10b981",
+      color: metrics.shoulderTiltAngle > 10 ? COLORS.danger : metrics.shoulderTiltAngle > 5 ? COLORS.warning : COLORS.primary,
     },
     {
       name: "脖子前倾",
@@ -135,7 +136,7 @@ function MetricsPanelImpl({
       unit: "%",
       threshold: "正常 < 40%",
       progress: metrics.neckForwardScore,
-      color: metrics.neckForwardScore > 70 ? "#ef4444" : metrics.neckForwardScore > 40 ? "#f59e0b" : "#10b981",
+      color: metrics.neckForwardScore > 70 ? COLORS.danger : metrics.neckForwardScore > 40 ? COLORS.warning : COLORS.primary,
     },
     {
       name: "脊椎倾斜",
@@ -143,7 +144,7 @@ function MetricsPanelImpl({
       unit: "°",
       threshold: "正常 < 8°",
       progress: Math.min((metrics.spineTiltAngle / 20) * 100, 100),
-      color: metrics.spineTiltAngle > 15 ? "#ef4444" : metrics.spineTiltAngle > 8 ? "#f59e0b" : "#10b981",
+      color: metrics.spineTiltAngle > 15 ? COLORS.danger : metrics.spineTiltAngle > 8 ? COLORS.warning : COLORS.primary,
     },
   ];
 
@@ -201,12 +202,12 @@ function MetricsPanelImpl({
           }`}
           style={{
             backgroundColor: isUnknown
-              ? "#9ca3af"
+              ? COLORS.textMuted
               : currentStatus === "good"
-                ? "#10b981"
+                ? COLORS.primary
                 : currentStatus === "warning"
-                  ? "#f59e0b"
-                  : "#ef4444",
+                  ? COLORS.warning
+                  : COLORS.danger,
           }}
         />
         <span>{isUnknown ? "未检测到人体" : config.label}</span>
@@ -223,7 +224,7 @@ function MetricsPanelImpl({
       <div className="mt-2 pt-4">
         {/* Status duration */}
         {isDetecting && statusDuration > 0 && !isUnknown && (
-          <p className={`text-sm mb-3 ${currentStatus === "good" ? "text-primary" : "text-danger"}`}>
+          <p className={`text-sm mb-3 ${currentStatus === "good" ? "text-primary-text" : "text-danger-text"}`}>
             {statusDurationText}
           </p>
         )}

@@ -375,7 +375,7 @@ export default function DetectPage() {
               <Link href={`/report?date=${getTodayDate()}`} className="bg-surface hover:bg-surface-alt text-text-primary font-medium px-4 py-2 rounded-xl transition-colors text-sm">
                 查看报告
               </Link>
-              <button onClick={handleStart} className="bg-primary hover:bg-primary-dark text-white font-medium px-4 py-2 rounded-xl transition-colors text-sm">
+              <button onClick={handleStart} className="bg-primary-dark hover:bg-primary text-white font-medium px-4 py-2 rounded-xl transition-colors text-sm">
                 再测一次
               </button>
             </div>
@@ -424,8 +424,8 @@ export default function DetectPage() {
                   onClick={handleStartBaselineSampling}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
                     hasBaseline
-                      ? "border-primary/30 bg-primary-light text-primary"
-                      : "border-dashed border-primary/40 bg-primary-light/50 text-primary hover:bg-primary-light"
+                      ? "border-primary/30 bg-primary-light text-primary-text"
+                      : "border-dashed border-primary/40 bg-primary-light/50 text-primary-text hover:bg-primary-light"
                   }`}
                 >
                   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -474,7 +474,7 @@ export default function DetectPage() {
           <div className="mt-4">
             {detectState === "paused" && (
               <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center gap-1.5 bg-warning/10 text-warning text-xs font-medium px-3 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-warning/10 text-warning-text text-xs font-medium px-3 py-1 rounded-full">
                   <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="6" y="4" width="4" height="16" />
                     <rect x="14" y="4" width="4" height="16" />

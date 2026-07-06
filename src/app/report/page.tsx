@@ -50,7 +50,7 @@ export default function ReportPage() {
             </div>
             <Link
               href="/detect"
-              className="flex-shrink-0 inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-4 py-2 rounded-xl transition-colors text-sm"
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-primary-dark hover:bg-primary text-white font-medium px-4 py-2 rounded-xl transition-colors text-sm"
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M23 7l-7 5 7 5V7z" />

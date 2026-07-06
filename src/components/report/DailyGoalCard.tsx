@@ -29,7 +29,7 @@ export default function DailyGoalCard({ progress }: DailyGoalCardProps) {
             {progress.todayMinutes} / {progress.goalMinutes} 分钟
           </p>
           {progress.isCompleted ? (
-            <p className="text-sm text-primary font-medium mt-1">
+            <p className="text-sm text-primary-text font-medium mt-1">
               {progress.streakDays > 0 ? `🎉 ${progress.streakLabel}` : "✓ 今日目标已达成！"}
             </p>
           ) : (
@@ -45,7 +45,7 @@ export default function DailyGoalCard({ progress }: DailyGoalCardProps) {
             {progress.streakLabel}
           </span>
           {progress.streakDays >= 7 && (
-            <span className="text-xs bg-warning-light text-warning px-2 py-0.5 rounded-full font-medium">
+            <span className="text-xs bg-warning-light text-warning-text px-2 py-0.5 rounded-full font-medium">
               🔥 连续 {progress.streakDays} 天
             </span>
           )}

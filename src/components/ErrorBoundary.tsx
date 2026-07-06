@@ -39,7 +39,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 this.setState({ hasError: false });
                 window.location.reload();
               }}
-              className="bg-primary hover:bg-primary-dark text-white font-medium px-6 py-2.5 rounded-xl transition-colors"
+              className="bg-primary-dark hover:bg-primary text-white font-medium px-6 py-2.5 rounded-xl transition-colors"
             >
               重新加载
             </button>

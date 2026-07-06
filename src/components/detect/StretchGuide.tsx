@@ -245,7 +245,7 @@ export default function StretchGuide({ onComplete, onSkip }: StretchGuideProps) 
       <div className="flex gap-2">
         <button
           onClick={handleCheck}
-          className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm"
+          className="flex-1 flex items-center justify-center gap-2 bg-primary-dark hover:bg-primary text-white font-medium py-2.5 rounded-xl transition-colors text-sm"
         >
           <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />

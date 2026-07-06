@@ -34,7 +34,7 @@ export default function EmptyState({ date }: EmptyStateProps) {
       </p>
       <Link
         href="/detect"
-        className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5"
+        className="inline-flex items-center gap-2 bg-primary-dark hover:bg-primary text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5"
       >
         <svg
           viewBox="0 0 24 24"

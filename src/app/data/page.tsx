@@ -57,7 +57,7 @@ export default function DataPage() {
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
         <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-3">
-            <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
+            <Link href="/" className="md:hidden flex items-center justify-center w-11 h-11 rounded-lg hover:bg-surface-alt transition-colors" aria-label="返回">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
@@ -75,11 +75,11 @@ export default function DataPage() {
         <div className="max-w-[1100px] mx-auto">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-surface rounded-2xl p-5 text-center border border-border">
-              <p className="text-2xl font-bold text-primary tabular-nums">{stats?.sessions ?? "—"}</p>
+              <p className="text-2xl font-bold text-primary-text tabular-nums">{stats?.sessions ?? "—"}</p>
               <p className="text-sm text-text-muted mt-1">检测记录</p>
             </div>
             <div className="bg-surface rounded-2xl p-5 text-center border border-border">
-              <p className="text-2xl font-bold text-primary tabular-nums">{stats?.totalMinutes ?? "—"}</p>
+              <p className="text-2xl font-bold text-primary-text tabular-nums">{stats?.totalMinutes ?? "—"}</p>
               <p className="text-sm text-text-muted mt-1">累计分钟</p>
             </div>
           </div>

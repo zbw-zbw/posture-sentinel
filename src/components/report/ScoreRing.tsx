@@ -43,16 +43,16 @@ export default function ScoreRing({ score, yesterdayScore }: ScoreRingProps) {
 
   const scoreColorClass =
     safeScore >= 80
-      ? "text-primary"
+      ? "text-primary-text"
       : safeScore >= 60
-        ? "text-warning"
-        : "text-danger";
+      ? "text-warning-text"
+      : "text-danger-text";
 
   return (
     <div className="flex flex-col items-center">
       <RingChart value={safeScore} max={100} size={180} strokeWidth={12} animate={true} label={<AnimatedLabel value={safeScore} />} sublabel="/100 分" labelColor={scoreColorClass} />
       {diff !== undefined && (
-        <div className={`flex items-center gap-1 mt-3 text-sm font-medium ${diff >= 0 ? "text-primary" : "text-danger"}`}>
+        <div className={`flex items-center gap-1 mt-3 text-sm font-medium ${diff >= 0 ? "text-primary-text" : "text-danger-text"}`}>
           <ArrowIcon up={diff >= 0} />
           <span>较昨日 {diff >= 0 ? "+" : ""}{diff}分</span>
         </div>

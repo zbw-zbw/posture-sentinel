@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { COLORS } from "@/lib/colors";
 
 // Posture states: good → warning → bad → warning → good (loop)
 const POSTURE_STATES = [
-  { name: "良好", score: 92, headOffsetX: 0, headOffsetY: 0, shoulderTilt: 0, spineCurve: 0, color: "#10b981" },
-  { name: "良好", score: 88, headOffsetX: 2, headOffsetY: -2, shoulderTilt: 1, spineCurve: 1, color: "#10b981" },
-  { name: "注意", score: 68, headOffsetX: 8, headOffsetY: -8, shoulderTilt: 3, spineCurve: 5, color: "#f59e0b" },
-  { name: "不良", score: 35, headOffsetX: 18, headOffsetY: -18, shoulderTilt: 6, spineCurve: 12, color: "#ef4444" },
-  { name: "不良", score: 30, headOffsetX: 22, headOffsetY: -20, shoulderTilt: 8, spineCurve: 15, color: "#ef4444" },
-  { name: "注意", score: 55, headOffsetX: 12, headOffsetY: -10, shoulderTilt: 4, spineCurve: 8, color: "#f59e0b" },
-  { name: "良好", score: 85, headOffsetX: 3, headOffsetY: -3, shoulderTilt: 1, spineCurve: 2, color: "#10b981" },
-  { name: "良好", score: 92, headOffsetX: 0, headOffsetY: 0, shoulderTilt: 0, spineCurve: 0, color: "#10b981" },
+  { name: "良好", score: 92, headOffsetX: 0, headOffsetY: 0, shoulderTilt: 0, spineCurve: 0, color: COLORS.primary },
+  { name: "良好", score: 88, headOffsetX: 2, headOffsetY: -2, shoulderTilt: 1, spineCurve: 1, color: COLORS.primary },
+  { name: "注意", score: 68, headOffsetX: 8, headOffsetY: -8, shoulderTilt: 3, spineCurve: 5, color: COLORS.warning },
+  { name: "不良", score: 35, headOffsetX: 18, headOffsetY: -18, shoulderTilt: 6, spineCurve: 12, color: COLORS.danger },
+  { name: "不良", score: 30, headOffsetX: 22, headOffsetY: -20, shoulderTilt: 8, spineCurve: 15, color: COLORS.danger },
+  { name: "注意", score: 55, headOffsetX: 12, headOffsetY: -10, shoulderTilt: 4, spineCurve: 8, color: COLORS.warning },
+  { name: "良好", score: 85, headOffsetX: 3, headOffsetY: -3, shoulderTilt: 1, spineCurve: 2, color: COLORS.primary },
+  { name: "良好", score: 92, headOffsetX: 0, headOffsetY: 0, shoulderTilt: 0, spineCurve: 0, color: COLORS.primary },
 ];
 
 const FRAME_DURATION = 1200; // ms per posture state
@@ -28,7 +29,7 @@ function easeInOut(t: number) {
 
 export default function HeroDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [currentLabel, setCurrentLabel] = useState({ name: "良好", score: 92, color: "#10b981" });
+  const [currentLabel, setCurrentLabel] = useState<{ name: string; score: number; color: string }>({ name: "良好", score: 92, color: COLORS.primary });
   const stateIndexRef = useRef(0);
 
   useEffect(() => {
@@ -102,8 +103,8 @@ export default function HeroDemo() {
 
       // Background gradient
       const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, "#0f172a");
-      grad.addColorStop(1, "#1e293b");
+      grad.addColorStop(0, COLORS.heroBgDark);
+      grad.addColorStop(1, COLORS.heroBgMid);
       ctx.fillStyle = grad;
       ctx.beginPath();
       ctx.roundRect(0, 0, w, h, 16);
@@ -210,13 +211,13 @@ export default function HeroDemo() {
       ctx.fill();
 
       ctx.fillStyle = curState.color;
-      ctx.font = "bold 16px Inter, system-ui, sans-serif";
+      ctx.font = "bold 16px Raleway, system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(`${score}`, cx, badgeY);
 
       ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.font = "10px Inter, system-ui, sans-serif";
+      ctx.font = "10px Raleway, system-ui, sans-serif";
       ctx.fillText("/100", cx + 22, badgeY);
 
       // Update React state for label display (throttled)

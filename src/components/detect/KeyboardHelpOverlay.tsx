@@ -37,7 +37,7 @@ export default function KeyboardHelpOverlay({ open, onClose }: KeyboardHelpOverl
         </div>
         <button
           onClick={onClose}
-          className="w-full mt-5 bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm"
+          className="w-full mt-5 bg-primary-dark hover:bg-primary text-white font-medium py-2.5 rounded-xl transition-colors text-sm"
         >
           知道了
         </button>

@@ -14,7 +14,7 @@ export default function NotFound() {
         <h1 className="text-4xl font-bold text-text-primary mb-3">404</h1>
         <p className="text-text-secondary mb-6">页面未找到，可能链接已失效或页面已移动。</p>
         <div className="flex items-center justify-center gap-3">
-          <Link href="/" className="bg-primary hover:bg-primary-dark text-white font-medium px-6 py-2.5 rounded-xl transition-colors shadow-lg shadow-primary/25">
+          <Link href="/" className="bg-primary-dark hover:bg-primary text-white font-medium px-6 py-2.5 rounded-xl transition-colors shadow-lg shadow-primary/25">
             返回首页
           </Link>
           <Link href="/detect" className="bg-surface-alt hover:bg-border text-text-primary font-medium px-6 py-2.5 rounded-xl transition-colors">

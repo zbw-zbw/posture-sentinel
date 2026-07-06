@@ -248,3 +248,89 @@ export function getWeekComparison(): WeekComparison {
     minutesDelta: thisWeekMinutes - lastWeekMinutes,
   };
 }
+
+// Monthly calendar heatmap: daily avg scores for a given month
+export interface CalendarDayData {
+  date: string;       // YYYY-MM-DD
+  day: number;        // 1-31
+  score: number;      // avg score (0 if no sessions)
+  sessionCount: number;
+  duration: number;   // in minutes
+  isToday: boolean;
+  isFuture: boolean;
+}
+
+export interface MonthCalendarData {
+  year: number;
+  month: number;      // 0-11
+  monthName: string;
+  days: CalendarDayData[];      // all days in the month (1..31)
+  firstDayOfWeek: number;       // 0=Sunday, for grid offset
+  avgScore: number;
+  totalSessions: number;
+  totalMinutes: number;
+  activeDays: number;
+}
+
+export function getMonthCalendar(year: number, month: number): MonthCalendarData {
+  const allSessions = getSessions();
+  const monthNames = [
+    "一月", "二月", "三月", "四月", "五月", "六月",
+    "七月", "八月", "九月", "十月", "十一月", "十二月",
+  ];
+  const todayStr = toLocalDateString(new Date());
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const firstDayOfWeek = firstDay.getDay();
+
+  const days: CalendarDayData[] = [];
+  let totalScore = 0;
+  let totalSessions = 0;
+  let totalMinutes = 0;
+  let activeDays = 0;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = toLocalDateString(new Date(year, month, d));
+    const daySessions = allSessions.filter(s => s.date === dateStr);
+    const validSessions = daySessions.filter(s => s.avgScore > 0);
+
+    const score = validSessions.length > 0
+      ? Math.round(validSessions.reduce((sum, s) => sum + s.avgScore, 0) / validSessions.length)
+      : 0;
+    const duration = Math.round(daySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
+    const isFuture = new Date(year, month, d) > new Date();
+
+    if (daySessions.length > 0) {
+      totalSessions += daySessions.length;
+      totalMinutes += duration;
+      if (score > 0) {
+        totalScore += score;
+        activeDays++;
+      }
+    }
+
+    days.push({
+      date: dateStr,
+      day: d,
+      score,
+      sessionCount: daySessions.length,
+      duration,
+      isToday: dateStr === todayStr,
+      isFuture,
+    });
+  }
+
+  return {
+    year,
+    month,
+    monthName: monthNames[month],
+    days,
+    firstDayOfWeek,
+    avgScore: activeDays > 0 ? Math.round(totalScore / activeDays) : 0,
+    totalSessions,
+    totalMinutes,
+    activeDays,
+  };
+}

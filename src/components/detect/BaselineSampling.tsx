@@ -148,9 +148,9 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
             </div>
 
             {!isActive ? (
-              <p className="text-sm text-warning mb-4">请先开启摄像头</p>
+              <p className="text-sm text-warning-text mb-4">请先开启摄像头</p>
             ) : (
-              <p className="text-sm text-primary mb-4">摄像头已就绪，可以开始采样</p>
+              <p className="text-sm text-primary-text mb-4">摄像头已就绪，可以开始采样</p>
             )}
 
             <div className="flex gap-3">
@@ -165,7 +165,7 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
                 disabled={!isActive}
                 className={`flex-1 font-medium py-2.5 rounded-xl transition-colors text-sm ${
                   isActive
-                    ? "bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/25"
+                    ? "bg-primary-dark hover:bg-primary text-white shadow-lg shadow-primary/25"
                     : "bg-surface-alt text-text-muted cursor-not-allowed"
                 }`}
               >
@@ -206,9 +206,9 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
             <div
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${
                 quality === "good"
-                  ? "bg-primary-light text-primary"
+                  ? "bg-primary-light text-primary-text"
                   : quality === "adjust"
-                  ? "bg-warning-light text-warning"
+                  ? "bg-warning-light text-warning-text"
                   : "bg-surface-alt text-text-muted"
               }`}
             >
@@ -248,7 +248,7 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
             </div>
             <button
               onClick={onCancel}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-primary/25"
+              className="w-full bg-primary-dark hover:bg-primary text-white font-medium py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-primary/25"
             >
               完成
             </button>

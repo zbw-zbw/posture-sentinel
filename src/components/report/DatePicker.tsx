@@ -100,7 +100,7 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
             onClick={() => onChange(today)}
             className={`text-xs px-2.5 py-1.5 rounded-lg transition-colors font-medium ${
               date === today
-                ? "bg-primary text-white"
+                ? "bg-primary-dark text-white"
                 : "bg-surface-alt text-text-secondary hover:bg-border"
             }`}
           >
@@ -110,7 +110,7 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
             onClick={goYesterday}
             className={`text-xs px-2.5 py-1.5 rounded-lg transition-colors font-medium ${
               date === toLocalDateString(new Date(Date.now() - 86400000))
-                ? "bg-primary text-white"
+                ? "bg-primary-dark text-white"
                 : "bg-surface-alt text-text-secondary hover:bg-border"
             }`}
           >
@@ -173,7 +173,7 @@ export default function DatePicker({ date, onChange, availableDates }: DatePicke
                           disabled={isFuture}
                           className={`h-9 rounded-lg text-sm font-medium transition-colors ${
                             selected
-                              ? "bg-primary text-white"
+                              ? "bg-primary-dark text-white"
                               : isFuture
                               ? "text-text-muted opacity-40"
                               : hasData

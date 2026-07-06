@@ -42,7 +42,7 @@ function PomodoroTimerImpl({
     return (
       <button
         onClick={onStart}
-        className="flex items-center gap-2 text-sm text-text-secondary hover:text-primary transition-colors group"
+        className="flex items-center gap-2 text-sm text-text-secondary hover:text-primary-text transition-colors group"
         title="开启 25 分钟专注 + 5 分钟休息循环"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

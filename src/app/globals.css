@@ -4,7 +4,7 @@
 @theme inline {
   --color-primary: #10b981;
   --color-primary-light: #d1fae5;
-  --color-primary-dark: #059669;
+  --color-primary-dark: #047857;  /* emerald-700: WCAG AA 4.8:1 on white — used for button backgrounds */
   --color-primary-text: #047857;  /* emerald-700: WCAG AA on light backgrounds */
   --color-warning: #f59e0b;
   --color-warning-light: #fef3c7;
@@ -26,7 +26,8 @@
   --color-dark: #1e293b;
   --color-dark-surface: #334155;
 
-  --font-sans: var(--font-inter), var(--font-noto-sans-sc), system-ui, sans-serif;
+  --font-sans: var(--font-raleway), var(--font-noto-sans-sc), system-ui, sans-serif;
+  --font-display: var(--font-lora), var(--font-noto-sans-sc), Georgia, serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
@@ -38,6 +39,16 @@ body {
   background: linear-gradient(180deg, var(--color-bg) 0%, #eef2f7 100%);
   color: var(--color-text-primary);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Display font for headings — Lora serif gives a calm, wellness feel */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+/* Tabular numbers for metric displays */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Hide Scrollbars only on decorative/modal containers ── */

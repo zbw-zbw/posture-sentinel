@@ -181,7 +181,7 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
               </div>
               <div className="bg-surface-alt rounded-xl p-3 text-center">
                 <p className="text-text-muted text-xs">良好占比</p>
-                <p className="text-sm font-semibold text-primary mt-1 tabular-nums">
+                <p className="text-sm font-semibold text-primary-text mt-1 tabular-nums">
                   {data.goodPercent}%
                 </p>
               </div>
@@ -217,7 +217,7 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
                     <div key={row.label} className="flex items-center justify-between bg-surface-alt rounded-lg px-3 py-2">
                       <span className="text-xs text-text-secondary">{row.label}</span>
                       <div className="flex items-center gap-2">
-                        <span className={`text-sm font-semibold tabular-nums ${row.isBad ? "text-danger" : "text-text-primary"}`}>
+                        <span className={`text-sm font-semibold tabular-nums ${row.isBad ? "text-danger-text" : "text-text-primary"}`}>
                           {row.value}{row.unit}
                         </span>
                         <span className="text-xs text-text-muted">{row.threshold}</span>
@@ -273,14 +273,14 @@ export default function SessionSummary({ data, onClose, onRestart }: SessionSumm
               {onRestart && (
                 <button
                   onClick={onRestart}
-                  className="flex-1 text-center bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  className="flex-1 text-center bg-primary-dark hover:bg-primary text-white font-medium py-3 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   再测一次
                 </button>
               )}
               <Link
                 href={`/report?date=${getTodayDate()}`}
-                className="flex-1 text-center border border-primary text-primary hover:bg-primary-light font-medium py-3 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                className="flex-1 text-center border border-primary text-primary-text hover:bg-primary-light font-medium py-3 rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 查看详细报告
                 <svg viewBox="0 0 24 24" className="w-4 h-4 inline-block ml-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -1,5 +1,3 @@
-"use client";
-
 export default function TestimonialsSection() {
   return (
     <section className="mx-auto max-w-[1100px] px-4 md:px-6 py-24 fade-in">
@@ -40,7 +38,7 @@ export default function TestimonialsSection() {
 
         {/* Card 2: 初中生小雨 */}
         <div className="card-hover relative flex flex-col rounded-2xl bg-surface p-6">
-          <div className="absolute right-3 top-3 rounded-full bg-primary-light px-2 py-1 text-xs text-primary">
+          <div className="absolute right-3 top-3 rounded-full bg-primary-light px-2 py-1 text-xs text-primary-text">
             公益
           </div>
           <div className="flex items-center gap-3">
@@ -60,7 +58,7 @@ export default function TestimonialsSection() {
             次以内。现在不开它也能保持坐直了！&rdquo;
           </p>
           <div className="mt-auto pt-4">
-            <span className="inline-block rounded-full bg-primary-light px-3 py-1 text-xs text-primary">
+            <span className="inline-block rounded-full bg-primary-light px-3 py-1 text-xs text-primary-text">
               青少年健康
             </span>
           </div>
@@ -85,7 +83,7 @@ export default function TestimonialsSection() {
             35&deg;。吓得我赶紧搬到书桌前。&rdquo;
           </p>
           <div className="mt-auto pt-4">
-            <span className="inline-block rounded-full bg-warning-light px-3 py-1 text-xs text-warning">
+            <span className="inline-block rounded-full bg-warning-light px-3 py-1 text-xs text-warning-text">
               远程办公
             </span>
           </div>

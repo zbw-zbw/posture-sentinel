@@ -138,7 +138,7 @@ export default function CameraView({
               <p className="text-white/60 text-xs mt-1">请检查网络连接后刷新页面重试</p>
               <button
                 onClick={() => window.location.reload()}
-                className="mt-3 bg-primary hover:bg-primary-dark text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+                className="mt-3 bg-primary-dark hover:bg-primary text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
               >
                 刷新重试
               </button>
@@ -170,7 +170,7 @@ export default function CameraView({
               <p className="text-white/60 text-sm mb-4">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-primary hover:bg-primary-dark text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
+                className="bg-primary-dark hover:bg-primary text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors"
               >
                 重试
               </button>

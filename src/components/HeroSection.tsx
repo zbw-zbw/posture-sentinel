@@ -86,7 +86,7 @@ export default function HeroSection() {
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 mt-8">
               <Link
                 href="/detect"
-                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
+                className="inline-flex items-center justify-center gap-2 bg-primary-dark hover:bg-primary text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 7l-7 5 7 5V7z" />
@@ -109,9 +109,9 @@ export default function HeroSection() {
 
             {/* Keywords Row */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-2 mt-6">
-              <span className="border border-primary/30 text-primary rounded-full px-4 py-2 text-sm">零成本</span>
-              <span className="border border-primary/30 text-primary rounded-full px-4 py-2 text-sm">零穿戴</span>
-              <span className="border border-primary/30 text-primary rounded-full px-4 py-2 text-sm">零门槛</span>
+              <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">零成本</span>
+              <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">零穿戴</span>
+              <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">零门槛</span>
             </div>
           </div>
 
@@ -137,14 +137,14 @@ export default function HeroSection() {
                 <p className="text-sm font-semibold text-text-primary">
                   今日已检测 {todayProgress.minutes} 分钟 · {todayProgress.sessions} 次会话
                 </p>
-                <p className="text-xs text-text-muted mt-0.5 group-hover:text-primary transition-colors">
+                <p className="text-xs text-text-muted mt-0.5 group-hover:text-primary-text transition-colors">
                   点击查看今日完整报告 →
                 </p>
               </div>
               {achievementCount > 0 && (
                 <div className="flex items-center gap-1 bg-primary-light px-2.5 py-1 rounded-lg flex-shrink-0">
                   <span className="text-xs">🏆</span>
-                  <span className="text-xs font-semibold text-primary">{achievementCount} / {ACHIEVEMENTS.length}</span>
+                  <span className="text-xs font-semibold text-primary-text">{achievementCount} / {ACHIEVEMENTS.length}</span>
                 </div>
               )}
             </div>
@@ -181,15 +181,15 @@ export default function HeroSection() {
         {/* Stat Cards Row */}
         <div id="hero-stats" className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 max-w-4xl mx-auto">
           <div className="bg-surface rounded-2xl p-5 border border-border card-hover">
-            <p className="text-3xl font-bold text-primary tabular-nums">{counts.a}<span className="text-lg font-semibold ml-1">亿</span></p>
+            <p className="text-3xl font-bold text-primary-text tabular-nums">{counts.a}<span className="text-lg font-semibold ml-1">亿</span></p>
             <p className="text-sm text-text-secondary mt-1">中国颈椎病患者</p>
           </div>
           <div className="bg-surface rounded-2xl p-5 border border-border card-hover">
-            <p className="text-3xl font-bold text-warning tabular-nums">{counts.b}<span className="text-lg font-semibold ml-1">%</span></p>
+            <p className="text-3xl font-bold text-warning-text tabular-nums">{counts.b}<span className="text-lg font-semibold ml-1">%</span></p>
             <p className="text-sm text-text-secondary mt-1">不到30岁的年轻人</p>
           </div>
           <div className="bg-surface rounded-2xl p-5 border border-border card-hover">
-            <p className="text-3xl font-bold text-danger tabular-nums">{counts.c}<span className="text-lg font-semibold ml-1">小时</span></p>
+            <p className="text-3xl font-bold text-danger-text tabular-nums">{counts.c}<span className="text-lg font-semibold ml-1">小时</span></p>
             <p className="text-sm text-text-secondary mt-1">日均久坐时长</p>
           </div>
         </div>

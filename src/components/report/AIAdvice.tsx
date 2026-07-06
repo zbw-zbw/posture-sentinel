@@ -127,7 +127,7 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
           </p>
         </div>
         {!loading && (
-          <button onClick={() => load(false)} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors flex items-center gap-1">
+          <button onClick={() => load(false)} className="text-sm text-primary-text hover:text-primary-dark font-medium transition-colors flex items-center gap-1">
             <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 4 23 10 17 10" />
               <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
@@ -154,7 +154,7 @@ export default function AIAdvice({ data, date }: AIAdviceProps) {
           {advice.map((item, i) => (
             <div key={i} className="flex gap-3 items-start">
               <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center mt-0.5 ${
-                isLocalAdvice ? "bg-surface-alt text-text-muted" : "bg-primary-light text-primary"
+                isLocalAdvice ? "bg-surface-alt text-text-muted" : "bg-primary-light text-primary-text"
               }`}>
                 {i + 1}
               </span>

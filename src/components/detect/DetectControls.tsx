@@ -119,7 +119,7 @@ export default function DetectControls({
         <button
           onClick={onStart}
           disabled={isLoading}
-          className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-8 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 bg-primary-dark hover:bg-primary text-white font-semibold px-8 py-4 rounded-full text-lg transition-all hover:shadow-lg hover:shadow-primary/25 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <>
@@ -163,7 +163,7 @@ export default function DetectControls({
           <button
             onClick={onResume}
             title="继续 (Space)"
-            className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 bg-primary-dark hover:bg-primary text-white font-semibold px-6 py-3 rounded-full transition-all w-full sm:w-auto justify-center"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
               <polygon points="5 3 19 12 5 21 5 3" />
@@ -174,7 +174,7 @@ export default function DetectControls({
         <button
           onClick={onStop}
           title="结束检测 (Esc)"
-          className="flex items-center gap-2 bg-danger/10 hover:bg-danger/20 text-danger font-semibold px-6 py-3 rounded-full border border-danger/20 transition-all w-full sm:w-auto justify-center"
+          className="flex items-center gap-2 bg-danger/10 hover:bg-danger/20 text-danger-text font-semibold px-6 py-3 rounded-full border border-danger/20 transition-all w-full sm:w-auto justify-center"
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
             <rect x="4" y="4" width="16" height="16" rx="2" />
@@ -220,7 +220,7 @@ export default function DetectControls({
         </span>
         <button
           onClick={onToggleHelp}
-          className="flex items-center gap-1 hover:text-primary transition-colors"
+          className="flex items-center gap-1 hover:text-primary-text transition-colors"
         >
           <kbd className="px-1.5 py-0.5 rounded border border-border bg-surface-alt text-text-secondary font-mono text-xs">?</kbd>
           快捷键

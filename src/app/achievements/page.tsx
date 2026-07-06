@@ -53,7 +53,7 @@ export default function AchievementsPage() {
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
         <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-3">
-            <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
+            <Link href="/" className="md:hidden flex items-center justify-center w-11 h-11 rounded-lg hover:bg-surface-alt transition-colors" aria-label="返回">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
@@ -72,19 +72,19 @@ export default function AchievementsPage() {
           <div className="max-w-[1100px] mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-surface rounded-2xl p-4 text-center border border-border">
-                <p className="text-xl font-bold text-primary tabular-nums">{stats.totalSessions}</p>
+                <p className="text-xl font-bold text-primary-text tabular-nums">{stats.totalSessions}</p>
                 <p className="text-xs text-text-muted mt-1">检测次数</p>
               </div>
               <div className="bg-surface rounded-2xl p-4 text-center border border-border">
-                <p className="text-xl font-bold text-primary tabular-nums">{stats.totalHours}<span className="text-sm font-normal text-text-muted ml-0.5">h</span></p>
+                <p className="text-xl font-bold text-primary-text tabular-nums">{stats.totalHours}<span className="text-sm font-normal text-text-muted ml-0.5">h</span></p>
                 <p className="text-xs text-text-muted mt-1">累计时长</p>
               </div>
               <div className="bg-surface rounded-2xl p-4 text-center border border-border">
-                <p className="text-xl font-bold text-primary tabular-nums">{stats.streakDays}<span className="text-sm font-normal text-text-muted ml-0.5">天</span></p>
+                <p className="text-xl font-bold text-primary-text tabular-nums">{stats.streakDays}<span className="text-sm font-normal text-text-muted ml-0.5">天</span></p>
                 <p className="text-xs text-text-muted mt-1">连续达标</p>
               </div>
               <div className="bg-surface rounded-2xl p-4 text-center border border-border">
-                <p className="text-xl font-bold text-primary tabular-nums">{stats.bestScore}</p>
+                <p className="text-xl font-bold text-primary-text tabular-nums">{stats.bestScore}</p>
                 <p className="text-xs text-text-muted mt-1">最高评分</p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function AchievementsPage() {
             <div className="bg-surface rounded-2xl p-5 border border-border">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-text-secondary">成就完成度</span>
-                <span className="text-sm font-bold text-primary">{stats.unlockedCount} / {stats.totalAchievements}</span>
+                <span className="text-sm font-bold text-primary-text">{stats.unlockedCount} / {stats.totalAchievements}</span>
               </div>
               <div className="bg-surface-alt rounded-full h-3 overflow-hidden">
                 <div
@@ -126,7 +126,7 @@ export default function AchievementsPage() {
               </p>
               <Link
                 href="/detect"
-                className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm"
+                className="inline-flex items-center gap-2 bg-primary-dark hover:bg-primary text-white font-medium px-6 py-2.5 rounded-xl transition-colors text-sm"
               >
                 <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 7l-7 5 7 5V7z" />

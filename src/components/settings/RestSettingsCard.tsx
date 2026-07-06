@@ -34,7 +34,7 @@ function Toggle({
       aria-label={label}
       onClick={onChange}
       className={`relative inline-flex h-7 w-12 flex-shrink-0 items-center rounded-full transition-colors duration-200 ${
-        checked ? "bg-primary" : "bg-border"
+        checked ? "bg-primary-dark" : "bg-border"
       }`}
     >
       <span
@@ -107,7 +107,7 @@ export default function RestSettingsCard({
                 onClick={() => onUpdate({ intervalMinutes: min })}
                 className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-all ${
                   intervalMinutes === min
-                    ? "bg-primary text-white"
+                    ? "bg-primary-dark text-white"
                     : "bg-surface-alt text-text-secondary hover:bg-border"
                 }`}
               >

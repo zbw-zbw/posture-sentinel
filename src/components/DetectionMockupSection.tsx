@@ -228,7 +228,7 @@ export default function DetectionMockupSection() {
           {/* ─── Right Column: Data Panel ─── */}
           <div className="p-6 md:p-8">
             {/* Status Badge */}
-            <div className="bg-primary-light text-primary font-semibold text-lg inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full">
+            <div className="bg-primary-light text-primary-text font-semibold text-lg inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full">
               <span className="w-3 h-3 rounded-full bg-primary inline-block flex-shrink-0" />
               <span>坐姿良好</span>
             </div>
@@ -240,7 +240,7 @@ export default function DetectionMockupSection() {
                 value={5}
                 suffix="°"
                 status="正常"
-                statusClass="bg-primary-light text-primary"
+                statusClass="bg-primary-light text-primary-text"
                 progressPercent={33}
               />
               <MetricCard
@@ -248,7 +248,7 @@ export default function DetectionMockupSection() {
                 value={2}
                 suffix="°"
                 status="正常"
-                statusClass="bg-primary-light text-primary"
+                statusClass="bg-primary-light text-primary-text"
                 progressPercent={25}
               />
               <MetricCard
@@ -256,7 +256,7 @@ export default function DetectionMockupSection() {
                 value={15}
                 suffix="%"
                 status="正常"
-                statusClass="bg-primary-light text-primary"
+                statusClass="bg-primary-light text-primary-text"
                 progressPercent={25}
               />
               <MetricCard
@@ -264,7 +264,7 @@ export default function DetectionMockupSection() {
                 value={3}
                 suffix="°"
                 status="正常"
-                statusClass="bg-primary-light text-primary"
+                statusClass="bg-primary-light text-primary-text"
                 progressPercent={20}
               />
             </div>

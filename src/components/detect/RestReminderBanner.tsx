@@ -136,7 +136,7 @@ export default function RestReminderBanner({
           <circle cx="12" cy="12" r="10" />
           <polyline points="12 6 12 12 16 14" />
         </svg>
-        <span className="text-xs text-warning font-medium">休息提醒已延后 5 分钟</span>
+        <span className="text-xs text-warning-text font-medium">休息提醒已延后 5 分钟</span>
       </div>
     );
   }
@@ -177,7 +177,7 @@ export function RestTriggerPrompt({
         <div className="space-y-2">
           <button
             onClick={onStart}
-            className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-3 rounded-xl transition-colors"
+            className="w-full bg-primary-dark hover:bg-primary text-white font-medium py-3 rounded-xl transition-colors"
           >
             立即休息
           </button>

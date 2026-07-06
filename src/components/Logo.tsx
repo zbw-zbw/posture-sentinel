@@ -7,6 +7,8 @@
  * alignment dots. The gradient background matches the primary brand color.
  */
 
+import { COLORS } from "@/lib/colors";
+
 interface LogoProps {
   /** Pixel size for both width and height. Default: 28 */
   size?: number;
@@ -34,8 +36,8 @@ export default function Logo({
       >
         <defs>
           <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#10b981" />
-            <stop offset="100%" stopColor="#059669" />
+            <stop offset="0%" stopColor={COLORS.primary} />
+            <stop offset="100%" stopColor={COLORS.primaryDark} />
           </linearGradient>
         </defs>
         <rect width="100" height="100" rx="24" fill="url(#logoGradient)" />

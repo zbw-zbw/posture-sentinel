@@ -71,17 +71,20 @@ function prepareCloneForCapture(clonedDoc: Document, targetId: string) {
     if (typeof classList === "string") {
       // Text colors
       if (classList.includes("text-primary")) htmlEl.style.setProperty("color", "#10b981", "important");
-      if (classList.includes("text-primary-dark")) htmlEl.style.setProperty("color", "#059669", "important");
+      if (classList.includes("text-primary-dark")) htmlEl.style.setProperty("color", "#047857", "important");
+      if (classList.includes("text-primary-text")) htmlEl.style.setProperty("color", "#047857", "important");
       if (classList.includes("text-text-primary")) htmlEl.style.setProperty("color", "#0f172a", "important");
       if (classList.includes("text-text-secondary")) htmlEl.style.setProperty("color", "#475569", "important");
       if (classList.includes("text-text-muted")) htmlEl.style.setProperty("color", "#94a3b8", "important");
       if (classList.includes("text-warning")) htmlEl.style.setProperty("color", "#f59e0b", "important");
+      if (classList.includes("text-warning-text")) htmlEl.style.setProperty("color", "#b45309", "important");
       if (classList.includes("text-danger")) htmlEl.style.setProperty("color", "#ef4444", "important");
+      if (classList.includes("text-danger-text")) htmlEl.style.setProperty("color", "#b91c1c", "important");
       if (classList.includes("text-white")) htmlEl.style.setProperty("color", "#ffffff", "important");
 
       // Background colors
       if (classList.includes("bg-primary")) htmlEl.style.setProperty("background-color", "#10b981", "important");
-      if (classList.includes("bg-primary-dark")) htmlEl.style.setProperty("background-color", "#059669", "important");
+      if (classList.includes("bg-primary-dark")) htmlEl.style.setProperty("background-color", "#047857", "important");
       if (classList.includes("bg-primary-light")) htmlEl.style.setProperty("background-color", "#d1fae5", "important");
       if (classList.includes("bg-bg")) htmlEl.style.setProperty("background-color", "#f8fafb", "important");
       if (classList.includes("bg-surface")) htmlEl.style.setProperty("background-color", "#ffffff", "important");
@@ -110,7 +113,15 @@ function prepareCloneForCapture(clonedDoc: Document, targetId: string) {
 export default function ExportButton({ targetId, disabled }: ExportButtonProps) {
   const [exporting, setExporting] = useState(false);
   const [done, setDone] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const showToast = useCallback((msg: string) => {
+    setToastMsg(msg);
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => setToastMsg(null), 3000);
+  }, []);
 
   const handleExport = useCallback(async () => {
     setExporting(true);
@@ -118,7 +129,7 @@ export default function ExportButton({ targetId, disabled }: ExportButtonProps) 
       const html2canvas = (await import("html2canvas")).default;
       const element = document.getElementById(targetId);
       if (!element) {
-        alert("导出区域未找到");
+        showToast("导出区域未找到");
         return;
       }
 
@@ -151,25 +162,32 @@ export default function ExportButton({ targetId, disabled }: ExportButtonProps) 
       timeoutRef.current = setTimeout(() => setDone(false), 2000);
     } catch (err) {
       console.error("Export failed:", err);
-      alert(`导出失败: ${err instanceof Error ? err.message : "未知错误"}`);
+      showToast(`导出失败: ${err instanceof Error ? err.message : "未知错误"}`);
     } finally {
       setExporting(false);
     }
-  }, [targetId]);
+  }, [targetId, showToast]);
 
   return (
-    <button
-      onClick={handleExport}
-      disabled={exporting || disabled}
-      title={disabled ? "暂无数据，无法导出" : "导出报告为图片"}
-      className="flex items-center gap-2 bg-surface-alt hover:bg-border text-text-secondary font-medium px-4 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-    >
-      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
-      {exporting ? "导出中..." : done ? "已导出 ✓" : "导出为图片"}
-    </button>
+    <>
+      <button
+        onClick={handleExport}
+        disabled={exporting || disabled}
+        title={disabled ? "暂无数据，无法导出" : "导出报告为图片"}
+        className="flex items-center gap-2 bg-surface-alt hover:bg-border text-text-secondary font-medium px-4 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        {exporting ? "导出中..." : done ? "已导出 ✓" : "导出为图片"}
+      </button>
+      {toastMsg && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-dark text-white rounded-lg px-4 py-2 shadow-lg">
+          {toastMsg}
+        </div>
+      )}
+    </>
   );
 }

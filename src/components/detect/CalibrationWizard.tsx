@@ -99,7 +99,7 @@ export default function CalibrationWizard({ onComplete, onSkip }: CalibrationWiz
           )}
           <button
             onClick={handleNext}
-            className="flex-1 bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-primary/25"
+            className="flex-1 bg-primary-dark hover:bg-primary text-white font-medium py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-primary/25"
           >
             {step === STEPS.length - 1 ? "开始检测" : "下一步"}
           </button>

@@ -1,17 +1,12 @@
 "use client";
 
 import { memo, useEffect, useRef, useState } from "react";
+import { getScoreColor } from "@/lib/colors";
 
 interface PostureGaugeProps {
   score: number;
   isDetecting: boolean;
   isDetected: boolean;
-}
-
-function getScoreColor(score: number): string {
-  if (score >= 80) return "#10b981";
-  if (score >= 60) return "#f59e0b";
-  return "#ef4444";
 }
 
 function getScoreLabel(score: number): string {

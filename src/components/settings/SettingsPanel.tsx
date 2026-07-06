@@ -57,7 +57,7 @@ export default function SettingsPanel({
                 onClick={() => onSetSensitivity(level)}
                 className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-all ${
                   settings.sensitivity === level
-                    ? "bg-primary text-white"
+                    ? "bg-primary-dark text-white"
                     : "bg-surface-alt text-text-secondary hover:bg-border"
                 }`}
               >
@@ -137,7 +137,7 @@ export default function SettingsPanel({
                 onClick={() => onUpdate({ alertMethod: method })}
                 className={`flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-all ${
                   settings.alertMethod === method
-                    ? "bg-primary text-white"
+                    ? "bg-primary-dark text-white"
                     : "bg-surface-alt text-text-secondary hover:bg-border"
                 }`}
               >
@@ -429,7 +429,7 @@ export default function SettingsPanel({
       {/* Reset */}
       <button
         onClick={onReset}
-        className="w-full flex items-center justify-center gap-2 bg-surface-alt hover:bg-danger-light hover:text-danger text-text-secondary font-medium px-4 py-3 rounded-xl transition-all text-sm"
+        className="w-full flex items-center justify-center gap-2 bg-surface-alt hover:bg-danger-light hover:text-danger-text text-text-secondary font-medium px-4 py-3 rounded-xl transition-all text-sm"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="3 6 5 6 21 6" />

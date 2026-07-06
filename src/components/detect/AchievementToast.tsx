@@ -49,6 +49,8 @@ export default function AchievementToast({
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       onClick={dismiss}
       className={`fixed inset-0 z-[90] flex items-center justify-center bg-dark/40 backdrop-blur-sm p-4 transition-opacity duration-300 ${
         visible ? "opacity-100" : "opacity-0"
@@ -65,7 +67,7 @@ export default function AchievementToast({
         <div className="text-6xl mb-4 leading-none">{achievement.icon}</div>
 
         {/* Title */}
-        <p className="text-sm font-medium text-primary mb-1">
+        <p className="text-sm font-medium text-primary-text mb-1">
           🎉 解锁成就！
         </p>
 

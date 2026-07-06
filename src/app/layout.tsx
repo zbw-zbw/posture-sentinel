@@ -1,14 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_SC } from "next/font/google";
+import { Lora, Raleway, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ScrollObserver from "@/components/ScrollObserver";
 import StorageCleanup from "@/components/StorageCleanup";
 
-const inter = Inter({
-  variable: "--font-inter",
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const raleway = Raleway({
+  variable: "--font-raleway",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -66,7 +73,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="scroll-smooth">
       <body
-        className={`${inter.variable} ${notoSansSC.variable} font-sans min-h-full antialiased`}
+        className={`${lora.variable} ${raleway.variable} ${notoSansSC.variable} font-sans min-h-full antialiased`}
       >
         <ScrollObserver />
         <StorageCleanup />

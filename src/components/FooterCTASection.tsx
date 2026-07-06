@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import Logo from "./Logo";
 
@@ -29,7 +27,7 @@ export default function FooterCTASection() {
         <div className="mt-10">
           <Link
             href="/detect"
-            className="inline-block bg-primary hover:bg-primary-dark text-white font-semibold px-10 py-4 rounded-xl text-lg transition-all hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03] active:scale-[0.98]"
+            className="inline-block bg-primary-dark hover:bg-primary text-white font-semibold px-10 py-4 rounded-xl text-lg transition-all hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.03] active:scale-[0.98]"
           >
             开始检测
             <svg viewBox="0 0 24 24" className="w-5 h-5 inline-block ml-1 -mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -49,7 +47,7 @@ export default function FooterCTASection() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-text-muted hover:text-primary transition-colors"
+                className="text-sm text-text-muted hover:text-primary-text transition-colors"
               >
                 {link.label}
               </Link>

@@ -112,7 +112,7 @@ export default function BaselineCard({
           <div className="flex gap-3">
             <button
               onClick={onRecalibrate}
-              className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary-dark hover:bg-primary text-white font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -130,7 +130,7 @@ export default function BaselineCard({
             </button>
             <button
               onClick={onClear}
-              className="flex items-center justify-center gap-2 bg-transparent hover:bg-danger-light text-danger border border-danger/30 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
+              className="flex items-center justify-center gap-2 bg-transparent hover:bg-danger-light text-danger-text border border-danger/30 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ export default function BaselineCard({
           </p>
           <button
             onClick={onRecalibrate}
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-5 py-2.5 rounded-xl transition-colors text-sm"
+            className="inline-flex items-center gap-2 bg-primary-dark hover:bg-primary text-white font-medium px-5 py-2.5 rounded-xl transition-colors text-sm"
           >
             <svg
               viewBox="0 0 24 24"

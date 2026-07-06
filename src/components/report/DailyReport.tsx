@@ -20,6 +20,7 @@ import MetricsSummary from "./MetricsSummary";
 import WeeklyTrend from "./WeeklyTrend";
 import AIAdvice from "./AIAdvice";
 import MonthlyHeatmap from "./MonthlyHeatmap";
+import CalendarHeatmap from "./CalendarHeatmap";
 import HourlyHeatmap from "./HourlyHeatmap";
 import EmptyState from "./EmptyState";
 import DailyGoalCard from "./DailyGoalCard";
@@ -31,15 +32,15 @@ interface DailyReportProps {
 
 function getEncouragement(score: number): { text: string; color: string } {
   if (score >= 90) {
-    return { text: "太棒了！今日坐姿非常优秀，继续保持好习惯。", color: "bg-primary-light text-primary" };
+    return { text: "太棒了！今日坐姿非常优秀，继续保持好习惯。", color: "bg-primary-light text-primary-text" };
   }
   if (score >= 75) {
-    return { text: "今日坐姿不错，注意偶尔起身活动，保护脊椎。", color: "bg-primary-light text-primary" };
+    return { text: "今日坐姿不错，注意偶尔起身活动，保护脊椎。", color: "bg-primary-light text-primary-text" };
   }
   if (score >= 60) {
-    return { text: "坐姿还有提升空间，试着挺直腰背、调整屏幕高度。", color: "bg-warning-light text-warning" };
+    return { text: "坐姿还有提升空间，试着挺直腰背、调整屏幕高度。", color: "bg-warning-light text-warning-text" };
   }
-  return { text: "今日坐姿需要关注，建议设置提醒，逐步改善坐姿。", color: "bg-danger-light text-danger" };
+  return { text: "今日坐姿需要关注，建议设置提醒，逐步改善坐姿。", color: "bg-danger-light text-danger-text" };
 }
 
 export default function DailyReport({ initialDate }: DailyReportProps) {
@@ -274,9 +275,15 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
             </div>
           </section>
 
-          {/* Row 6: Monthly Heatmap */}
+          {/* Row 6: Calendar Heatmap (interactive monthly view) */}
           <section className="fade-in" style={{ transitionDelay: "400ms" }}>
-            <MonthlyHeatmap year={heatmapYear} month={heatmapMonth} onDateSelect={setDate} />
+            <div className="bg-surface rounded-2xl p-6 card-hover">
+              <h3 className="text-lg font-bold text-text-primary mb-4">月度趋势日历</h3>
+              <p className="text-sm text-text-secondary mb-4">
+                点击日期查看当日详情，用方向键浏览历史月份
+              </p>
+              <CalendarHeatmap />
+            </div>
           </section>
 
           {/* Row 7: Session Records */}
@@ -289,7 +296,7 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
                     key={session.id}
                     className="flex items-center gap-2 sm:gap-4 p-4 bg-surface-alt rounded-xl hover:shadow-md hover:-translate-y-0.5 transition-all"
                   >
-                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-light text-primary text-sm font-bold flex items-center justify-center">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-light text-primary-text text-sm font-bold flex items-center justify-center">
                       #{index + 1}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -306,10 +313,10 @@ export default function DailyReport({ initialDate }: DailyReportProps) {
                       <span
                         className={`inline-flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold ${
                           session.avgScore >= 80
-                            ? "bg-primary-light text-primary"
+                            ? "bg-primary-light text-primary-text"
                             : session.avgScore >= 60
-                            ? "bg-warning-light text-warning"
-                            : "bg-danger-light text-danger"
+                            ? "bg-warning-light text-warning-text"
+                            : "bg-danger-light text-danger-text"
                         }`}
                       >
                         {session.avgScore}
@@ -344,8 +351,8 @@ function ComparisonRow({
 
   // For score, positive delta = improvement (green). For duration/count, neutral.
   const deltaColor = isScore
-    ? isPositive ? "text-primary" : isNegative ? "text-danger" : "text-text-muted"
-    : isPositive ? "text-primary" : isNegative ? "text-warning-text" : "text-text-muted";
+    ? isPositive ? "text-primary-text" : isNegative ? "text-danger-text" : "text-text-muted"
+    : isPositive ? "text-primary-text" : isNegative ? "text-warning-text" : "text-text-muted";
   const deltaIcon = isPositive ? "↑" : isNegative ? "↓" : "—";
 
   return (

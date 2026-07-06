@@ -54,7 +54,7 @@ export default function SettingsPage() {
       <section className="bg-gradient-to-b from-primary-light/10 to-transparent px-4 md:px-6 pt-20 pb-8">
         <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-3">
-            <Link href="/" className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-alt transition-colors">
+            <Link href="/" className="md:hidden flex items-center justify-center w-11 h-11 rounded-lg hover:bg-surface-alt transition-colors" aria-label="返回">
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
@@ -94,7 +94,7 @@ export default function SettingsPage() {
       <section className="px-4 md:px-6 mt-6">
         <div className="max-w-[1100px] mx-auto">
           <div className="bg-surface rounded-2xl p-6 border border-danger/20">
-            <h3 className="text-lg font-bold text-danger mb-2 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-danger-text mb-2 flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                 <line x1="12" y1="9" x2="12" y2="13" />
@@ -107,7 +107,7 @@ export default function SettingsPage() {
             </p>
             <button
               onClick={() => setConfirmClear(true)}
-              className="w-full flex items-center justify-center gap-2 bg-danger-light hover:bg-danger/20 text-danger font-medium px-4 py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-danger-light hover:bg-danger/20 text-danger-text font-medium px-4 py-3 rounded-xl transition-all text-sm"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="3 6 5 6 21 6" />

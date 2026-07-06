@@ -44,7 +44,7 @@ function MetricCard({ icon, name, value, unit, threshold, change }: { icon: Reac
   // Guard against NaN/null/undefined values
   const safeValue = Number.isFinite(value) ? value : 0;
   const safeChange = change !== undefined && Number.isFinite(change) ? change : undefined;
-  const color = safeChange === undefined ? "" : safeChange > 0 ? "text-primary" : safeChange < 0 ? "text-danger" : "text-text-muted";
+  const color = safeChange === undefined ? "" : safeChange > 0 ? "text-primary-text" : safeChange < 0 ? "text-danger-text" : "text-text-muted";
   const direction = safeChange === undefined ? "neutral" : safeChange > 0 ? "up" : safeChange < 0 ? "down" : "neutral";
 
   return (
