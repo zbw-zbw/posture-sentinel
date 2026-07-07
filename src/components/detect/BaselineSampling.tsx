@@ -33,16 +33,24 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
     neckForward: [],
     spineTilt: [],
   });
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Check posture quality in real-time
+  // Use refs to avoid interval recreation when metrics change (~120ms)
+  const metricsRef = useRef(metrics);
+  metricsRef.current = metrics;
+  const qualityRef = useRef(quality);
+  qualityRef.current = quality;
+  const onCaptureRef = useRef(onCapture);
+  onCaptureRef.current = onCapture;
+  const countdownRef = useRef(countdown);
+  countdownRef.current = countdown;
+
+  // Check posture quality in real-time (runs on every metrics update)
   useEffect(() => {
     if (!metrics || phase !== "sampling") {
-      setQuality("waiting");
+      if (phase !== "sampling") setQuality("waiting");
       return;
     }
 
-    // Quality check: angles should be relatively small (user sitting straight)
     const headOk = Math.abs(metrics.headTiltAngle) < 25;
     const shoulderOk = Math.abs(metrics.shoulderTiltAngle) < 15;
     const spineOk = Math.abs(metrics.spineTiltAngle) < 15;
@@ -58,47 +66,49 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
     }
   }, [metrics, phase]);
 
-  // Sampling countdown
+  // Sampling countdown — stable interval, NOT dependent on metrics/quality
   useEffect(() => {
     if (phase !== "sampling") return;
 
-    intervalRef.current = setInterval(() => {
+    const interval = setInterval(() => {
+      const m = metricsRef.current;
+      const q = qualityRef.current;
+
       // Only count down when quality is good and we have metrics
-      if (metrics && quality === "good") {
+      if (m && q === "good") {
         // Record sample
-        samplesRef.current.headTilt.push(metrics.headTiltAngle);
-        samplesRef.current.shoulderTilt.push(metrics.shoulderTiltAngle);
-        samplesRef.current.neckForward.push(metrics.neckForwardScore);
-        samplesRef.current.spineTilt.push(metrics.spineTiltAngle);
+        samplesRef.current.headTilt.push(m.headTiltAngle);
+        samplesRef.current.shoulderTilt.push(m.shoulderTiltAngle);
+        samplesRef.current.neckForward.push(m.neckForwardScore);
+        samplesRef.current.spineTilt.push(m.spineTiltAngle);
 
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            // Sampling complete - compute averages
-            const s = samplesRef.current;
-            const avg = (arr: number[]) => (arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+        const next = countdownRef.current - 1;
+        if (next <= 0) {
+          // Sampling complete - compute averages
+          const s = samplesRef.current;
+          const avg = (arr: number[]) => (arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
 
-            onCapture({
-              headTilt: avg(s.headTilt),
-              shoulderTilt: avg(s.shoulderTilt),
-              neckForward: avg(s.neckForward),
-              spineTilt: avg(s.spineTilt),
-            });
-            setPhase("success");
-            return 0;
-          }
-          return prev - 1;
-        });
+          onCaptureRef.current({
+            headTilt: avg(s.headTilt),
+            shoulderTilt: avg(s.shoulderTilt),
+            neckForward: avg(s.neckForward),
+            spineTilt: avg(s.spineTilt),
+          });
+          setPhase("success");
+          setCountdown(0);
+        } else {
+          setCountdown(next);
+        }
       }
     }, 1000);
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [phase, metrics, quality, onCapture]);
+    return () => clearInterval(interval);
+  }, [phase]);
 
   const startSampling = useCallback(() => {
     samplesRef.current = { headTilt: [], shoulderTilt: [], neckForward: [], spineTilt: [] };
     setCountdown(SAMPLE_DURATION);
+    countdownRef.current = SAMPLE_DURATION;
     setPhase("sampling");
   }, []);
 
@@ -109,7 +119,7 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
 
   return (
     <div className="fixed inset-0 z-[95] flex items-center justify-center bg-dark/60 backdrop-blur-sm p-4">
-      <div className="bg-surface rounded-3xl p-8 max-w-md w-full shadow-2xl">
+      <div className="bg-surface rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
         {/* Header */}
         <h3 className="text-xl font-bold text-text-primary text-center mb-2">
           {phase === "prepare" && "个人姿态校准"}
@@ -153,17 +163,18 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
               <p className="text-sm text-primary-text mb-4">摄像头已就绪，可以开始采样</p>
             )}
 
+            {/* Action buttons */}
             <div className="flex gap-3">
               <button
                 onClick={onCancel}
-                className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-2.5 rounded-xl transition-colors text-sm"
+                className="flex-1 bg-surface-alt hover:bg-border text-text-secondary font-medium py-3 rounded-xl transition-colors text-sm min-h-11"
               >
                 取消
               </button>
               <button
                 onClick={startSampling}
                 disabled={!isActive}
-                className={`flex-1 font-medium py-2.5 rounded-xl transition-colors text-sm ${
+                className={`flex-1 font-medium py-3 rounded-xl transition-colors text-sm min-h-11 ${
                   isActive
                     ? "bg-primary-dark hover:bg-primary text-white shadow-lg shadow-primary/25"
                     : "bg-surface-alt text-text-muted cursor-not-allowed"
@@ -182,9 +193,7 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
               <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
                 <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" strokeWidth="6" className="text-border" />
                 <circle
-                  cx="60"
-                  cy="60"
-                  r="52"
+                  cx="60" cy="60" r="52"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="6"
@@ -204,7 +213,7 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
 
             {/* Quality indicator */}
             <div
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-4 ${
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${
                 quality === "good"
                   ? "bg-primary-light text-primary-text"
                   : quality === "adjust"
@@ -227,12 +236,13 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
             </div>
 
             {quality === "adjust" && (
-              <p className="text-xs text-text-muted">调整姿势后采样将继续</p>
+              <p className="text-xs text-text-muted mb-4">调整姿势后采样将继续</p>
             )}
 
+            {/* Cancel button — proper touch target */}
             <button
               onClick={onCancel}
-              className="text-sm text-text-muted hover:text-text-secondary transition-colors"
+              className="w-full bg-surface-alt hover:bg-border text-text-secondary font-medium py-3 rounded-xl transition-colors text-sm min-h-11"
             >
               取消采样
             </button>
@@ -248,7 +258,7 @@ export default function BaselineSampling({ metrics, isActive, onCapture, onCance
             </div>
             <button
               onClick={onCancel}
-              className="w-full bg-primary-dark hover:bg-primary text-white font-medium py-2.5 rounded-xl transition-colors text-sm shadow-lg shadow-primary/25"
+              className="w-full bg-primary-dark hover:bg-primary text-white font-medium py-3 rounded-xl transition-colors text-sm shadow-lg shadow-primary/25 min-h-11"
             >
               完成
             </button>

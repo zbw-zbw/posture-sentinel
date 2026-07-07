@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { ACHIEVEMENTS } from "@/lib/achievements";
+import AchievementIcon from "@/components/icons/AchievementIcon";
 
 interface UnlockedAchievement {
   id: string;
@@ -88,8 +89,8 @@ export default function AchievementsCard({
             >
               {/* Icon */}
               <div className="relative inline-block mb-2">
-                <span className="text-3xl leading-none block">
-                  {ach.icon}
+                <span className={`block ${isUnlocked ? "text-primary-text" : "text-text-muted"}`}>
+                  <AchievementIcon name={ach.icon} size={36} />
                 </span>
                 {/* Lock overlay for locked badges */}
                 {!isUnlocked && (

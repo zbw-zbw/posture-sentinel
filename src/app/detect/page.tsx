@@ -122,6 +122,7 @@ export default function DetectPage() {
 
   const handleStart = useCallback(async () => {
     initAudio();
+    if (navigator.vibrate) navigator.vibrate(15);
     setShowCompletionBanner(false);
     const success = await startCamera();
     if (!success) return; // Camera failed, error displayed by CameraView
@@ -131,6 +132,7 @@ export default function DetectPage() {
   }, [startCamera, startSession, analyzer]);
 
   const handlePause = useCallback(() => {
+    if (navigator.vibrate) navigator.vibrate(10);
     stopDetection();
     analyzer.pause();
     pauseSession();
@@ -146,6 +148,7 @@ export default function DetectPage() {
   }, [analyzer, resumeSession]);
 
   const handleStop = useCallback(() => {
+    if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
     // Capture current metrics from ref BEFORE stopping detection (which clears landmarks)
     const finalMetrics = { ...metricsRef.current };
     // 使用 getElapsedTime 读取当前真实经过时间，而不是可能过期的 elapsedTime state

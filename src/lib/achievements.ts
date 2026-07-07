@@ -2,7 +2,7 @@ export interface AchievementDef {
   id: string;
   name: string;
   description: string;
-  icon: string; // emoji
+  icon: string; // SVG icon identifier (see AchievementIcon component)
   /** Check if this achievement is unlocked given current stats */
   check: (stats: AchievementStats) => boolean;
 }
@@ -26,56 +26,56 @@ export const ACHIEVEMENTS: AchievementDef[] = [
     id: "first_session",
     name: "初次启程",
     description: "完成第一次坐姿检测",
-    icon: "🚀",
+    icon: "rocket",
     check: (s) => s.totalSessions >= 1,
   },
   {
     id: "streak_3",
     name: "三日连击",
     description: "连续 3 天达到每日目标",
-    icon: "🔥",
+    icon: "flame",
     check: (s) => s.streakDays >= 3,
   },
   {
     id: "streak_7",
     name: "周而复始",
     description: "连续 7 天达到每日目标",
-    icon: "⭐",
+    icon: "star",
     check: (s) => s.streakDays >= 7,
   },
   {
     id: "streak_30",
     name: "月度冠军",
     description: "连续 30 天达到每日目标",
-    icon: "🏆",
+    icon: "trophy",
     check: (s) => s.streakDays >= 30,
   },
   {
     id: "total_hours_10",
     name: "累计 10 小时",
     description: "累计检测时长达到 10 小时",
-    icon: "⏱️",
+    icon: "clock",
     check: (s) => s.totalDurationSec >= 10 * 3600,
   },
   {
     id: "total_hours_50",
     name: "资深守护",
     description: "累计检测时长达到 50 小时",
-    icon: "🛡️",
+    icon: "shield",
     check: (s) => s.totalDurationSec >= 50 * 3600,
   },
   {
     id: "perfect_day",
     name: "完美一天",
     description: "某天平均评分达到 90 分以上",
-    icon: "✨",
+    icon: "sparkles",
     check: (s) => s.bestScore >= 90,
   },
   {
     id: "early_bird",
     name: "早起的鸟儿",
     description: "在早上 9 点前开始检测",
-    icon: "🌅",
+    icon: "sunrise",
     check: (s) => s.earliestSessionHour !== null && s.earliestSessionHour < 9,
   },
 ];

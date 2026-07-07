@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSessions, getDailyGoalProgress } from "@/lib/storage";
 import { computeAchievementStats, ACHIEVEMENTS } from "@/lib/achievements";
+import AchievementIcon from "@/components/icons/AchievementIcon";
 
 interface PageStats {
   totalSessions: number;
@@ -117,8 +118,8 @@ export default function AchievementsPage() {
         <section className="px-4 md:px-6 mt-6">
           <div className="max-w-[1100px] mx-auto">
             <div className="bg-primary-light rounded-2xl p-6 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/60 flex items-center justify-center">
-                <span className="text-3xl">🏆</span>
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/60 flex items-center justify-center text-primary">
+                <AchievementIcon name="trophy" size={32} />
               </div>
               <h3 className="text-lg font-bold text-text-primary mb-2">开始你的第一个成就</h3>
               <p className="text-sm text-text-secondary mb-4">

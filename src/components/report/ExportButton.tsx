@@ -181,7 +181,7 @@ export default function ExportButton({ targetId, disabled }: ExportButtonProps) 
           <polyline points="7 10 12 15 17 10" />
           <line x1="12" y1="15" x2="12" y2="3" />
         </svg>
-        {exporting ? "导出中..." : done ? "已导出 ✓" : "导出为图片"}
+        {exporting ? "导出中..." : done ? "已导出" : "导出为图片"}
       </button>
       {toastMsg && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-dark text-white rounded-lg px-4 py-2 shadow-lg">

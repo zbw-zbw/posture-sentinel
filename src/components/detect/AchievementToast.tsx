@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import AchievementIcon from "@/components/icons/AchievementIcon";
 
 interface AchievementToastProps {
   achievement: { id: string; name: string; description: string; icon: string } | null;
@@ -63,12 +64,14 @@ export default function AchievementToast({
             : "scale-95 opacity-0 translate-y-2"
         }`}
       >
-        {/* Large emoji icon */}
-        <div className="text-6xl mb-4 leading-none">{achievement.icon}</div>
+        {/* SVG icon in a circular badge */}
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-light flex items-center justify-center text-primary">
+          <AchievementIcon name={achievement.icon} size={36} />
+        </div>
 
         {/* Title */}
         <p className="text-sm font-medium text-primary-text mb-1">
-          🎉 解锁成就！
+          解锁成就！
         </p>
 
         {/* Achievement name */}
