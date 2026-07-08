@@ -105,8 +105,17 @@ function calculateNeckForwardScore(landmarks: NormalizedLandmark[], baseline?: {
 
   // If baseline exists, center the thresholds around the baseline ratio
   // Default thresholds are lenient to avoid false positives across camera setups
-  const goodRatio = baseline ? Math.max(0.20, baseline.neckForward - 0.10) : 0.35;
-  const badRatio = baseline ? Math.max(0.12, baseline.neckForward - 0.20) : 0.18;
+  // NOTE: baseline.neckForward from BaselineSampling stores neckForwardScore (0-100),
+  // but we need the verticalRatio (0-1). We normalize: if value > 1.0, it's a
+  // severity score and we map it back to an approximate ratio via scoreFromBadness inverse.
+  // A score of 0 (perfect) ≈ ratio 0.45, score of 100 (terrible) ≈ ratio 0.12
+  const baselineRatio = baseline
+    ? (baseline.neckForward > 1.0
+      ? Math.max(0.12, 0.45 - (baseline.neckForward / 100) * 0.33)  // map 0-100 → 0.45-0.12
+      : baseline.neckForward)
+    : null;
+  const goodRatio = baselineRatio !== null ? Math.max(0.20, baselineRatio - 0.10) : 0.35;
+  const badRatio = baselineRatio !== null ? Math.max(0.12, baselineRatio - 0.20) : 0.18;
 
   let verticalScore = 0;
   if (verticalRatio <= badRatio) {

@@ -52,22 +52,40 @@ function downsampleScoreHistory(history: { time: number; score: number }[]): { t
   return history.filter((_, i) => i % step === 0);
 }
 
-export function saveSession(record: SessionRecord): void {
+export function saveSession(record: SessionRecord): boolean {
   const sessions = getSessions();
   const recordToSave = {
     ...record,
     scoreHistory: downsampleScoreHistory(record.scoreHistory),
   };
   sessions.push(recordToSave);
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-  } catch {
-    // Storage full - remove oldest sessions
-    const trimmed = sessions.slice(-50);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+
+  // Try to save with progressive trimming if quota exceeded
+  let toSave = sessions;
+  const minSessions = 10; // keep at least the 10 most recent
+
+  while (toSave.length > minSessions) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+      sessionsCache = null;
+      return true;
+    } catch {
+      // Quota exceeded — trim older sessions and retry
+      toSave = toSave.slice(-Math.floor(toSave.length / 2));
+    }
   }
-  // Invalidate cache so subsequent reads pick up the new session
-  sessionsCache = null;
+
+  // Last resort: try saving just the minimum
+  try {
+    const minimal = sessions.slice(-minSessions);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(minimal));
+    sessionsCache = null;
+    return true;
+  } catch {
+    // Even minimal save failed — localStorage is truly full
+    sessionsCache = null;
+    return false;
+  }
 }
 
 export function cleanupOldSessions(days = 30): void {
@@ -283,18 +301,59 @@ export interface ExportData {
 
 export function exportAllData(): ExportData {
   const settingsRaw = localStorage.getItem(SETTINGS_KEY);
+  // Settings are user-written JSON; they may be corrupted. Parse defensively
+  // and fall back to null so export never crashes on a bad settings blob.
+  let settings: unknown = null;
+  if (settingsRaw) {
+    try {
+      settings = JSON.parse(settingsRaw);
+    } catch {
+      settings = null;
+    }
+  }
   return {
     version: 1,
     exportedAt: Date.now(),
     sessions: getSessions(),
-    settings: settingsRaw ? JSON.parse(settingsRaw) : null,
+    settings,
     baseline: getBaseline(),
     achievements: getUnlockedAchievements(),
     restSettings: getRestSettings(),
   };
 }
 
+// Validate the structure of imported data before writing it to localStorage.
+// Throws an Error with a descriptive message if the data is malformed so the
+// caller can surface it to the user instead of silently corrupting storage.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function validateImportData(data: any): void {
+  if (!data || typeof data !== "object") {
+    throw new Error("导入数据格式无效：缺少有效数据对象");
+  }
+  if (data.sessions !== undefined && data.sessions !== null) {
+    if (!Array.isArray(data.sessions)) {
+      throw new Error("导入数据格式无效：sessions 不是数组");
+    }
+    for (const s of data.sessions) {
+      if (!s || typeof s !== "object") {
+        throw new Error("导入数据格式无效：包含非对象的会话记录");
+      }
+      if (
+        typeof s.id !== "string" ||
+        typeof s.date !== "string" ||
+        typeof s.startTime !== "number"
+      ) {
+        throw new Error("导入数据格式无效：会话缺少必要字段 (id, date, startTime)");
+      }
+    }
+  }
+}
+
 export function importAllData(data: ExportData, mode: "overwrite" | "merge" = "overwrite"): { sessions: number; achievements: number } {
+  // Validate structure before touching localStorage so malformed imports
+  // are rejected cleanly instead of corrupting existing data.
+  validateImportData(data);
+
   // Invalidate cache so merge-mode reads fresh data, and so post-import
   // reads reflect the newly written storage (invalidated again below).
   sessionsCache = null;

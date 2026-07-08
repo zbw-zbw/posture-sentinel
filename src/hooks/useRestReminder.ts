@@ -45,12 +45,17 @@ export function useRestReminder(isDetecting: boolean, isPaused: boolean) {
     });
   }, []);
 
-  // Reset when detection stops
+  // Reset when detection stops — also clear snooze timer
   useEffect(() => {
     if (!isDetecting && phase !== "resting") {
       setPhase("idle");
       setElapsedSinceLastRest(0);
       setRestRemaining(0);
+      // Clear any pending snooze timer to prevent phase flicker
+      if (snoozeTimerRef.current) {
+        clearTimeout(snoozeTimerRef.current);
+        snoozeTimerRef.current = null;
+      }
     }
     if (isDetecting && phase === "idle") {
       setPhase("counting");
@@ -64,6 +69,9 @@ export function useRestReminder(isDetecting: boolean, isPaused: boolean) {
 
     // Pause counting when detection is paused (but not during resting)
     if (isPaused && phase === "counting") return;
+
+    // "triggered" phase: no interval needed, waiting for user action
+    if (phase === "triggered") return;
 
     intervalRef.current = setInterval(() => {
       if (phase === "counting") {
@@ -138,7 +146,5 @@ export function useRestReminder(isDetecting: boolean, isPaused: boolean) {
     snooze,
     skipRest,
     dismissSnooze,
-    /** True when the rest countdown just triggered (phase === resting and restRemaining === full duration) */
-    isRestJustTriggered: phase === "resting" && restRemaining === settings.restDurationMinutes * 60,
   };
 }

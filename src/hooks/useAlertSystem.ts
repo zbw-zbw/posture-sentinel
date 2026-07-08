@@ -16,7 +16,6 @@ export function useAlertSystem(alertMethod: "visual" | "sound" | "both", alertVo
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"warning" | "bad">("warning");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const alertCountRef = useRef<number>(0);
 
   const dismissAlert = useCallback(() => {
     setIsAlertVisible(false);
@@ -35,7 +34,6 @@ export function useAlertSystem(alertMethod: "visual" | "sound" | "both", alertVo
     setAlertMessage(message);
     setAlertType(type);
     setIsAlertVisible(true);
-    alertCountRef.current += 1;
 
     // Play sound if configured
     if (alertMethod === "sound" || alertMethod === "both") {

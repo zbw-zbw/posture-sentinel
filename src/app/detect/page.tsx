@@ -131,6 +131,11 @@ export default function DetectPage() {
     analyzer.start();
   }, [startCamera, startSession, analyzer]);
 
+  // Ref tracking whether detection was auto-paused by the pomodoro break phase.
+  // Declared here (above the handlers) so handleResume can reset it. See the
+  // pomodoro block further down for the auto-pause/auto-resume wiring.
+  const pomodoroAutoPausedRef = useRef(false);
+
   const handlePause = useCallback(() => {
     if (navigator.vibrate) navigator.vibrate(10);
     stopDetection();
@@ -142,6 +147,10 @@ export default function DetectPage() {
   const handleResume = useCallback(async () => {
     // Don't call startDetection here — the effect at line ~196 handles it
     // when detectState transitions to "detecting"
+    // Clear the pomodoro auto-paused flag so that a later phase change to
+    // "focusing" won't auto-resume detection against the user's intent (e.g.
+    // they manually resumed during a break and want to stay in control).
+    pomodoroAutoPausedRef.current = false;
     analyzer.resume();
     resumeSession();
     setDetectState("detecting");
@@ -151,8 +160,6 @@ export default function DetectPage() {
     if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
     // Capture current metrics from ref BEFORE stopping detection (which clears landmarks)
     const finalMetrics = { ...metricsRef.current };
-    // 使用 getElapsedTime 读取当前真实经过时间，而不是可能过期的 elapsedTime state
-    const currentElapsed = getElapsedTime();
 
     // 从 refs 获取最新统计数据（不依赖 React state）
     const stats = analyzer.finalize();
@@ -161,8 +168,11 @@ export default function DetectPage() {
     stopCamera();
     analyzer.pause();
 
-    // 使用 elapsedTime 作为最终 duration（更可靠）
-    const finalStats = { ...stats, totalDuration: currentElapsed };
+    // Use analyzer's totalDuration (actual detected time) for posture percentages,
+    // NOT wall-clock time — this ensures good+warning+bad percentages sum to ~100%.
+    // Wall-clock time is tracked separately via getElapsedTime() for display.
+    const totalDetected = stats.totalDuration > 0 ? stats.totalDuration : 1;
+    const finalStats = { ...stats, totalDuration: totalDetected };
 
     const summary = endSession({
       ...finalStats,
@@ -176,7 +186,11 @@ export default function DetectPage() {
     setSummaryDataLocal(summary);
 
     // Save session to localStorage
-    saveSession({
+    // NOTE: `date` uses the END time's date (getTodayDate). For sessions that
+    // span midnight this attributes the whole session to the end date rather
+    // than splitting it across two days. This is acceptable for most use
+    // cases; splitting would require a more complex session model.
+    const saved = saveSession({
       id: generateId(),
       date: getTodayDate(),
       startTime: Date.now() - summary.duration * 1000,
@@ -197,7 +211,7 @@ export default function DetectPage() {
     });
 
     // Dispatch event so report page (if open or navigated to) refreshes data
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && saved) {
       window.dispatchEvent(new CustomEvent("posture-sentinel:session-saved"));
     }
 
@@ -226,18 +240,46 @@ export default function DetectPage() {
     };
   }, [stopDetection, stopCamera]);
 
-  // Beforeunload warning when detecting
+  // Beforeunload: warn + auto-save session data to prevent total loss
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (detectState === "detecting" || detectState === "paused") {
+        // Auto-save partial session data before the tab closes
+        try {
+          const finalMetrics = { ...metricsRef.current };
+          const stats = analyzer.finalize();
+          const currentElapsed = getElapsedTime();
+          const totalDetected = stats.totalDuration > 0 ? stats.totalDuration : 1;
+          saveSession({
+            id: generateId(),
+            date: getTodayDate(),
+            startTime: Date.now() - currentElapsed * 1000,
+            endTime: Date.now(),
+            duration: totalDetected,
+            avgScore: stats.avgScore || 0,
+            goodPercent: Math.round((stats.goodDuration / totalDetected) * 100),
+            warningPercent: Math.round((stats.warningDuration / totalDetected) * 100),
+            badPercent: Math.round((stats.badDuration / totalDetected) * 100),
+            alertCount: stats.alertCount,
+            scoreHistory: stats.scoreHistory,
+            metrics: {
+              avgHeadTilt: finalMetrics.headTiltAngle,
+              avgShoulderTilt: finalMetrics.shoulderTiltAngle,
+              avgNeckForward: finalMetrics.neckForwardScore,
+              avgSpineTilt: finalMetrics.spineTiltAngle,
+            },
+          });
+        } catch {
+          // Best effort — if save fails, at least show the warning
+        }
         e.preventDefault();
-        e.returnValue = "检测正在进行中，确定要离开吗？当前会话数据将丢失。";
+        e.returnValue = "检测正在进行中，确定要离开吗？当前会话数据将自动保存。";
         return e.returnValue;
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [detectState]);
+  }, [detectState, analyzer, getElapsedTime]);
 
   // Request notification permission on first start
   useEffect(() => {
@@ -271,7 +313,7 @@ export default function DetectPage() {
 
   // Pomodoro focus timer — linked with detection:
   // break phase auto-pauses detection, focus phase auto-resumes
-  const pomodoroAutoPausedRef = useRef(false);
+  // (pomodoroAutoPausedRef is declared above, near the detection handlers)
   const pomodoro = usePomodoro({
     focusMinutes: 25,
     breakMinutes: 5,

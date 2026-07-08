@@ -51,7 +51,7 @@ export function usePomodoro({
       completedFocus: prev.completedFocus,
       isRunning: newPhase === "focusing" || newPhase === "break",
     }));
-    onPhaseChangeRef.current?.(newPhase);
+    // onPhaseChange is handled centrally by the phase-change effect below
   }, []);
 
   const transitionTo = useCallback((newPhase: PomodoroPhase) => {
@@ -62,8 +62,10 @@ export function usePomodoro({
       idle: focusMinutes * 60,
     };
     setState(prev => {
-      const completedFocus = newPhase === "idle" && (prev.phase === "focusing" || prev.phase === "paused")
-        ? prev.completedFocus + (pausedFromPhaseRef.current === "focusing" ? 0 : 0)
+      // Only count a completed focus when stopping (→ idle) while currently focusing.
+      // (The focusing→break completion is handled in the tick.)
+      const completedFocus = newPhase === "idle" && (prev.phase === "focusing")
+        ? prev.completedFocus + 1
         : prev.completedFocus;
       return {
         phase: newPhase,
@@ -72,7 +74,7 @@ export function usePomodoro({
         isRunning: newPhase === "focusing" || newPhase === "break",
       };
     });
-    onPhaseChangeRef.current?.(newPhase);
+    // onPhaseChange is handled centrally by the phase-change effect below
   }, [focusMinutes, breakMinutes]);
 
   // Tick
@@ -82,11 +84,14 @@ export function usePomodoro({
     timerRef.current = setInterval(() => {
       setState(prev => {
         if (prev.remaining <= 1) {
-          // Phase complete — auto-transition
+          // Phase complete — auto-transition.
+          // NOTE: Do not perform side effects here (no ref mutations, no
+          // onPhaseChange calls). React StrictMode double-invokes state
+          // updaters, which would cause duplicate sound playback and
+          // duplicate pause/resume calls. Side effects are handled by the
+          // dedicated effect below that watches state.phase.
           const nextPhase = prev.phase === "focusing" ? "break" : "focusing";
           const nextDuration = nextPhase === "focusing" ? focusMinutes * 60 : breakMinutes * 60;
-          phaseRef.current = nextPhase;
-          onPhaseChangeRef.current?.(nextPhase);
           return {
             ...prev,
             phase: nextPhase,
@@ -100,6 +105,21 @@ export function usePomodoro({
 
     return clearTimer;
   }, [state.isRunning, focusMinutes, breakMinutes, clearTimer]);
+
+  // Trigger onPhaseChange side effect when phase changes (outside the setState
+  // updater to avoid duplicate calls under React StrictMode double-invocation).
+  const prevPhaseRef = useRef(state.phase);
+  useEffect(() => {
+    if (prevPhaseRef.current !== state.phase) {
+      prevPhaseRef.current = state.phase;
+      // Keep phaseRef in sync with the committed phase
+      phaseRef.current = state.phase;
+      // Only trigger callback for focus/break transitions (not idle/paused)
+      if (state.phase === "focusing" || state.phase === "break") {
+        onPhaseChangeRef.current?.(state.phase);
+      }
+    }
+  }, [state.phase]);
 
   const start = useCallback(() => transitionTo("focusing"), [transitionTo]);
 
@@ -124,7 +144,7 @@ export function usePomodoro({
     clearTimer();
     setState({ phase: "idle", remaining: focusMinutes * 60, completedFocus: 0, isRunning: false });
     phaseRef.current = "idle";
-    onPhaseChangeRef.current?.("idle");
+    // onPhaseChange is handled centrally by the phase-change effect below
   }, [clearTimer, focusMinutes]);
 
   useEffect(() => () => clearTimer(), [clearTimer]);

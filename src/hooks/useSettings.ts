@@ -69,6 +69,7 @@ function migrateSettings(saved: any): Settings {
       alertMethod: saved?.alertMethod ?? DEFAULT_SETTINGS.alertMethod,
       alertVolume: saved?.alertVolume ?? DEFAULT_SETTINGS.alertVolume,
       alertCooldown: saved?.alertCooldown ?? DEFAULT_SETTINGS.alertCooldown,
+      dailyGoalMinutes: saved?.dailyGoalMinutes ?? DEFAULT_SETTINGS.dailyGoalMinutes,
     };
   }
   return { ...DEFAULT_SETTINGS, ...saved };

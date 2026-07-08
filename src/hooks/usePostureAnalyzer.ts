@@ -69,6 +69,13 @@ export function usePostureAnalyzer(settings: Settings) {
   const metricsRef = useRef<PostureMetrics | null>(null);
   const scoreHistoryRef = useRef<{ time: number; score: number }[]>([]);
 
+  // Keep a ref to the latest settings so the 1s interval can read current
+  // values without depending on the `settings` object itself. Depending on
+  // `settings` would tear down and rebuild the interval on every settings
+  // change (e.g. a debounce tweak mid-session), interrupting duration tracking.
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
   // 1-second tick for duration tracking
   useEffect(() => {
     if (!isRunning) return;
@@ -89,9 +96,10 @@ export function usePostureAnalyzer(settings: Settings) {
           const dur = pendingDurationRef.current;
 
           // Check debounce thresholds
-          const threshold = pending === "good" ? settings.statusDebounce.good
-            : pending === "warning" ? settings.statusDebounce.warning
-            : settings.statusDebounce.bad;
+          const debounce = settingsRef.current.statusDebounce;
+          const threshold = pending === "good" ? debounce.good
+            : pending === "warning" ? debounce.warning
+            : debounce.bad;
 
           if (dur >= threshold) {
             currentStatusRef.current = pending;
@@ -119,7 +127,13 @@ export function usePostureAnalyzer(settings: Settings) {
           const intervalAvgScore = scoreCountRef.current > 0
             ? Math.round(scoreAccumRef.current / scoreCountRef.current)
             : 0;
-          const newHistory = [...scoreHistoryRef.current, { time: now, score: intervalAvgScore }];
+          // Cap in-memory history at 200 entries to avoid unbounded growth
+          // over long sessions; downsample by keeping every `step`-th entry.
+          let newHistory = [...scoreHistoryRef.current, { time: now, score: intervalAvgScore }];
+          if (newHistory.length > 200) {
+            const step = Math.ceil(newHistory.length / 200);
+            newHistory = newHistory.filter((_, i) => i % step === 0);
+          }
           scoreHistoryRef.current = newHistory;
           setSessionStats(prev => ({ ...prev, scoreHistory: newHistory }));
         }
@@ -135,8 +149,8 @@ export function usePostureAnalyzer(settings: Settings) {
         if (status === "bad" && badPostureStartRef.current !== null) {
           const badDuration = Math.floor((now - badPostureStartRef.current) / 1000);
           if (
-            badDuration >= settings.badPostureThreshold &&
-            now - lastAlertTimeRef.current >= settings.alertCooldown * 1000
+            badDuration >= settingsRef.current.badPostureThreshold &&
+            now - lastAlertTimeRef.current >= settingsRef.current.alertCooldown * 1000
           ) {
             shouldAlert = true;
             lastAlertTimeRef.current = now;
@@ -187,7 +201,7 @@ export function usePostureAnalyzer(settings: Settings) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isRunning, settings]);
+  }, [isRunning]);
 
   const updateMetrics = useCallback((metrics: PostureMetrics) => {
     metricsRef.current = metrics;
