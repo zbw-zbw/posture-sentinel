@@ -112,11 +112,21 @@ export default function HeroSection() {
               </Link>
             </div>
 
+            {/* Privacy promise — front and center because users care deeply */}
+            <div className="flex items-center justify-center lg:justify-start gap-2 mt-5 bg-primary-light/60 border border-primary/20 rounded-full px-4 py-2 w-fit mx-auto lg:mx-0">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span className="text-xs font-medium text-primary-text">隐私优先：摄像头画面仅本地处理，不上传、不录制、不存储</span>
+            </div>
+
             {/* Keywords Row */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-2 mt-6">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-2 mt-4">
               <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">零成本</span>
               <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">零穿戴</span>
               <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">零门槛</span>
+              <span className="border border-primary/30 text-primary-text rounded-full px-4 py-2 text-sm">本地处理</span>
             </div>
           </div>
 
