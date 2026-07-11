@@ -493,9 +493,10 @@ export default function DetectPage() {
           </div>
 
           {/* Metrics panel — aligned with camera area only */}
-          <div className="lg:col-span-2">
-            <div className="bg-surface rounded-2xl p-5 md:p-6 h-full border border-border">
+          <div className="lg:col-span-2 lg:aspect-[8/9] overflow-hidden">
+            <div className="bg-surface rounded-2xl p-5 md:p-6 h-full border border-border overflow-hidden">
               <MetricsPanel
+                className="h-full overflow-y-auto"
                 metrics={metrics}
                 fps={fps}
                 sessionDuration={sessionState === "idle" ? 0 : elapsedTime}

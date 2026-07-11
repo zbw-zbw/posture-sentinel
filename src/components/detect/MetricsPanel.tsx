@@ -13,6 +13,7 @@ interface MetricsPanelProps {
   currentStatus?: PostureStatus;
   alertCount?: number;
   scoreGauge?: ReactNode;
+  className?: string;
 }
 
 function formatDuration(seconds: number): string {
@@ -100,6 +101,7 @@ function MetricsPanelImpl({
   currentStatus = "good",
   alertCount = 0,
   scoreGauge,
+  className = "",
 }: MetricsPanelProps) {
   const config = statusConfig[currentStatus];
   const isUnknown = isDetecting && !metrics.isDetected;
@@ -159,7 +161,7 @@ function MetricsPanelImpl({
 
   if (!isDetecting) {
     return (
-      <div className="bg-surface-alt rounded-2xl p-8 text-center h-full flex flex-col justify-center">
+      <div className={`bg-surface-alt rounded-2xl p-8 text-center h-full flex flex-col justify-center ${className}`}>
         <svg viewBox="0 0 24 24" className="w-10 h-10 text-text-muted mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
           <line x1="3" y1="9" x2="21" y2="9"/>
@@ -171,7 +173,7 @@ function MetricsPanelImpl({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col gap-4 ${className}`}>
       {/* Real-time posture score gauge (moved to top) */}
       {scoreGauge && (
         <div className="flex justify-center">
