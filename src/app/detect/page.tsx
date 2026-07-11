@@ -383,17 +383,34 @@ export default function DetectPage() {
 
   // Start camera for baseline sampling
   const handleStartBaselineSampling = useCallback(async () => {
-    await startCamera();
+    // 已经在正式检测/暂停中：摄像头和检测均已就绪，直接打开采样弹窗
+    if (detectState !== "idle") {
+      setShowBaselineSampling(true);
+      return;
+    }
+    // 空闲状态：先启动摄像头，再打开采样弹窗
+    const success = await startCamera();
+    if (!success) return;
     setShowBaselineSampling(true);
-  }, [startCamera]);
+  }, [startCamera, detectState]);
 
-  // Close baseline sampling and stop camera if not detecting
+  // During baseline sampling in idle state, auto-start pose detection so that
+  // real-time metrics are available for capture. When detection is already
+  // running this effect is a no-op.
+  useEffect(() => {
+    if (showBaselineSampling && isActive && videoRef.current && !isDetecting && detectState === "idle") {
+      startDetection(videoRef.current);
+    }
+  }, [showBaselineSampling, isActive, isDetecting, detectState, startDetection, videoRef]);
+
+  // Close baseline sampling and stop camera/detection if not in an active session
   const handleCloseBaselineSampling = useCallback(() => {
     setShowBaselineSampling(false);
     if (detectState === "idle") {
+      stopDetection();
       stopCamera();
     }
-  }, [detectState, stopCamera]);
+  }, [detectState, stopCamera, stopDetection]);
 
   return (
     <ErrorBoundary>
@@ -457,7 +474,7 @@ export default function DetectPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-stretch">
           {/* Camera area + controls (mobile: controls right below camera) */}
           <div className="lg:col-span-3">
             <CameraView
@@ -651,7 +668,7 @@ export default function DetectPage() {
           neckForwardScore: metrics.neckForwardScore,
           spineTiltAngle: metrics.spineTiltAngle,
         } : null}
-        isActive={isDetecting}
+        isActive={isActive}
         onCapture={handleBaselineCapture}
         onCancel={handleCloseBaselineSampling}
       />

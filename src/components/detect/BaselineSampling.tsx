@@ -12,7 +12,7 @@ interface PostureMetrics {
 interface BaselineSamplingProps {
   /** Real-time posture metrics from the parent */
   metrics: PostureMetrics | null;
-  /** Whether pose detection is active (landmarks being detected) */
+  /** Whether the camera stream is active and ready */
   isActive: boolean;
   /** Callback when baseline is successfully captured */
   onCapture: (data: { headTilt: number; shoulderTilt: number; neckForward: number; spineTilt: number }) => void;

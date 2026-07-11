@@ -159,7 +159,7 @@ function MetricsPanelImpl({
 
   if (!isDetecting) {
     return (
-      <div className="bg-surface-alt rounded-2xl p-8 text-center">
+      <div className="bg-surface-alt rounded-2xl p-8 text-center h-full flex flex-col justify-center">
         <svg viewBox="0 0 24 24" className="w-10 h-10 text-text-muted mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
           <line x1="3" y1="9" x2="21" y2="9"/>
