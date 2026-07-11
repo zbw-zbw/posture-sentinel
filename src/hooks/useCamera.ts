@@ -49,6 +49,14 @@ export function useCamera(): UseCameraReturn {
       setIsActive(true);
       return true;
     } catch (err) {
+      // Clean up any partially-acquired stream (e.g. play() threw after getUserMedia succeeded)
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
       const e = err as Error;
       if (e.name === "NotAllowedError" || e.name === "PermissionDeniedError") {
         setError("摄像头权限被拒绝。请在浏览器地址栏点击锁图标，允许摄像头访问。");

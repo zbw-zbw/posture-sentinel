@@ -105,8 +105,27 @@ export default function DetectPage() {
   };
 
   // Feed metrics to analyzer - skip during rest periods to avoid recording
-  // "bad posture" while the user is away from the desk stretching
+  // "bad posture" while the user is away from the desk stretching.
+  // Also pause/resume the analyzer so its internal timer doesn't keep
+  // accumulating duration against stale (frozen) metrics.
+  const prevRestPhaseRef = useRef(restReminder.phase);
   useEffect(() => {
+    const prevPhase = prevRestPhaseRef.current;
+    prevRestPhaseRef.current = restReminder.phase;
+
+    // Entering rest or triggered: pause analyzer to freeze duration counting
+    if ((restReminder.phase === "resting" || restReminder.phase === "triggered") &&
+        prevPhase !== "resting" && prevPhase !== "triggered" &&
+        detectState === "detecting") {
+      analyzer.pause();
+    }
+    // Exiting rest back to counting: resume analyzer
+    if (restReminder.phase === "counting" &&
+        (prevPhase === "resting" || prevPhase === "triggered") &&
+        detectState === "detecting") {
+      analyzer.resume();
+    }
+
     if (detectState === "detecting" && restReminder.phase !== "resting" && restReminder.phase !== "triggered") {
       analyzer.updateMetrics(metrics);
     }
@@ -121,15 +140,21 @@ export default function DetectPage() {
   }, [analyzer.shouldAlert, analyzer.alertMessage, showAlert]);
 
   const handleStart = useCallback(async () => {
+    // Reentrance guard: prevent double-start from rapid Space key or voice+click
+    if (detectState !== "idle") return;
     initAudio();
     if (navigator.vibrate) navigator.vibrate(15);
     setShowCompletionBanner(false);
-    const success = await startCamera();
-    if (!success) return; // Camera failed, error displayed by CameraView
+    // Optimistically set state to "detecting" to block concurrent starts during await
     setDetectState("detecting");
+    const success = await startCamera();
+    if (!success) {
+      setDetectState("idle"); // Camera failed, revert to idle
+      return;
+    }
     startSession();
     analyzer.start();
-  }, [startCamera, startSession, analyzer]);
+  }, [startCamera, startSession, analyzer, detectState]);
 
   // Ref tracking whether detection was auto-paused by the pomodoro break phase.
   // Declared here (above the handlers) so handleResume can reset it. See the
@@ -157,6 +182,8 @@ export default function DetectPage() {
   }, [analyzer, resumeSession]);
 
   const handleStop = useCallback(() => {
+    // Idempotency guard: prevent double-stop from rapid clicks or voice+click
+    if (detectState === "idle") return;
     if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
     // Capture current metrics from ref BEFORE stopping detection (which clears landmarks)
     const finalMetrics = { ...metricsRef.current };
@@ -190,10 +217,13 @@ export default function DetectPage() {
     // span midnight this attributes the whole session to the end date rather
     // than splitting it across two days. This is acceptable for most use
     // cases; splitting would require a more complex session model.
+    // startTime uses wall-clock elapsed time (includes pauses) for accurate
+    // time range display in reports, while duration uses detected time only.
+    const wallClockElapsed = getElapsedTime();
     const saved = saveSession({
       id: generateId(),
       date: getTodayDate(),
-      startTime: Date.now() - summary.duration * 1000,
+      startTime: Date.now() - wallClockElapsed * 1000,
       endTime: Date.now(),
       duration: summary.duration,
       avgScore: summary.avgScore,
@@ -452,6 +482,7 @@ export default function DetectPage() {
                 onResume={handleResume}
                 onStop={handleStop}
                 isLoading={isLoading}
+                shortcutsDisabled={showSummary || showWizard || showBaselineSampling || helpOpen}
                 onToggleHelp={() => setHelpOpen((v) => !v)}
                 onTogglePomodoro={() => {
                   if (pomodoro.phase === "idle") pomodoro.start();

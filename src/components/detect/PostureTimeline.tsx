@@ -46,13 +46,16 @@ function PostureTimelineImpl({ scoreHistory, duration }: PostureTimelineProps) {
     );
   }
 
+  // 5s padding (less aggressive than 30s) so short sessions don't get
+  // misleading time labels that extend far beyond the actual data span.
+  const PADDING = 5000;
   // Compute proportions based on actual time spans
   const segments = scoreHistory.map((entry, i) => {
     const next = i < scoreHistory.length - 1 ? scoreHistory[i + 1] : null;
-    const startTime = i === 0 ? entry.time - 30000 : entry.time;
-    const endTime = next ? next.time : entry.time + 30000;
+    const startTime = i === 0 ? entry.time - PADDING : entry.time;
+    const endTime = next ? next.time : entry.time + PADDING;
     const span = endTime - startTime;
-    const totalSpan = scoreHistory[scoreHistory.length - 1].time - (scoreHistory[0].time - 30000) + 30000;
+    const totalSpan = scoreHistory[scoreHistory.length - 1].time - (scoreHistory[0].time - PADDING) + PADDING;
     return { ...entry, width: totalSpan > 0 ? (span / totalSpan) * 100 : 100 / scoreHistory.length };
   });
 
@@ -90,8 +93,8 @@ function PostureTimelineImpl({ scoreHistory, duration }: PostureTimelineProps) {
         </div>
       </div>
       <div className="flex justify-between mt-1 text-xs text-text-muted">
-        <span>{formatTime(segments[0].time - 30000)}</span>
-        <span>{formatTime(segments[segments.length - 1].time + 30000)}</span>
+        <span>{formatTime(segments[0].time - PADDING)}</span>
+        <span>{formatTime(segments[segments.length - 1].time + PADDING)}</span>
       </div>
       {/* Color legend */}
       <div className="flex items-center justify-center gap-4 mt-2">

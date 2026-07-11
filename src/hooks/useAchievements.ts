@@ -30,6 +30,13 @@ export function useAchievements(goalMinutes: number) {
     setUnlocked(getUnlockedAchievements());
   }, []);
 
+  // Clean up the debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (checkTimerRef.current) clearTimeout(checkTimerRef.current);
+    };
+  }, []);
+
   const checkAndUnlock = useCallback(() => {
     // Debounce to avoid rapid repeated checks
     if (checkTimerRef.current) clearTimeout(checkTimerRef.current);

@@ -147,6 +147,7 @@ export function useVoiceCommands({
 
     recognition.onstart = () => setState(s => ({ ...s, isListening: true }));
     recognition.onend = () => {
+      if (!recognitionRef.current) return;  // Component unmounted, don't setState
       // Auto-restart if still enabled
       setState(s => ({ ...s, isListening: false }));
       if (recognitionRef.current) {
@@ -164,8 +165,8 @@ export function useVoiceCommands({
     try { recognition.start(); } catch {}
 
     return () => {
+      recognitionRef.current = null;    // Set null first to prevent onend restart
       try { recognition.abort(); } catch {}
-      recognitionRef.current = null;
     };
   }, [enabled]);
 

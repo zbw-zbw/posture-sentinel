@@ -123,7 +123,7 @@ export function useDetectSession(): UseDetectSessionReturn {
       avgScore,
       goodPercent: Math.round((stats.goodDuration / total) * 100),
       warningPercent: Math.round((stats.warningDuration / total) * 100),
-      badPercent: Math.round((stats.badDuration / total) * 100),
+      badPercent: 100 - Math.round((stats.goodDuration / total) * 100) - Math.round((stats.warningDuration / total) * 100),
       alertCount: stats.alertCount,
       scoreHistory: stats.scoreHistory.length > 0 ? stats.scoreHistory : [
         { time: Date.now(), score: avgScore },

@@ -64,12 +64,13 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
     );
   }
 
-  const color = getScoreColor(displayScore);
+  const safeScore = Number.isFinite(displayScore) ? Math.max(0, Math.min(100, Math.round(displayScore))) : 0;
+  const color = getScoreColor(safeScore);
   const size = 120;
   const strokeWidth = 10;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const progress = (displayScore / 100) * circumference;
+  const progress = (safeScore / 100) * circumference;
   const dashOffset = circumference - progress;
 
   return (
@@ -111,7 +112,7 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-3xl font-bold tabular-nums" style={{ color }}>
-            {isDetected ? displayScore : "--"}
+            {isDetected ? safeScore : "--"}
           </span>
           <span className="text-[10px] text-text-muted -mt-0.5">/100</span>
         </div>
@@ -122,7 +123,7 @@ function PostureGaugeImpl({ score, isDetecting, isDetected }: PostureGaugeProps)
           style={{ backgroundColor: isDetected ? color : "#9ca3af" }}
         />
         <p className="text-xs font-medium" style={{ color: isDetected ? color : undefined }}>
-          {isDetected ? getScoreLabel(displayScore) : "未检测到人体"}
+          {isDetected ? getScoreLabel(safeScore) : "未检测到人体"}
         </p>
       </div>
     </div>

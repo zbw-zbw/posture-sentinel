@@ -3,19 +3,21 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { getSessions, getUnlockedAchievements } from "@/lib/storage";
+import { getTodayDate } from "@/lib/storage";
 import { ACHIEVEMENTS } from "@/lib/achievements";
 import HeroDemo from "@/components/HeroDemo";
 
 export default function HeroSection() {
   const [counts, setCounts] = useState({ a: 0, b: 0, c: 0 });
   const countedRef = useRef(false);
+  const rafRef = useRef(0);
   const [todayProgress, setTodayProgress] = useState<{ minutes: number; sessions: number } | null | undefined>(undefined);
   const [achievementCount, setAchievementCount] = useState(0);
 
   useEffect(() => {
     try {
       const sessions = getSessions();
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayDate(); // Local date, consistent with session storage
       const todaySessions = sessions.filter(s => s.date === today);
       const todayMinutes = Math.round(todaySessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
       if (todayMinutes > 0) {
@@ -49,9 +51,9 @@ export default function HeroSection() {
                 b: Math.round(ease * targets.b),
                 c: Math.round(ease * targets.c),
               });
-              if (p < 1) requestAnimationFrame(tick);
+              if (p < 1) rafRef.current = requestAnimationFrame(tick);
             };
-            requestAnimationFrame(tick);
+            rafRef.current = requestAnimationFrame(tick);
           }
         });
       },
@@ -59,7 +61,10 @@ export default function HeroSection() {
     );
     const el = document.getElementById("hero-stats");
     if (el) observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
   return (
     <section className="relative overflow-hidden py-20 md:py-24 px-4 md:px-6 bg-gradient-to-b from-primary-light/20 to-transparent">

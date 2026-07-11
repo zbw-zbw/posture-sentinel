@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface AlertNotificationProps {
   isVisible: boolean;
@@ -23,10 +23,12 @@ export default function AlertNotification({
 }: AlertNotificationProps) {
   const [visible, setVisible] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
+  const dismissingRef = useRef(false);
 
   // Sync visibility state with isVisible prop
   useEffect(() => {
     if (isVisible) {
+      dismissingRef.current = false;
       setVisible(true);
       setProgressKey(k => k + 1); // restart CSS progress animation
     }
@@ -34,15 +36,18 @@ export default function AlertNotification({
 
   // Handle dismiss with exit animation
   const handleDismiss = useCallback(() => {
+    if (dismissingRef.current) return; // Already dismissing
+    dismissingRef.current = true;
     setVisible(false);
-    const t = setTimeout(() => onDismiss(), 300);
-    return () => clearTimeout(t);
+    setTimeout(() => onDismiss(), 300);
   }, [onDismiss]);
 
   // Auto-dismiss via single timer (no per-100ms re-renders)
   useEffect(() => {
     if (!isVisible) return;
     const timer = setTimeout(() => {
+      if (dismissingRef.current) return;
+      dismissingRef.current = true;
       setVisible(false);
       setTimeout(() => onDismiss(), 300);
     }, AUTO_DISMISS_MS);

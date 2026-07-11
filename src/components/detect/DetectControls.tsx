@@ -12,6 +12,8 @@ interface DetectControlsProps {
   onToggleFullscreen?: () => void;
   onToggleHelp?: () => void;
   onTogglePomodoro?: () => void;
+  /** When true, keyboard shortcuts are disabled (modal/overlay is open) */
+  shortcutsDisabled?: boolean;
 }
 
 export default function DetectControls({
@@ -24,6 +26,7 @@ export default function DetectControls({
   onToggleFullscreen,
   onToggleHelp,
   onTogglePomodoro,
+  shortcutsDisabled = false,
 }: DetectControlsProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Esc double-press confirmation: first Esc shows a toast, second Esc within
@@ -40,6 +43,8 @@ export default function DetectControls({
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Disable all shortcuts when a modal/overlay is open
+      if (shortcutsDisabled) return;
       if (e.code === "Space") {
         e.preventDefault();
         if (state === "idle") {
@@ -98,7 +103,7 @@ export default function DetectControls({
         escConfirmTimerRef.current = null;
       }
     };
-  }, [state, isLoading, onStart, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp, onTogglePomodoro]);
+  }, [state, isLoading, onStart, onPause, onResume, onStop, onToggleFullscreen, onToggleHelp, onTogglePomodoro, shortcutsDisabled]);
 
   const handleFullscreen = useCallback(() => {
     if (!onToggleFullscreen) {
@@ -229,7 +234,7 @@ export default function DetectControls({
     </div>
     {/* Esc double-press confirmation toast */}
     {showEscConfirm && (
-      <div className="fixed bottom-5 left-0 right-0 z-[100] flex justify-center pointer-events-none px-4">
+      <div className="fixed bottom-5 left-0 right-0 z-[110] flex justify-center pointer-events-none px-4">
         <div className="bg-dark/90 text-white text-sm px-4 py-2 rounded-lg backdrop-blur-sm shadow-lg animate-fade-in">
           再按一次 Esc 确认结束
         </div>

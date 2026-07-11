@@ -42,7 +42,11 @@ export function useCountUp({
         }
       }, { threshold: 0.3 });
       io.observe(el);
-      return () => io.disconnect();
+      // IMPORTANT: also cancel rAF on cleanup, not just IO
+      return () => {
+        io.disconnect();
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
     }
 
     runAnimation();
