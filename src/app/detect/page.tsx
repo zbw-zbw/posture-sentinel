@@ -475,7 +475,7 @@ export default function DetectPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 items-stretch">
-          {/* Camera area + controls (mobile: controls right below camera) */}
+          {/* Camera area — right panel is aligned to this area only */}
           <div className="lg:col-span-3">
             <CameraView
               videoRef={videoRef}
@@ -490,56 +490,9 @@ export default function DetectPage() {
               error={error}
               headTiltAngle={metrics.headTiltAngle}
             />
-            {/* Controls — placed right below camera on all screen sizes */}
-            <div className="mt-4">
-              <DetectControls
-                state={controlState}
-                onStart={handleStart}
-                onPause={handlePause}
-                onResume={handleResume}
-                onStop={handleStop}
-                isLoading={isLoading}
-                shortcutsDisabled={showSummary || showWizard || showBaselineSampling || helpOpen}
-                onToggleHelp={() => setHelpOpen((v) => !v)}
-                onTogglePomodoro={() => {
-                  if (pomodoro.phase === "idle") pomodoro.start();
-                  else if (pomodoro.isRunning) pomodoro.pause();
-                  else if (pomodoro.phase === "paused") pomodoro.resume();
-                }}
-              />
-              <p className="text-center text-xs text-text-muted mt-3">
-                提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒
-                {restReminder.settings.enabled && ` · 每 ${restReminder.settings.intervalMinutes} 分钟提醒休息`}
-              </p>
-              {/* Baseline calibration - promoted to visible secondary action */}
-              <div className="flex justify-center mt-3">
-                <button
-                  onClick={handleStartBaselineSampling}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
-                    hasBaseline
-                      ? "border-primary/30 bg-primary-light text-primary-text"
-                      : "border-dashed border-primary/40 bg-primary-light/50 text-primary-text hover:bg-primary-light"
-                  }`}
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  {hasBaseline ? "已校准 · 重新校准" : "校准个人姿态基线"}
-                  {hasBaseline && (
-                    <span className="inline-flex items-center gap-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
-                      <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      已启用
-                    </span>
-                  )}
-                </button>
-              </div>
-            </div>
           </div>
 
-          {/* Metrics panel */}
+          {/* Metrics panel — aligned with camera area only */}
           <div className="lg:col-span-2">
             <div className="bg-surface rounded-2xl p-5 md:p-6 h-full border border-border">
               <MetricsPanel
@@ -558,6 +511,56 @@ export default function DetectPage() {
                   />
                 }
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Controls + hints + calibration — below camera area, not aligned with metrics panel */}
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6">
+          <div className="lg:col-span-3">
+            <DetectControls
+              state={controlState}
+              onStart={handleStart}
+              onPause={handlePause}
+              onResume={handleResume}
+              onStop={handleStop}
+              isLoading={isLoading}
+              shortcutsDisabled={showSummary || showWizard || showBaselineSampling || helpOpen}
+              onToggleHelp={() => setHelpOpen((v) => !v)}
+              onTogglePomodoro={() => {
+                if (pomodoro.phase === "idle") pomodoro.start();
+                else if (pomodoro.isRunning) pomodoro.pause();
+                else if (pomodoro.phase === "paused") pomodoro.resume();
+              }}
+            />
+            <p className="text-center text-xs text-text-muted mt-3">
+              提示：坐姿持续不良超过 {settings.badPostureThreshold} 秒后会自动触发提醒
+              {restReminder.settings.enabled && ` · 每 ${restReminder.settings.intervalMinutes} 分钟提醒休息`}
+            </p>
+            {/* Baseline calibration - promoted to visible secondary action */}
+            <div className="flex justify-center mt-3">
+              <button
+                onClick={handleStartBaselineSampling}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+                  hasBaseline
+                    ? "border-primary/30 bg-primary-light text-primary-text"
+                    : "border-dashed border-primary/40 bg-primary-light/50 text-primary-text hover:bg-primary-light"
+                }`}
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                {hasBaseline ? "已校准 · 重新校准" : "校准个人姿态基线"}
+                {hasBaseline && (
+                  <span className="inline-flex items-center gap-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
+                    <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    已启用
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </div>

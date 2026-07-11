@@ -27,6 +27,7 @@ export function useCamera(): UseCameraReturn {
       videoRef.current.srcObject = null;
     }
     setIsActive(false);
+    setIsLoading(false);
     setError(null);
   }, []);
 
