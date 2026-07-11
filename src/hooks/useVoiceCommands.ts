@@ -62,17 +62,26 @@ interface VoiceCommandState {
 }
 
 const COMMANDS: Record<string, string[]> = {
-  start: ["开始", "开始检测", "检测", "启动"],
-  pause: ["暂停", "等一下", "停"],
-  resume: ["继续", "恢复", "接着"],
-  stop: ["结束", "停止", "退出", "关闭"],
+  start: ["开始", "开始检测", "检测", "启动", "start", "go"],
+  pause: ["暂停", "等一下", "停", "pause"],
+  resume: ["继续", "恢复", "接着", "resume", "continue"],
+  stop: ["结束", "停止", "退出", "关闭", "end", "finish"],
 };
 
+function normalizeText(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    // Remove common punctuation and whitespace so "开始。" / "开始检测！" still match
+    .replace(/[\p{P}\s]/gu, "");
+}
+
 function matchCommand(transcript: string): string | null {
-  const text = transcript.trim().toLowerCase();
+  const text = normalizeText(transcript);
+  if (!text) return null;
   for (const [cmd, keywords] of Object.entries(COMMANDS)) {
     for (const kw of keywords) {
-      if (text.includes(kw)) return cmd;
+      if (text.includes(normalizeText(kw))) return cmd;
     }
   }
   return null;
@@ -106,10 +115,12 @@ export function useVoiceCommands({
   // Manage recognition lifecycle
   useEffect(() => {
     if (!enabled || typeof window === "undefined") {
+      // Always reflect that listening is off when disabled, even if the
+      // recognition instance was already nulled by the cleanup path.
+      setState(s => ({ ...s, isListening: false }));
       if (recognitionRef.current) {
         try { recognitionRef.current.abort(); } catch {}
         recognitionRef.current = null;
-        setState(s => ({ ...s, isListening: false }));
       }
       return;
     }
